@@ -1,7 +1,19 @@
 language: android
 dist: trusty
 
+env:
+  global:
+    - ANDROID_BUILD_TOOLS=29.0.0
+    - ANDROID_API_LEVEL=29
+    - EMULATOR_API_LEVEL=24
+
 android:
+  components:
+    - tools
+    - platform-tools
+    - build-tools-$ANDROID_BUILD_TOOLS
+    - android-$ANDROID_API_LEVEL
+    - android-$EMULATOR_API_LEVEL
   licenses:
         - 'android-sdk-preview-license-.+'
         - 'android-sdk-license-.+'
