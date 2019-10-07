@@ -1,4 +1,4 @@
-package com.example.android_auth_lib;
+package com.blue_unicorn.android_auth_lib;
 
 import android.content.Context;
 
