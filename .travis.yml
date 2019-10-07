@@ -18,3 +18,15 @@ android:
         - 'android-sdk-preview-license-.+'
         - 'android-sdk-license-.+'
         - 'google-gdk-license-.+'
+
+before_script:
+  - echo no | android create avd --force -n test -t android-$EMULATOR_API_LEVEL --abi armeabi-v7a
+  - emulator -avd test -no-window &
+  - android-wait-for-emulator
+  - adb shell input keyevent 82 &
+  - adb devices
+  - android list target
+
+script:
+  - ./gradlew test -PdisablePreDex --stacktrace
+  - ./gradlew connectedDebugAndroidTest -PdisablePreDex --stacktrace
