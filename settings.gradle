@@ -1,2 +1,2 @@
-include ':app', ':android-auth-lib'
+include ':app', ':lib'
 rootProject.name='android-auth'
