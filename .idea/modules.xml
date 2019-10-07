@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/android-auth.iml" filepath="$PROJECT_DIR$/android-auth.iml" />
-      <module fileurl="file://$PROJECT_DIR$/android-auth-lib/android-auth-lib.iml" filepath="$PROJECT_DIR$/android-auth-lib/android-auth-lib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android studio projects-android-auth.iml" filepath="$PROJECT_DIR$/android studio projects-android-auth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android-auth/android-auth-android-auth.iml" filepath="$PROJECT_DIR$/android-auth/android-auth-android-auth.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
