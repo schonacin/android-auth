@@ -3,3 +3,4 @@
 # android-auth
 
 All Rights Reserved :P
+(until we decided for a license)
