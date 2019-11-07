@@ -29,8 +29,10 @@ before_script:
   - android list target
 
 script:
+  - ./gradlew jacocoTestReport
   - ./gradlew test -PdisablePreDex --stacktrace
   - ./gradlew connectedDebugAndroidTest -PdisablePreDex --stacktrace
+  - ./gradlew connectedCheck
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
