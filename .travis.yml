@@ -21,6 +21,7 @@ android:
         - 'google-gdk-license-.+'
 
 before_script:
+  - yes | sdkmanager --licenses
   - echo no | android create avd --force -n test -t android-$EMULATOR_API_LEVEL --abi armeabi-v7a -c 100M
   - emulator -avd test -no-window &
   - android-wait-for-emulator
