@@ -1,4 +1,4 @@
-package com.example.android_auth;
+package com.blue_unicorn.android_auth;
 
 import org.junit.Test;
 

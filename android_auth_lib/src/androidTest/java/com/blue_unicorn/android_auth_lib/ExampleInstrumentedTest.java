@@ -1,4 +1,4 @@
-package com.example.android_auth_lib;
+package com.blue_unicorn.android_auth_lib;
 
 import android.content.Context;
 
@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.example.android_auth_lib.test", appContext.getPackageName());
+        assertEquals("com.blue_unicorn.android_auth_lib.test", appContext.getPackageName());
     }
 }
