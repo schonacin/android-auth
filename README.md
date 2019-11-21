@@ -3,6 +3,9 @@
 
 
 # android-auth
+(1 paragraph explaining what it is and what its useful for, e.g. stating a typical usecase)
+(1 paragraph about current support situation, e.g. "does it work with safari?")
+(detailled documentation about how to use it, maybe with some more implementation details (how we use RX, ...), infos about extensibility etc)
 
 All Rights Reserved :P
 (until we decided for a license)
