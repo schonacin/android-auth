@@ -30,16 +30,8 @@ public final class BaseCborDecode implements CborDecode {
     private BaseAuthInputMapper createMapper(BaseAuthRequest req) {
        byte cmd = req.getCmd();
        byte[] data = req.getData();
-       String jsonString = toJsonString(toCBORObject(data));
+       String jsonString = CBORObject.DecodeFromBytes(data, ENCODE_OPTIONS).ToJSONString();
        return new BaseAuthInputMapper(cmd, jsonString);
-    }
-
-    private CBORObject toCBORObject(byte[] input) {
-       return CBORObject.DecodeFromBytes(input, ENCODE_OPTIONS);
-    }
-
-    private String toJsonString(CBORObject cbor) {
-        return cbor.ToJSONString();
     }
 
 }
