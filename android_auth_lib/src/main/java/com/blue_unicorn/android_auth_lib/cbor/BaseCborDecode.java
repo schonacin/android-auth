@@ -1,17 +1,19 @@
 package com.blue_unicorn.android_auth_lib.cbor;
 
-import com.blue_unicorn.android_auth_lib.fido.FidoObject;
+import com.blue_unicorn.android_auth_lib.fido.RequestObject;
 import com.upokecenter.cbor.CBOREncodeOptions;
 import com.upokecenter.cbor.CBORObject;
+import com.upokecenter.cbor.JSONOptions;
 
-import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.Observable;
 
 public final class BaseCborDecode implements CborDecode {
 
     private CBOREncodeOptions ENCODE_OPTIONS = CBOREncodeOptions.DefaultCtap2Canonical;
+    private JSONOptions JSON_OPTIONS = new JSONOptions("base64padding=true;replacesurrogates=false");
 
-    public Single<FidoObject> decode(byte[] input) {
-       return Single.just(input)
+    public Observable<RequestObject> decode(byte[] input) {
+       return Observable.just(input)
                .map(this::splitInput)
                .map(this::createMapper)
                .map(BaseAuthInputMapper::mapRespectiveCommand);
@@ -30,7 +32,8 @@ public final class BaseCborDecode implements CborDecode {
     private BaseAuthInputMapper createMapper(BaseAuthRequest req) {
        byte cmd = req.getCmd();
        byte[] data = req.getData();
-       String jsonString = CBORObject.DecodeFromBytes(data, ENCODE_OPTIONS).ToJSONString();
+       CBORObject cbor = CBORObject.DecodeFromBytes(data, ENCODE_OPTIONS);
+       String jsonString = cbor.ToJSONString(JSON_OPTIONS);
        return new BaseAuthInputMapper(cmd, jsonString);
     }
 
