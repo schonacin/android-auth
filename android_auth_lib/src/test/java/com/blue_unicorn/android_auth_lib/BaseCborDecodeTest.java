@@ -1,57 +1,54 @@
 package com.blue_unicorn.android_auth_lib;
 
 import com.blue_unicorn.android_auth_lib.cbor.BaseCborDecode;
+import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.RequestObject;
+
+import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.observers.TestObserver;
 
 public class BaseCborDecodeTest {
 
-    private static int toDigit(char hexChar) {
-        int digit = Character.digit(hexChar, 16);
-        if(digit == -1) {
-            throw new IllegalArgumentException(
-                    "Invalid Hexadecimal Character: "+ hexChar);
-        }
-        return digit;
-    }
-
-
-    private static byte hexToByte(String hexString) {
-        int firstDigit = toDigit(hexString.charAt(0));
-        int secondDigit = toDigit(hexString.charAt(1));
-        return (byte) ((firstDigit << 4) + secondDigit);
-    }
-
-    private static byte[] decodeHexString(String hexString) {
-        if (hexString.length() % 2 == 1) {
-            throw new IllegalArgumentException(
-                    "Invalid hexadecimal String supplied.");
-        }
-
-        byte[] bytes = new byte[hexString.length() / 2];
-        for (int i = 0; i < hexString.length(); i += 2) {
-            bytes[i / 2] = hexToByte(hexString.substring(i, i + 2));
-        }
-        return bytes;
-    }
+    private byte[] rawMakeCredentialRequest = new byte[]{(byte)0x1, (byte)0xa5, (byte)0x1, (byte)0x58, (byte)0x20, (byte)0xcc, (byte)0x54, (byte)0x6f, (byte)0xd5, (byte)0x8b, (byte)0x40, (byte)0x83, (byte)0x80, (byte)0xb, (byte)0x60, (byte)0x9e, (byte)0xe1, (byte)0xa, (byte)0x9e, (byte)0x7d, (byte)0x68, (byte)0x33, (byte)0xdc, (byte)0x9e, (byte)0x54, (byte)0x53, (byte)0x40, (byte)0x91, (byte)0xbc, (byte)0x7e, (byte)0xa5, (byte)0xf6, (byte)0x9d, (byte)0x36, (byte)0x8a, (byte)0x4d, (byte)0x7c, (byte)0x2, (byte)0xa2, (byte)0x62, (byte)0x69, (byte)0x64, (byte)0x6b, (byte)0x77, (byte)0x65, (byte)0x62, (byte)0x61, (byte)0x75, (byte)0x74, (byte)0x68, (byte)0x6e, (byte)0x2e, (byte)0x69, (byte)0x6f, (byte)0x64, (byte)0x6e, (byte)0x61, (byte)0x6d, (byte)0x65, (byte)0x6b, (byte)0x77, (byte)0x65, (byte)0x62, (byte)0x61, (byte)0x75, (byte)0x74, (byte)0x68, (byte)0x6e, (byte)0x2e, (byte)0x69, (byte)0x6f, (byte)0x3, (byte)0xa3, (byte)0x62, (byte)0x69, (byte)0x64, (byte)0x4a, (byte)0xb7, (byte)0x99, (byte)0x1, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x0, (byte)0x64, (byte)0x6e, (byte)0x61, (byte)0x6d, (byte)0x65, (byte)0x64, (byte)0x68, (byte)0x61, (byte)0x68, (byte)0x61, (byte)0x6b, (byte)0x64, (byte)0x69, (byte)0x73, (byte)0x70, (byte)0x6c, (byte)0x61, (byte)0x79, (byte)0x4e, (byte)0x61, (byte)0x6d, (byte)0x65, (byte)0x64, (byte)0x68, (byte)0x61, (byte)0x68, (byte)0x61, (byte)0x4, (byte)0x8a, (byte)0xa2, (byte)0x63, (byte)0x61, (byte)0x6c, (byte)0x67, (byte)0x26, (byte)0x64, (byte)0x74, (byte)0x79, (byte)0x70, (byte)0x65, (byte)0x6a, (byte)0x70, (byte)0x75, (byte)0x62, (byte)0x6c, (byte)0x69, (byte)0x63, (byte)0x2d, (byte)0x6b, (byte)0x65, (byte)0x79, (byte)0xa2, (byte)0x63, (byte)0x61, (byte)0x6c, (byte)0x67, (byte)0x38, (byte)0x22, (byte)0x64, (byte)0x74, (byte)0x79, (byte)0x70, (byte)0x65, (byte)0x6a, (byte)0x70, (byte)0x75, (byte)0x62, (byte)0x6c, (byte)0x69, (byte)0x63, (byte)0x2d, (byte)0x6b, (byte)0x65, (byte)0x79, (byte)0xa2, (byte)0x63, (byte)0x61, (byte)0x6c, (byte)0x67, (byte)0x38, (byte)0x23, (byte)0x64, (byte)0x74, (byte)0x79, (byte)0x70, (byte)0x65, (byte)0x6a, (byte)0x70, (byte)0x75, (byte)0x62, (byte)0x6c, (byte)0x69, (byte)0x63, (byte)0x2d, (byte)0x6b, (byte)0x65, (byte)0x79, (byte)0xa2, (byte)0x63, (byte)0x61, (byte)0x6c, (byte)0x67, (byte)0x39, (byte)0x1, (byte)0x0, (byte)0x64, (byte)0x74, (byte)0x79, (byte)0x70, (byte)0x65, (byte)0x6a, (byte)0x70, (byte)0x75, (byte)0x62, (byte)0x6c, (byte)0x69, (byte)0x63, (byte)0x2d, (byte)0x6b, (byte)0x65, (byte)0x79, (byte)0xa2, (byte)0x63, (byte)0x61, (byte)0x6c, (byte)0x67, (byte)0x39, (byte)0x1, (byte)0x1, (byte)0x64, (byte)0x74, (byte)0x79, (byte)0x70, (byte)0x65, (byte)0x6a, (byte)0x70, (byte)0x75, (byte)0x62, (byte)0x6c, (byte)0x69, (byte)0x63, (byte)0x2d, (byte)0x6b, (byte)0x65, (byte)0x79, (byte)0xa2, (byte)0x63, (byte)0x61, (byte)0x6c, (byte)0x67, (byte)0x39, (byte)0x1, (byte)0x2, (byte)0x64, (byte)0x74, (byte)0x79, (byte)0x70, (byte)0x65, (byte)0x6a, (byte)0x70, (byte)0x75, (byte)0x62, (byte)0x6c, (byte)0x69, (byte)0x63, (byte)0x2d, (byte)0x6b, (byte)0x65, (byte)0x79, (byte)0xa2, (byte)0x63, (byte)0x61, (byte)0x6c, (byte)0x67, (byte)0x38, (byte)0x24, (byte)0x64, (byte)0x74, (byte)0x79, (byte)0x70, (byte)0x65, (byte)0x6a, (byte)0x70, (byte)0x75, (byte)0x62, (byte)0x6c, (byte)0x69, (byte)0x63, (byte)0x2d, (byte)0x6b, (byte)0x65, (byte)0x79, (byte)0xa2, (byte)0x63, (byte)0x61, (byte)0x6c, (byte)0x67, (byte)0x38, (byte)0x25, (byte)0x64, (byte)0x74, (byte)0x79, (byte)0x70, (byte)0x65, (byte)0x6a, (byte)0x70, (byte)0x75, (byte)0x62, (byte)0x6c, (byte)0x69, (byte)0x63, (byte)0x2d, (byte)0x6b, (byte)0x65, (byte)0x79, (byte)0xa2, (byte)0x63, (byte)0x61, (byte)0x6c, (byte)0x67, (byte)0x38, (byte)0x26, (byte)0x64, (byte)0x74, (byte)0x79, (byte)0x70, (byte)0x65, (byte)0x6a, (byte)0x70, (byte)0x75, (byte)0x62, (byte)0x6c, (byte)0x69, (byte)0x63, (byte)0x2d, (byte)0x6b, (byte)0x65, (byte)0x79, (byte)0xa2, (byte)0x63, (byte)0x61, (byte)0x6c, (byte)0x67, (byte)0x27, (byte)0x64, (byte)0x74, (byte)0x79, (byte)0x70, (byte)0x65, (byte)0x6a, (byte)0x70, (byte)0x75, (byte)0x62, (byte)0x6c, (byte)0x69, (byte)0x63, (byte)0x2d, (byte)0x6b, (byte)0x65, (byte)0x79, (byte)0x5, (byte)0x80};
 
     @Test
-    public void makeCredentialRequest_transformsCorrectly() {
-
-        String reqString = "01a5015820796257f1eff073c1a30ab990ea3c8a8bef607d46d20fa5d053db743081215c2e02a26269646b776562617574686e2e696f646e616d656b776562617574686e2e696f03a36269644a969b0100000000000000646e616d65781c617364617364617364617364727767776572676173646173646173646b646973706c61794e616d65781c61736461736461736461736472776777657267617364617364617364048aa263616c672664747970656a7075626c69632d6b6579a263616c67382264747970656a7075626c69632d6b6579a263616c67382364747970656a7075626c69632d6b6579a263616c6739010064747970656a7075626c69632d6b6579a263616c6739010164747970656a7075626c69632d6b6579a263616c6739010264747970656a7075626c69632d6b6579a263616c67382464747970656a7075626c69632d6b6579a263616c67382564747970656a7075626c69632d6b6579a263616c67382664747970656a7075626c69632d6b6579a263616c672764747970656a7075626c69632d6b65790580";
-        byte[] req = decodeHexString(reqString);
+    public void makeCredentialRequest_transformsWithNoErrors() {
 
         TestObserver<RequestObject> subscriber = new TestObserver<>();
-        Observable<RequestObject> test = new BaseCborDecode().decode(req);
+        Observable<RequestObject> test = new BaseCborDecode().decode(rawMakeCredentialRequest);
 
         test.subscribe(subscriber);
 
         subscriber.assertNoErrors();
+        subscriber.assertValueCount(1);
 
+    }
+
+    @Test
+    public void makeCredentialRequest_transformsWithRightValues() {
+        Observable<RequestObject> test = new BaseCborDecode().decode(rawMakeCredentialRequest);
+        List<RequestObject> results = new ArrayList<>();
+
+        Disposable testDisposable =  test.subscribe(results::add);
+
+        assertThat(results.get(0), instanceOf(MakeCredentialRequest.class));
+
+        MakeCredentialRequest transformedMakeCredentialRequest = (MakeCredentialRequest)results.get(0);
+
+        byte[] clientDataHash = new byte[]{(byte)0xCC, (byte)0x54, (byte)0x6F, (byte)0xD5, (byte)0x8B, (byte)0x40, (byte)0x83, (byte)0x80, (byte)0x0B, (byte)0x60, (byte)0x9E, (byte)0xE1, (byte)0x0A, (byte)0x9E, (byte)0x7D, (byte)0x68, (byte)0x33, (byte)0xDC, (byte)0x9E, (byte)0x54, (byte)0x53, (byte)0x40, (byte)0x91, (byte)0xBC, (byte)0x7E, (byte)0xA5, (byte)0xF6, (byte)0x9D, (byte)0x36, (byte)0x8A, (byte)0x4D, (byte)0x7C};
+        assertThat(transformedMakeCredentialRequest.getClientDataHash(), is(clientDataHash));
+
+        testDisposable.dispose();
     }
 
 }

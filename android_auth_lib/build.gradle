@@ -34,6 +34,9 @@ android {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
     }
+    /*testOptions {
+        unitTests.returnDefaultValues = true
+    }*/
 
 }
 
@@ -42,8 +45,9 @@ dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation "io.reactivex.rxjava3:rxjava:3.0.0-RC6"
-    implementation 'com.upokecenter:cbor:4.0.1'
+    implementation 'com.upokecenter:cbor:4.1.0'
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'commons-codec:commons-codec:1.13'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'

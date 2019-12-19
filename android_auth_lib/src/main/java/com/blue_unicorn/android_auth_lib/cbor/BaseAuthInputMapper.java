@@ -1,6 +1,7 @@
 package com.blue_unicorn.android_auth_lib.cbor;
 
-import com.blue_unicorn.android_auth_lib.fido.FidoObject;
+import com.blue_unicorn.android_auth_lib.fido.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.fido.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.RequestObject;
 import com.blue_unicorn.android_auth_lib.gson.GsonHelper;
@@ -25,9 +26,9 @@ public class BaseAuthInputMapper implements AuthInputMapper {
             case MAKE_CREDENTIAL:
                 return buildMakeCredentialRequest();
             case GET_ASSERTION:
-                return null;
+                return buildGetAssertionRequest();
             case GET_INFO:
-                return null;
+                return buildGetInfoRequest();
             default:
                 return null;
         }
@@ -40,11 +41,16 @@ public class BaseAuthInputMapper implements AuthInputMapper {
 
     }
 
-    private FidoObject buildGetAssertionRequest() {
-        return new FidoObject() {};
+    private GetAssertionRequest buildGetAssertionRequest() {
+
+        return GsonHelper.customGson.fromJson(data, GetAssertionRequest.class);
+
     }
 
-    private FidoObject buildGetInfoRequest() {
-        return new FidoObject() {};
+    private GetInfoRequest buildGetInfoRequest() {
+
+        // getInfo does not have any parameters so no object mapping has to be done
+        return new GetInfoRequest();
+
     }
 }

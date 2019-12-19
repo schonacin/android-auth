@@ -8,21 +8,44 @@ import java.util.Map;
 public class MakeCredentialRequest extends RequestObject {
 
     @SerializedName("1")
-    byte[] clientDataHash;
+    private byte[] clientDataHash;
 
     @SerializedName("2")
-    PublicKeyCredentialRpEntity rp;
+    private PublicKeyCredentialRpEntity rp;
 
     @SerializedName("3")
-    PublicKeyCredentialUserEntity user;
+    private PublicKeyCredentialUserEntity user;
 
     @SerializedName("4")
-    Map[] pubKeyCredParams;
+    private Map[] pubKeyCredParams;
 
     @SerializedName("5")
-    List<PublicKeyCredentialDescriptor> excludeList;
+    private List<PublicKeyCredentialDescriptor> excludeList;
 
     @SerializedName("6")
-    Map<String, Boolean> options;
+    private Map<String, Boolean> options;
 
+    public byte[] getClientDataHash() {
+        return clientDataHash;
+    }
+
+    public PublicKeyCredentialRpEntity getRp() {
+        return rp;
+    }
+
+    public PublicKeyCredentialUserEntity getUser() {
+        return user;
+    }
+
+    public Map[] getPubKeyCredParams() {
+        return pubKeyCredParams;
+    }
+
+    public List<PublicKeyCredentialDescriptor> getExcludeList() {
+        return excludeList;
+    }
+
+    public Map<String, Boolean> getOptions() {
+        return options;
+    }
 }

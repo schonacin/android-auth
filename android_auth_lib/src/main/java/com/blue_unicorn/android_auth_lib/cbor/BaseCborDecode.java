@@ -10,7 +10,7 @@ import io.reactivex.rxjava3.core.Observable;
 public final class BaseCborDecode implements CborDecode {
 
     private CBOREncodeOptions ENCODE_OPTIONS = CBOREncodeOptions.DefaultCtap2Canonical;
-    private JSONOptions JSON_OPTIONS = new JSONOptions("base64padding=true;replacesurrogates=false");
+    private JSONOptions JSON_OPTIONS = new JSONOptions("base64padding=false;replacesurrogates=false");
 
     public Observable<RequestObject> decode(byte[] input) {
        return Observable.just(input)
@@ -32,8 +32,10 @@ public final class BaseCborDecode implements CborDecode {
     private BaseAuthInputMapper createMapper(BaseAuthRequest req) {
        byte cmd = req.getCmd();
        byte[] data = req.getData();
+
        CBORObject cbor = CBORObject.DecodeFromBytes(data, ENCODE_OPTIONS);
        String jsonString = cbor.ToJSONString(JSON_OPTIONS);
+
        return new BaseAuthInputMapper(cmd, jsonString);
     }
 
