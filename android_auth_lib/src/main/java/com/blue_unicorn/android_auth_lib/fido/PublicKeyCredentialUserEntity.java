@@ -1,15 +1,10 @@
 package com.blue_unicorn.android_auth_lib.fido;
 
-import com.google.gson.annotations.SerializedName;
+public interface PublicKeyCredentialUserEntity {
 
-public class PublicKeyCredentialUserEntity {
+    byte[] getId();
 
-    @SerializedName("id")
-    public byte[] id;
+    String getName();
 
-    @SerializedName("name")
-    public String name;
-
-    @SerializedName("displayName")
-    public String displayName;
+    String getDisplayName();
 }

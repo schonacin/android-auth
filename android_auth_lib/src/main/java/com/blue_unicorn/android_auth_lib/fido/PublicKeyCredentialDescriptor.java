@@ -1,17 +1,12 @@
 package com.blue_unicorn.android_auth_lib.fido;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.util.List;
 
-public class PublicKeyCredentialDescriptor {
+public interface PublicKeyCredentialDescriptor {
 
-    @SerializedName("type")
-    public String type;
+    String getType();
 
-    @SerializedName("id")
-    public byte[] id;
+    byte[] getId();
 
-    @SerializedName("transports")
-    public List<String> transports;
+    List<String> getTransports();
 }

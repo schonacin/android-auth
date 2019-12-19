@@ -1,8 +1,8 @@
 package com.blue_unicorn.android_auth_lib.cbor;
 
-import com.blue_unicorn.android_auth_lib.fido.GetAssertionRequest;
-import com.blue_unicorn.android_auth_lib.fido.GetInfoRequest;
-import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.fido.BaseGetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.fido.BaseGetInfoRequest;
+import com.blue_unicorn.android_auth_lib.fido.BaseMakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.RequestObject;
 import com.blue_unicorn.android_auth_lib.gson.GsonHelper;
 
@@ -35,22 +35,22 @@ public class BaseAuthInputMapper implements AuthInputMapper {
 
     }
 
-    private MakeCredentialRequest buildMakeCredentialRequest() {
+    private BaseMakeCredentialRequest buildMakeCredentialRequest() {
 
-        return GsonHelper.customGson.fromJson(data, MakeCredentialRequest.class);
-
-    }
-
-    private GetAssertionRequest buildGetAssertionRequest() {
-
-        return GsonHelper.customGson.fromJson(data, GetAssertionRequest.class);
+        return GsonHelper.customGson.fromJson(data, BaseMakeCredentialRequest.class);
 
     }
 
-    private GetInfoRequest buildGetInfoRequest() {
+    private BaseGetAssertionRequest buildGetAssertionRequest() {
+
+        return GsonHelper.customGson.fromJson(data, BaseGetAssertionRequest.class);
+
+    }
+
+    private BaseGetInfoRequest buildGetInfoRequest() {
 
         // getInfo does not have any parameters so no object mapping has to be done
-        return new GetInfoRequest();
+        return new BaseGetInfoRequest();
 
     }
 }

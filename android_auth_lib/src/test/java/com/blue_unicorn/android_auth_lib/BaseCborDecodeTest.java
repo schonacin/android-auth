@@ -1,9 +1,10 @@
 package com.blue_unicorn.android_auth_lib;
 
 import com.blue_unicorn.android_auth_lib.cbor.BaseCborDecode;
-import com.blue_unicorn.android_auth_lib.fido.GetAssertionRequest;
-import com.blue_unicorn.android_auth_lib.fido.GetInfoRequest;
-import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.fido.BaseGetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.fido.BaseGetInfoRequest;
+import com.blue_unicorn.android_auth_lib.fido.BaseMakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.fido.BasePublicKeyCredentialUserEntity;
 import com.blue_unicorn.android_auth_lib.fido.RequestObject;
 
 import static org.junit.Assert.*;
@@ -45,12 +46,15 @@ public class BaseCborDecodeTest {
         Disposable testDisposable =  test.subscribe(results::add);
 
         assertThat(results.size(), is(1));
-        assertThat(results.get(0), instanceOf(MakeCredentialRequest.class));
+        assertThat(results.get(0), instanceOf(BaseMakeCredentialRequest.class));
 
-        MakeCredentialRequest transformedMakeCredentialRequest = (MakeCredentialRequest)results.get(0);
+        BaseMakeCredentialRequest transformedBaseMakeCredentialRequest = (BaseMakeCredentialRequest)results.get(0);
 
         byte[] clientDataHash = new byte[]{(byte)0xCC, (byte)0x54, (byte)0x6F, (byte)0xD5, (byte)0x8B, (byte)0x40, (byte)0x83, (byte)0x80, (byte)0x0B, (byte)0x60, (byte)0x9E, (byte)0xE1, (byte)0x0A, (byte)0x9E, (byte)0x7D, (byte)0x68, (byte)0x33, (byte)0xDC, (byte)0x9E, (byte)0x54, (byte)0x53, (byte)0x40, (byte)0x91, (byte)0xBC, (byte)0x7E, (byte)0xA5, (byte)0xF6, (byte)0x9D, (byte)0x36, (byte)0x8A, (byte)0x4D, (byte)0x7C};
-        assertThat(transformedMakeCredentialRequest.getClientDataHash(), is(clientDataHash));
+        assertThat(transformedBaseMakeCredentialRequest.getClientDataHash(), is(clientDataHash));
+
+        BasePublicKeyCredentialUserEntity user = transformedBaseMakeCredentialRequest.getUser();
+
 
         testDisposable.dispose();
     }
@@ -75,12 +79,12 @@ public class BaseCborDecodeTest {
         Disposable testDisposable =  test.subscribe(results::add);
 
         assertThat(results.size(), is(1));
-        assertThat(results.get(0), instanceOf(GetAssertionRequest.class));
+        assertThat(results.get(0), instanceOf(BaseGetAssertionRequest.class));
 
-        GetAssertionRequest transformedGetAssertionRequest = (GetAssertionRequest) results.get(0);
+        BaseGetAssertionRequest transformedBaseGetAssertionRequest = (BaseGetAssertionRequest) results.get(0);
 
         byte[] clientDataHash = new byte[]{(byte)0x68, (byte)0x71, (byte)0x34, (byte)0x96, (byte)0x82, (byte)0x22, (byte)0xEC, (byte)0x17, (byte)0x20, (byte)0x2E, (byte)0x42, (byte)0x50, (byte)0x5F, (byte)0x8E, (byte)0xD2, (byte)0xB1, (byte)0x6A, (byte)0xE2, (byte)0x2F, (byte)0x16, (byte)0xBB, (byte)0x05, (byte)0xB8, (byte)0x8C, (byte)0x25, (byte)0xDB, (byte)0x9E, (byte)0x60, (byte)0x26, (byte)0x45, (byte)0xF1, (byte)0x41};
-        assertThat(transformedGetAssertionRequest.getClientDataHash(), is(clientDataHash));
+        assertThat(transformedBaseGetAssertionRequest.getClientDataHash(), is(clientDataHash));
 
         testDisposable.dispose();
     }
@@ -105,7 +109,7 @@ public class BaseCborDecodeTest {
         Disposable testDisposable =  test.subscribe(results::add);
 
         assertThat(results.size(), is(1));
-        assertThat(results.get(0), instanceOf(GetInfoRequest.class));
+        assertThat(results.get(0), instanceOf(BaseGetInfoRequest.class));
 
         testDisposable.dispose();
     }

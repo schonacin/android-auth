@@ -1,51 +1,20 @@
 package com.blue_unicorn.android_auth_lib.fido;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.util.List;
 import java.util.Map;
 
-public class MakeCredentialRequest extends RequestObject {
+public interface MakeCredentialRequest {
 
-    @SerializedName("1")
-    private byte[] clientDataHash;
+    byte[] getClientDataHash();
 
-    @SerializedName("2")
-    private PublicKeyCredentialRpEntity rp;
+    BasePublicKeyCredentialRpEntity getRp();
 
-    @SerializedName("3")
-    private PublicKeyCredentialUserEntity user;
+    BasePublicKeyCredentialUserEntity getUser();
 
-    @SerializedName("4")
-    private Map[] pubKeyCredParams;
+    Map[] getPubKeyCredParams();
 
-    @SerializedName("5")
-    private List<PublicKeyCredentialDescriptor> excludeList;
+    List<BasePublicKeyCredentialDescriptor> getExcludeList();
 
-    @SerializedName("6")
-    private Map<String, Boolean> options;
+    Map<String, Boolean> getOptions();
 
-    public byte[] getClientDataHash() {
-        return clientDataHash;
-    }
-
-    public PublicKeyCredentialRpEntity getRp() {
-        return rp;
-    }
-
-    public PublicKeyCredentialUserEntity getUser() {
-        return user;
-    }
-
-    public Map[] getPubKeyCredParams() {
-        return pubKeyCredParams;
-    }
-
-    public List<PublicKeyCredentialDescriptor> getExcludeList() {
-        return excludeList;
-    }
-
-    public Map<String, Boolean> getOptions() {
-        return options;
-    }
 }
