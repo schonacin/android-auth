@@ -4,6 +4,7 @@ import com.blue_unicorn.android_auth_lib.cbor.BaseCborDecode;
 import com.blue_unicorn.android_auth_lib.fido.BaseGetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.fido.BaseGetInfoRequest;
 import com.blue_unicorn.android_auth_lib.fido.BaseMakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.fido.BasePublicKeyCredentialRpEntity;
 import com.blue_unicorn.android_auth_lib.fido.BasePublicKeyCredentialUserEntity;
 import com.blue_unicorn.android_auth_lib.fido.RequestObject;
 
@@ -54,7 +55,16 @@ public class BaseCborDecodeTest {
         assertThat(transformedBaseMakeCredentialRequest.getClientDataHash(), is(clientDataHash));
 
         BasePublicKeyCredentialUserEntity user = transformedBaseMakeCredentialRequest.getUser();
+        assertThat(user.getName(), is("haha"));
+        assertThat(user.getDisplayName(), is("haha"));
+        assertThat(user.getId(), is(new byte[]{-73, -103, 1, 0, 0, 0, 0, 0, 0 ,0}));
 
+        BasePublicKeyCredentialRpEntity rp = transformedBaseMakeCredentialRequest.getRp();
+        assertThat(rp.getId(), is("webauthn.io"));
+        assertThat(rp.getName(), is("webauthn.io"));
+
+        assertThat(transformedBaseMakeCredentialRequest.getPubKeyCredParams().length, is(10));
+        assertThat(transformedBaseMakeCredentialRequest.getExcludeList().size(), is(0));
 
         testDisposable.dispose();
     }
@@ -85,6 +95,12 @@ public class BaseCborDecodeTest {
 
         byte[] clientDataHash = new byte[]{(byte)0x68, (byte)0x71, (byte)0x34, (byte)0x96, (byte)0x82, (byte)0x22, (byte)0xEC, (byte)0x17, (byte)0x20, (byte)0x2E, (byte)0x42, (byte)0x50, (byte)0x5F, (byte)0x8E, (byte)0xD2, (byte)0xB1, (byte)0x6A, (byte)0xE2, (byte)0x2F, (byte)0x16, (byte)0xBB, (byte)0x05, (byte)0xB8, (byte)0x8C, (byte)0x25, (byte)0xDB, (byte)0x9E, (byte)0x60, (byte)0x26, (byte)0x45, (byte)0xF1, (byte)0x41};
         assertThat(transformedBaseGetAssertionRequest.getClientDataHash(), is(clientDataHash));
+
+        assertThat(transformedBaseGetAssertionRequest.getRpId(), is("example.com"));
+
+        assertThat(transformedBaseGetAssertionRequest.getAllowList().size(), is(2));
+
+        assertThat(transformedBaseGetAssertionRequest.getOptions().size(), is(1));
 
         testDisposable.dispose();
     }
