@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 import java.util.Map;
 
-public class BaseMakeCredentialRequest extends RequestObject implements MakeCredentialRequest {
+public class BaseMakeCredentialRequest implements MakeCredentialRequest {
 
     @SerializedName("1")
     private byte[] clientDataHash;

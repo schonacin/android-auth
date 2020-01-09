@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 import java.util.Map;
 
-public class BaseGetAssertionRequest extends RequestObject implements GetAssertionRequest {
+public class BaseGetAssertionRequest implements GetAssertionRequest {
 
     @SerializedName("1")
     private String rpId;

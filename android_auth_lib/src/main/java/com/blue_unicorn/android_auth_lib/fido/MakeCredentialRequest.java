@@ -3,7 +3,7 @@ package com.blue_unicorn.android_auth_lib.fido;
 import java.util.List;
 import java.util.Map;
 
-public interface MakeCredentialRequest {
+public interface MakeCredentialRequest extends RequestObject {
 
     byte[] getClientDataHash();
 

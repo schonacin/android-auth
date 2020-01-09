@@ -15,11 +15,11 @@ public final class BaseCborDecode implements CborDecode {
     public Observable<RequestObject> decode(byte[] input) {
        return splitInput(input)
                .flatMap(this::createMapper)
-               .flatMap(BaseAuthInputMapper::mapRespectiveCommand);
+               .flatMap(AuthInputMapper::mapRespectiveCommand);
 
     }
 
-    private Observable<BaseAuthRequest> splitInput(byte[] input) {
+    private Observable<AuthRequest> splitInput(byte[] input) {
 
        if (input.length == 0)
            return Observable.error(new InvalidLenException());
@@ -34,7 +34,7 @@ public final class BaseCborDecode implements CborDecode {
 
     }
 
-    private Observable<BaseAuthInputMapper> createMapper(BaseAuthRequest req) {
+    private Observable<AuthInputMapper> createMapper(AuthRequest req) {
 
        byte cmd = req.getCmd();
        byte[] data = req.getData();

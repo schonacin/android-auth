@@ -4,6 +4,9 @@ import com.blue_unicorn.android_auth_lib.exception.InvalidCmdException;
 import com.blue_unicorn.android_auth_lib.fido.BaseGetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.fido.BaseGetInfoRequest;
 import com.blue_unicorn.android_auth_lib.fido.BaseMakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.fido.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.fido.GetInfoRequest;
+import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.RequestObject;
 import com.blue_unicorn.android_auth_lib.gson.GsonHelper;
 
@@ -47,19 +50,19 @@ public class BaseAuthInputMapper implements AuthInputMapper {
 
     }
 
-    private BaseMakeCredentialRequest buildMakeCredentialRequest() {
+    private MakeCredentialRequest buildMakeCredentialRequest() {
 
         return GsonHelper.customGson.fromJson(data, BaseMakeCredentialRequest.class);
 
     }
 
-    private BaseGetAssertionRequest buildGetAssertionRequest() {
+    private GetAssertionRequest buildGetAssertionRequest() {
 
         return GsonHelper.customGson.fromJson(data, BaseGetAssertionRequest.class);
 
     }
 
-    private BaseGetInfoRequest buildGetInfoRequest() {
+    private GetInfoRequest buildGetInfoRequest() {
 
         // getInfo does not have any parameters so no object mapping has to be done
         return new BaseGetInfoRequest();

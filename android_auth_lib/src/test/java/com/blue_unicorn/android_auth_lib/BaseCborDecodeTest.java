@@ -1,14 +1,15 @@
 package com.blue_unicorn.android_auth_lib;
 
 import com.blue_unicorn.android_auth_lib.cbor.BaseCborDecode;
+import com.blue_unicorn.android_auth_lib.cbor.CborDecode;
 import com.blue_unicorn.android_auth_lib.exception.InvalidCmdException;
 import com.blue_unicorn.android_auth_lib.exception.InvalidLenException;
 import com.blue_unicorn.android_auth_lib.exception.InvalidParException;
-import com.blue_unicorn.android_auth_lib.fido.BaseGetAssertionRequest;
-import com.blue_unicorn.android_auth_lib.fido.BaseGetInfoRequest;
-import com.blue_unicorn.android_auth_lib.fido.BaseMakeCredentialRequest;
-import com.blue_unicorn.android_auth_lib.fido.BasePublicKeyCredentialRpEntity;
-import com.blue_unicorn.android_auth_lib.fido.BasePublicKeyCredentialUserEntity;
+import com.blue_unicorn.android_auth_lib.fido.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.fido.GetInfoRequest;
+import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialRpEntity;
+import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialUserEntity;
 import com.blue_unicorn.android_auth_lib.fido.RequestObject;
 
 import static org.junit.Assert.*;
@@ -32,12 +33,13 @@ public class BaseCborDecodeTest {
     private byte[] rawInvalidCmdRequest = new byte[]{(byte)0xff};
     private byte[] rawEmptyRequest = new byte[]{};
     private byte[] rawInvalidParRequest = new byte[]{(byte)0x1, (byte)0x77};
+    private CborDecode cbor = new BaseCborDecode();
 
     @Test
     public void makeCredentialRequest_transformsWithNoErrors() {
 
         TestObserver<RequestObject> subscriber = new TestObserver<>();
-        Observable<RequestObject> test = new BaseCborDecode().decode(rawMakeCredentialRequest);
+        Observable<RequestObject> test = cbor.decode(rawMakeCredentialRequest);
 
         test.subscribe(subscriber);
 
@@ -47,30 +49,30 @@ public class BaseCborDecodeTest {
 
     @Test
     public void makeCredentialRequest_transformsWithRightValues() {
-        Observable<RequestObject> test = new BaseCborDecode().decode(rawMakeCredentialRequest);
+        Observable<RequestObject> test = cbor.decode(rawMakeCredentialRequest);
         List<RequestObject> results = new ArrayList<>();
 
         Disposable testDisposable =  test.subscribe(results::add);
 
         assertThat(results.size(), is(1));
-        assertThat(results.get(0), instanceOf(BaseMakeCredentialRequest.class));
+        assertThat(results.get(0), instanceOf(MakeCredentialRequest.class));
 
-        BaseMakeCredentialRequest transformedBaseMakeCredentialRequest = (BaseMakeCredentialRequest)results.get(0);
+        MakeCredentialRequest transformedMakeCredentialRequest = (MakeCredentialRequest)results.get(0);
 
         byte[] clientDataHash = new byte[]{(byte)0xCC, (byte)0x54, (byte)0x6F, (byte)0xD5, (byte)0x8B, (byte)0x40, (byte)0x83, (byte)0x80, (byte)0x0B, (byte)0x60, (byte)0x9E, (byte)0xE1, (byte)0x0A, (byte)0x9E, (byte)0x7D, (byte)0x68, (byte)0x33, (byte)0xDC, (byte)0x9E, (byte)0x54, (byte)0x53, (byte)0x40, (byte)0x91, (byte)0xBC, (byte)0x7E, (byte)0xA5, (byte)0xF6, (byte)0x9D, (byte)0x36, (byte)0x8A, (byte)0x4D, (byte)0x7C};
-        assertThat(transformedBaseMakeCredentialRequest.getClientDataHash(), is(clientDataHash));
+        assertThat(transformedMakeCredentialRequest.getClientDataHash(), is(clientDataHash));
 
-        BasePublicKeyCredentialUserEntity user = transformedBaseMakeCredentialRequest.getUser();
+        PublicKeyCredentialUserEntity user = transformedMakeCredentialRequest.getUser();
         assertThat(user.getName(), is("haha"));
         assertThat(user.getDisplayName(), is("haha"));
         assertThat(user.getId(), is(new byte[]{-73, -103, 1, 0, 0, 0, 0, 0, 0 ,0}));
 
-        BasePublicKeyCredentialRpEntity rp = transformedBaseMakeCredentialRequest.getRp();
+        PublicKeyCredentialRpEntity rp = transformedMakeCredentialRequest.getRp();
         assertThat(rp.getId(), is("webauthn.io"));
         assertThat(rp.getName(), is("webauthn.io"));
 
-        assertThat(transformedBaseMakeCredentialRequest.getPubKeyCredParams().length, is(10));
-        assertThat(transformedBaseMakeCredentialRequest.getExcludeList().size(), is(0));
+        assertThat(transformedMakeCredentialRequest.getPubKeyCredParams().length, is(10));
+        assertThat(transformedMakeCredentialRequest.getExcludeList().size(), is(0));
 
         testDisposable.dispose();
     }
@@ -79,7 +81,7 @@ public class BaseCborDecodeTest {
     public void getAssertionRequest_transformsWithNoErrors() {
 
         TestObserver<RequestObject> subscriber = new TestObserver<>();
-        Observable<RequestObject> test = new BaseCborDecode().decode(rawGetAssertionRequest);
+        Observable<RequestObject> test = cbor.decode(rawGetAssertionRequest);
 
         test.subscribe(subscriber);
 
@@ -89,24 +91,24 @@ public class BaseCborDecodeTest {
 
     @Test
     public void getAssertionRequest_transformsWithRightValues() {
-        Observable<RequestObject> test = new BaseCborDecode().decode(rawGetAssertionRequest);
+        Observable<RequestObject> test = cbor.decode(rawGetAssertionRequest);
         List<RequestObject> results = new ArrayList<>();
 
         Disposable testDisposable =  test.subscribe(results::add);
 
         assertThat(results.size(), is(1));
-        assertThat(results.get(0), instanceOf(BaseGetAssertionRequest.class));
+        assertThat(results.get(0), instanceOf(GetAssertionRequest.class));
 
-        BaseGetAssertionRequest transformedBaseGetAssertionRequest = (BaseGetAssertionRequest) results.get(0);
+        GetAssertionRequest transformedGetAssertionRequest = (GetAssertionRequest) results.get(0);
 
         byte[] clientDataHash = new byte[]{(byte)0x68, (byte)0x71, (byte)0x34, (byte)0x96, (byte)0x82, (byte)0x22, (byte)0xEC, (byte)0x17, (byte)0x20, (byte)0x2E, (byte)0x42, (byte)0x50, (byte)0x5F, (byte)0x8E, (byte)0xD2, (byte)0xB1, (byte)0x6A, (byte)0xE2, (byte)0x2F, (byte)0x16, (byte)0xBB, (byte)0x05, (byte)0xB8, (byte)0x8C, (byte)0x25, (byte)0xDB, (byte)0x9E, (byte)0x60, (byte)0x26, (byte)0x45, (byte)0xF1, (byte)0x41};
-        assertThat(transformedBaseGetAssertionRequest.getClientDataHash(), is(clientDataHash));
+        assertThat(transformedGetAssertionRequest.getClientDataHash(), is(clientDataHash));
 
-        assertThat(transformedBaseGetAssertionRequest.getRpId(), is("example.com"));
+        assertThat(transformedGetAssertionRequest.getRpId(), is("example.com"));
 
-        assertThat(transformedBaseGetAssertionRequest.getAllowList().size(), is(2));
+        assertThat(transformedGetAssertionRequest.getAllowList().size(), is(2));
 
-        assertThat(transformedBaseGetAssertionRequest.getOptions().size(), is(1));
+        assertThat(transformedGetAssertionRequest.getOptions().size(), is(1));
 
         testDisposable.dispose();
     }
@@ -115,7 +117,7 @@ public class BaseCborDecodeTest {
     public void getInfoRequest_transformsWithNoErrors() {
 
         TestObserver<RequestObject> subscriber = new TestObserver<>();
-        Observable<RequestObject> test = new BaseCborDecode().decode(rawGetInfoRequest);
+        Observable<RequestObject> test = cbor.decode(rawGetInfoRequest);
 
         test.subscribe(subscriber);
 
@@ -125,13 +127,13 @@ public class BaseCborDecodeTest {
 
     @Test
     public void getInfoRequest_transformsWithRightValues() {
-        Observable<RequestObject> test = new BaseCborDecode().decode(rawGetInfoRequest);
+        Observable<RequestObject> test = cbor.decode(rawGetInfoRequest);
         List<RequestObject> results = new ArrayList<>();
 
         Disposable testDisposable =  test.subscribe(results::add);
 
         assertThat(results.size(), is(1));
-        assertThat(results.get(0), instanceOf(BaseGetInfoRequest.class));
+        assertThat(results.get(0), instanceOf(GetInfoRequest.class));
 
         testDisposable.dispose();
     }
@@ -139,7 +141,7 @@ public class BaseCborDecodeTest {
     @Test
     public void invalidCmdRequest_fails() {
         TestObserver<RequestObject> subscriber = new TestObserver<>();
-        Observable<RequestObject> test = new BaseCborDecode().decode(rawInvalidCmdRequest);
+        Observable<RequestObject> test = cbor.decode(rawInvalidCmdRequest);
 
         test.subscribe(subscriber);
 
@@ -149,7 +151,7 @@ public class BaseCborDecodeTest {
     @Test
     public void emptyRequest_fails() {
         TestObserver<RequestObject> subscriber = new TestObserver<>();
-        Observable<RequestObject> test = new BaseCborDecode().decode(rawEmptyRequest);
+        Observable<RequestObject> test = cbor.decode(rawEmptyRequest);
 
         test.subscribe(subscriber);
 
@@ -159,7 +161,7 @@ public class BaseCborDecodeTest {
     @Test
     public void invalidParRequest_fails() {
         TestObserver<RequestObject> subscriber = new TestObserver<>();
-        Observable<RequestObject> test = new BaseCborDecode().decode(rawInvalidParRequest);
+        Observable<RequestObject> test = cbor.decode(rawInvalidParRequest);
 
         test.subscribe(subscriber);
 
