@@ -6,33 +6,26 @@ import hu.akarnokd.rxjava3.operators.*;
 public class FrameHandler {
 
     private int mtu;
-    private int frameSize;//remaining?
-    private int bufferSize = 4096;
+    private int remainingFrameSize;
 
 
     public FrameHandler(int mtu, int frameSize) {
         this.mtu = mtu;
-        this.frameSize = frameSize;
-    }
-
-    public FrameHandler(int mtu, int frameSize, int BUFFER_SIZE) {
-        this.mtu = mtu;
-        this.frameSize = frameSize;
-        this.bufferSize = BUFFER_SIZE;
+        this.remainingFrameSize = frameSize;
     }
 
     // TODO: this is shit, make it better (it's stateful 'n' stuff)
     private boolean isLastFragmentOfFrame(Fragment frag) {
         if(frag instanceof ContinuationFragment)
-            frameSize -= ((ContinuationFragment) frag).DATA.length;
+            remainingFrameSize -= ((ContinuationFragment) frag).DATA.length;
         else if(frag instanceof InitializationFragment)
-            frameSize = ((InitializationFragment) frag).HLEN << 8 + ((InitializationFragment) frag).LLEN - ((InitializationFragment) frag).DATA.length;
+            remainingFrameSize = ((InitializationFragment) frag).HLEN << 8 + ((InitializationFragment) frag).LLEN - ((InitializationFragment) frag).DATA.length;
         //else
             // TODO: return error code / exception ?
-        return frameSize <= 0;
+        return remainingFrameSize <= 0;
     }
 
-    // TODO: call in defragment() or not?
+    // TODO: call in defragment() or in caller of defragment()?
     /*public Flowable<Fragment> toFragments(Flowable<byte[]> rawFragments) {
         return rawFragments.map();
     }*/
