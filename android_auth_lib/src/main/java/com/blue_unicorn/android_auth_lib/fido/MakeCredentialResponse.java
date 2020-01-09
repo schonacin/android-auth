@@ -1,4 +1,4 @@
 package com.blue_unicorn.android_auth_lib.fido;
 
-interface MakeCredentialResponse {
+public interface MakeCredentialResponse extends ResponseObject {
 }

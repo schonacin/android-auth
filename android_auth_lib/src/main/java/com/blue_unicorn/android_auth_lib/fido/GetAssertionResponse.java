@@ -1,4 +1,4 @@
 package com.blue_unicorn.android_auth_lib.fido;
 
-interface GetAssertionResponse {
+public interface GetAssertionResponse extends ResponseObject {
 }

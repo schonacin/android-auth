@@ -6,6 +6,7 @@ import com.blue_unicorn.android_auth_lib.fido.BaseGetInfoRequest;
 import com.blue_unicorn.android_auth_lib.fido.BaseMakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.FidoObject;
 import com.blue_unicorn.android_auth_lib.fido.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.fido.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.RequestObject;
 import com.blue_unicorn.android_auth_lib.fido.ResponseObject;
@@ -45,12 +46,12 @@ public class BaseAPIHandler implements APIHandler {
 
         if (request instanceof MakeCredentialRequest) {
 
-            return api.makeInternalCredential((BaseMakeCredentialRequest) request)
+            return api.makeInternalCredential((MakeCredentialRequest) request)
                     .switchMap(x -> Observable.just((ResponseObject) x));
 
         } else if (request instanceof GetAssertionRequest) {
 
-            return api.getInternalAssertion((BaseGetAssertionRequest) request)
+            return api.getInternalAssertion((GetAssertionRequest) request)
                     .switchMap(x -> Observable.just((ResponseObject) x));
 
         } else {

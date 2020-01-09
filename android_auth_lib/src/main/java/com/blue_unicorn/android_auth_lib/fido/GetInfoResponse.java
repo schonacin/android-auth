@@ -1,4 +1,4 @@
 package com.blue_unicorn.android_auth_lib.fido;
 
-interface GetInfoResponse {
+public interface GetInfoResponse extends ResponseObject{
 }
