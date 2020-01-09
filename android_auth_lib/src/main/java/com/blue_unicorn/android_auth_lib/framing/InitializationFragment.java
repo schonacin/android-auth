@@ -1,6 +1,6 @@
 package com.blue_unicorn.android_auth_lib.framing;
 
-public class InitializationFragment extends Fragment {
+public class InitializationFragment implements Fragment {
     byte CMD;
     byte HLEN;
     byte LLEN;

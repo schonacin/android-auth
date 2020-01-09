@@ -18,7 +18,7 @@ public class Frame {
     // assumptions:
     // - except for the last fragment, all available space (= mtu) for data is used
     // - the MTU is at least 3 (to be able to transmit an initialization fragment)
-    // TODO: use method overloading instead of instanceof check?
+    // TODO: use method overloading instead of choosing methods based on instanceof check?
     public void addFragment(Fragment fragment) {
         if(fragment instanceof ContinuationFragment)
             addContinuationFragment(((ContinuationFragment) fragment));

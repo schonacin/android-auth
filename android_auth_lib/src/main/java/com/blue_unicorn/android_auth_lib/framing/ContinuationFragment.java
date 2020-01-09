@@ -1,6 +1,6 @@
 package com.blue_unicorn.android_auth_lib.framing;
 
-public class ContinuationFragment extends Fragment {
+public class ContinuationFragment implements Fragment {
     byte SEQ;
     byte[] DATA;
 
