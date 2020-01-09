@@ -1,10 +1,13 @@
 package com.blue_unicorn.android_auth_lib.cbor;
 
+import com.blue_unicorn.android_auth_lib.exception.InvalidCmdException;
 import com.blue_unicorn.android_auth_lib.fido.BaseGetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.fido.BaseGetInfoRequest;
 import com.blue_unicorn.android_auth_lib.fido.BaseMakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.RequestObject;
 import com.blue_unicorn.android_auth_lib.gson.GsonHelper;
+
+import io.reactivex.rxjava3.core.Observable;
 
 public class BaseAuthInputMapper implements AuthInputMapper {
 
@@ -20,17 +23,26 @@ public class BaseAuthInputMapper implements AuthInputMapper {
         this.data = data;
     }
 
-    public RequestObject mapRespectiveCommand() {
+    public Observable<RequestObject> mapRespectiveCommand() {
+
+        /*
+        * currently supported methods are:
+        *
+        *   getInfo
+        *   makeCredential
+        *   getAssertion
+        *
+        * */
 
         switch (this.cmd) {
             case MAKE_CREDENTIAL:
-                return buildMakeCredentialRequest();
+                return Observable.fromCallable(this::buildMakeCredentialRequest);
             case GET_ASSERTION:
-                return buildGetAssertionRequest();
+                return Observable.fromCallable(this::buildGetAssertionRequest);
             case GET_INFO:
-                return buildGetInfoRequest();
+                return Observable.fromCallable(this::buildGetInfoRequest);
             default:
-                return null;
+                return Observable.error(new InvalidCmdException());
         }
 
     }
