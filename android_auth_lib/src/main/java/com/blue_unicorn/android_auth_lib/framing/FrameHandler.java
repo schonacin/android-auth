@@ -32,44 +32,31 @@ public class FrameHandler {
         return frameSize <= 0;
     }
 
-    public Flowable<Fragment> toFragments(Flowable<byte[]> rawFragments) {
+    // TODO: call in defragment() or not?
+    /*public Flowable<Fragment> toFragments(Flowable<byte[]> rawFragments) {
         return rawFragments.map();
-    }
-
-    private Frame reducer(Frame frame, Fragment fragment) {
-
-    }
+    }*/
 
     // implements defragmentation as described in https://fidoalliance.org/specs/fido-v2.0-ps-20190130/fido-client-to-authenticator-protocol-v2.0-ps-20190130.html#ble-framing-fragmentation
     // assumptions made:
     // - first fragment is always initialization fragment
     // - continuation fragments must be in correct order (sequence numbers would not make sense then)
     // - if there is sequence number wraparound, continuation fragments with same sequence number are in correct order among each other
-    // TODO: replace ugly hack with the boundary element with https://github.com/akarnokd/RxJavaExtensions windowUntil
-    public Flowable<Frame> defragment(Flowable<Fragment> fragments) {
+    public Flowable<Frame> defragment(Flowable<Fragment> fragments, int mtu) {
+
         return fragments
 
-                /*
-                // add boundary element after last continuation fragment
-                .concatMap(f -> isLastFragmentOfFrame(f.value()) ? Flowable.just(f, new FrameBoundary()) : Flowable.just(f))
-
-                // divide fragments into windows of fragments containing all fragments of a frame (using boundary element)
-                .publish(p -> p
-                        .filter(v -> !(v instanceof FrameBoundary))
-                        .window(w -> p.filter(v -> v instanceof FrameBoundary)))
-                */
-
+                // divide fragments into windows of fragments containing all fragments of a frame
                 .compose(FlowableTransformers.windowUntil(this::isLastFragmentOfFrame))
 
                 // collect fragments of each window into a frame
-                .concatMap(frameWindow -> frameWindow
-                        .collect(Frame::new, Frame::addFragment)
-                        .toFlowable());
+                .concatMap(frameWindow -> frameWindow.collect(() -> new Frame(mtu), Frame::addFragment).toFlowable());
     }
 
-    public Flowable<Fragment> fragment(Flowable<Frame> frames) {
+    // TODO: implement fragmentation
+    /*public Flowable<Fragment> fragment(Flowable<Frame> frames) {
         return frames.concatMap(frame -> Flowable.just(frame.getFragments(mtu)));
-    }
+    }*/
 
     public void updateMtu(int mtu) {
         this.mtu = mtu;
