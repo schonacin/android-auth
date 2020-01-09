@@ -43,7 +43,7 @@ public class FrameHandler {
                 .compose(FlowableTransformers.windowUntil(this::isLastFragmentOfFrame))
 
                 // collect fragments of each window into a frame
-                .concatMap(frameWindow -> frameWindow.collect(() -> new Frame(mtu), Frame::addFragment).toFlowable());
+                .concatMap(frameWindow -> frameWindow.collect(() -> new Frame(this.mtu), Frame::addFragment).toFlowable());
     }
 
     // TODO: implement fragmentation

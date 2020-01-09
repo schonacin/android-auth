@@ -1,6 +1,7 @@
 package com.blue_unicorn.android_auth_lib.framing;
 
-// TODO: outsource construction of frame (addFragment method, check/mtu attributes) to FrameBuilder/FrameBuffer class or even to FrameHandler?
+// TODO: outsource fragment-by-fragment construction of frame (addFragment method, check/mtu
+//  attribute) to FrameBuilder/FrameBuffer class, or even to FrameHandler?
 public class Frame {
     byte CMD_STAT;
     byte HLEN;
@@ -25,6 +26,7 @@ public class Frame {
             addInitializationFragment(((InitializationFragment) fragment));
     }
 
+    // TODO: replace for-loop with break statement, use while loop instead?
     public void addContinuationFragment(ContinuationFragment fragment) {
         // maximum of wraparounds possible is 0xff (256)
         for(int wraparound = 0; wraparound < 0xff; wraparound++) {
