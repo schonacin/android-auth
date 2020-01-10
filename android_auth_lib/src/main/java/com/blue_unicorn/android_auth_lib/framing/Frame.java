@@ -15,7 +15,7 @@ public class Frame {
     }
 
     // fills CMD_STAT, HLEN, LLEN and DATA of the frame with the content of the supplied fragment
-    // assumptions:
+    // assumptions made:
     // - except for the last fragment, all available space (= mtu) for data is used
     // - the MTU is at least 3 (to be able to transmit an initialization fragment)
     // TODO: use method overloading instead of choosing methods based on instanceof check?

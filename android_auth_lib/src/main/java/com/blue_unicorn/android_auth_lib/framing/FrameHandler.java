@@ -8,7 +8,6 @@ public class FrameHandler {
     private int mtu;
     private int remainingFrameSize;
 
-
     public FrameHandler(int mtu, int frameSize) {
         this.mtu = mtu;
         this.remainingFrameSize = frameSize;
