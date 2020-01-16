@@ -1,6 +1,3 @@
 package com.blue_unicorn.android_auth_lib.framing;
 
-// TODO: not sure if this should be an interface or an (abstract) class
-public interface Fragment {
-    
-}
+public abstract class Fragment {}
