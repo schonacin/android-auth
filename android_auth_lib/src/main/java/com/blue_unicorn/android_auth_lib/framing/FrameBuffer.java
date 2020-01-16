@@ -13,8 +13,6 @@ import java.util.List;
 // TODO: make reactive
 public class FrameBuffer {
 
-    // TODO: precalculate mtu - 1 and mtu - 3 in constructors and safe as attribute
-    private int mtu;
     private int initializationFragmentDataSize;
     private int continuationFragmentDataSize;
     private Frame frame;
@@ -22,33 +20,32 @@ public class FrameBuffer {
     private List<ContinuationFragment> continuationFragments;
 
     public FrameBuffer(int mtu) {
-        this.mtu = mtu;
-        this.initializationFragmentDataSize = mtu - 3;
-        this.continuationFragmentDataSize = mtu - 1;
+        setFragmentDataSizes(mtu);
         this.continuationFragments = new ArrayList<ContinuationFragment>();
     }
 
     public FrameBuffer(int mtu, Frame frame) {
-        this.mtu = mtu;
-        this.initializationFragmentDataSize = mtu - 3;
-        this.continuationFragmentDataSize = mtu - 1;
+        setFragmentDataSizes(mtu);
         this.frame = frame;
-
-        // fragment frame
-        byte[] initializationFragmentData = new byte[mtu - 3];
-        System.arraycopy(frame.getDATA(), 0, initializationFragmentData, 0, mtu - 3);
+        byte[] initializationFragmentData = new byte[this.initializationFragmentDataSize];
+        System.arraycopy(frame.getDATA(), 0, initializationFragmentData, 0, this.initializationFragmentDataSize);
         initializationFragment = new InitializationFragment(frame.getCMDSTAT(), frame.getHLEN(), frame.getLLEN(), initializationFragmentData);
         continuationFragments = new ArrayList<ContinuationFragment>(frame.getHLEN() << 8 + frame.getLLEN());
-        byte[] continuationFragmentData = new byte[mtu - 1];
-        for (int i = mtu - 3; i < frame.getDATA().length; i += mtu - 1) {
+        byte[] continuationFragmentData = new byte[this.continuationFragmentDataSize];
+        for (int i = this.initializationFragmentDataSize; i < frame.getDATA().length; i += this.continuationFragmentDataSize) {
             if (i < frame.getDATA().length)
-                System.arraycopy(frame.getDATA(), i, continuationFragmentData, 0, mtu - 1);
+                System.arraycopy(frame.getDATA(), i, continuationFragmentData, 0, this.continuationFragmentDataSize);
             else
                 System.arraycopy(frame.getDATA(), i, continuationFragmentData, 0, frame.getDATA().length - i);
-            continuationFragments.add(new ContinuationFragment((byte) (i / (mtu - 1)), continuationFragmentData));
+            continuationFragments.add(new ContinuationFragment((byte) (i / this.continuationFragmentDataSize), continuationFragmentData));
         }
         if(!isComplete())
             return; // TODO: throw error: malformed frame or fragmentation went wrong
+    }
+
+    private void setFragmentDataSizes(int mtu) {
+        this.initializationFragmentDataSize = mtu - 3;
+        this.continuationFragmentDataSize = mtu - 1;
     }
 
     public List<Fragment> getFragments() {
@@ -63,11 +60,9 @@ public class FrameBuffer {
     }
 
     private boolean continuationFragmentsComplete() {
-        int initializationFragmentDataSize = mtu - 3;
-        int continuationFragmentDataSize = mtu - 1;
         int frameDataSize = this.frame.getHLEN() << 8 + this.frame.getLLEN();
-        int totalContinuationFragmentsDataSize = (frameDataSize - initializationFragmentDataSize);
-        int expectedNumberOfContinuationFragments = totalContinuationFragmentsDataSize / continuationFragmentDataSize + totalContinuationFragmentsDataSize % continuationFragmentDataSize / totalContinuationFragmentsDataSize;
+        int totalContinuationFragmentsDataSize = (frameDataSize - this.initializationFragmentDataSize);
+        int expectedNumberOfContinuationFragments = totalContinuationFragmentsDataSize / this.continuationFragmentDataSize + totalContinuationFragmentsDataSize % continuationFragmentDataSize / totalContinuationFragmentsDataSize;
 
         return continuationFragments.size() == expectedNumberOfContinuationFragments;
     }
@@ -105,8 +100,8 @@ public class FrameBuffer {
     public void addContinuationFragment(ContinuationFragment fragment) {
         continuationFragments.add(fragment);
 
-        int initializationFragmentDataOffset = mtu - 3;
-        int continuationFragmentDataOffset = (mtu - 1) * fragment.getSEQ();
+        int initializationFragmentDataOffset = this.initializationFragmentDataSize;
+        int continuationFragmentDataOffset = this.continuationFragmentDataSize * fragment.getSEQ();
         int wraparoundOffset = 0x80 * getNumberOfContinuationFragmentsWithSEQ(fragment.getSEQ());
         int totalOffset = wraparoundOffset + continuationFragmentDataOffset + initializationFragmentDataOffset;
         System.arraycopy(fragment.getDATA(), 0, this.frame.getDATA(), totalOffset, fragment.getDATA().length);
@@ -125,7 +120,7 @@ public class FrameBuffer {
     }
 
     public Frame getFrame() {
-        // TODO: should this check be here or at caller of getFrame()?
+        // TODO: should this check be here or at caller of getFrame() (outside FrameBuffer) ?
         if (!isComplete())
             return null; // TODO: throw error: frame not complete
         return this.frame;
