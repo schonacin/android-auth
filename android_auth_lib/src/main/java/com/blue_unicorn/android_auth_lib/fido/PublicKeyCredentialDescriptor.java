@@ -3,8 +3,7 @@ package com.blue_unicorn.android_auth_lib.fido;
 import java.util.List;
 
 /**
- * Reference: https://www.w3.org/TR/webauthn/#credential-dictionary
- *
+ * See <a href="https://www.w3.org/TR/webauthn/#credential-dictionary">reference</a>
  */
 public interface PublicKeyCredentialDescriptor {
 
@@ -13,4 +12,5 @@ public interface PublicKeyCredentialDescriptor {
     byte[] getId();
 
     List<String> getTransports();
+
 }

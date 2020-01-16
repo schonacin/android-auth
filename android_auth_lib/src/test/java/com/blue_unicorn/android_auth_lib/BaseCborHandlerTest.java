@@ -31,13 +31,13 @@ public class BaseCborHandlerTest {
 
     private static final byte[] RAW_GET_ASSERTION_REQUEST = Base64.decode("AqQBa2V4YW1wbGUuY29tAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEDgqJiaWRYQPIgBt5PkFr2ikOULwJPKl7OYD2cbUs9+L4I7QH8RCZG0DSFisdb7T/VgL+YCNlPy+6CubLvZnevCtzDWFLqa55kdHlwZWpwdWJsaWMta2V5omJpZFgyAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNkdHlwZWpwdWJsaWMta2V5BaFidXb1", Base64.DEFAULT);
 
-    private static final byte[] RAW_GET_INFO_REQUEST = Base64.decode("BA==", Base64.DEFAULT);
+    private static final byte[] RAW_GET_INFO_REQUEST = new byte[]{(byte) 0x4};
 
-    private static final byte[] RAW_INVALID_CMD_REQUEST = Base64.decode("/w==", Base64.DEFAULT);
+    private static final byte[] RAW_INVALID_CMD_REQUEST = new byte[]{(byte) 0xff};
 
     private static final byte[] RAW_EMPTY_REQUEST = new byte[]{};
 
-    private static final byte[] RAW_INVALID_PARAMETER_REQUEST = Base64.decode("AXc=", Base64.DEFAULT);
+    private static final byte[] RAW_INVALID_PARAMETER_REQUEST = new byte[]{(byte) 0x1, (byte) 0x77};
 
     private CborHandler cborHandler;
 
@@ -56,18 +56,16 @@ public class BaseCborHandlerTest {
 
     @Test
     public void makeCredentialRequest_transformsWithRightValues() {
-
         TestObserver<RequestObject> testObserver = cborHandler.decode(RAW_MAKE_CREDENTIAL_REQUEST)
                 .test();
 
-        testObserver
-                .assertValueCount(1);
+        testObserver.assertValueCount(1);
 
         assertThat(testObserver.values().get(0), is(instanceOf(MakeCredentialRequest.class)));
 
         MakeCredentialRequest transformedMakeCredentialRequest =
-                (MakeCredentialRequest) testObserver
-                        .values().get(0);
+                (MakeCredentialRequest) testObserver.values()
+                        .get(0);
 
         final byte[] CLIENT_DATA_HASH = Base64.decode("zFRv1YtAg4ALYJ7hCp59aDPcnlRTQJG8fqX2nTaKTXw=", Base64.DEFAULT);
         assertThat(transformedMakeCredentialRequest.getClientDataHash(), is(CLIENT_DATA_HASH));
@@ -75,7 +73,7 @@ public class BaseCborHandlerTest {
         PublicKeyCredentialUserEntity user = transformedMakeCredentialRequest.getUser();
         assertThat(user.getName(), is("User"));
         assertThat(user.getDisplayName(), is("user"));
-        assertThat(user.getId(), is(new byte[]{-73, -103, 1, 0, 0, 0, 0, 0, 0 ,0}));
+        assertThat(user.getId(), is(new byte[]{-73, -103, 1, 0, 0, 0, 0, 0, 0, 0}));
 
         PublicKeyCredentialRpEntity rp = transformedMakeCredentialRequest.getRp();
         assertThat(rp.getId(), is("webauthn.io"));
@@ -83,7 +81,6 @@ public class BaseCborHandlerTest {
 
         assertThat(transformedMakeCredentialRequest.getPubKeyCredParams().length, is(10));
         assertThat(transformedMakeCredentialRequest.getExcludeList().size(), is(0));
-
     }
 
     @Test
@@ -96,30 +93,23 @@ public class BaseCborHandlerTest {
 
     @Test
     public void getAssertionRequest_transformsWithRightValues() {
-
         TestObserver testObserver = cborHandler.decode(RAW_GET_ASSERTION_REQUEST)
                 .test();
 
-        testObserver
-                .assertValueCount(1);
+        testObserver.assertValueCount(1);
 
         assertThat(testObserver.values().get(0), is(instanceOf(GetAssertionRequest.class)));
 
         GetAssertionRequest transformedGetAssertionRequest =
-                (GetAssertionRequest) testObserver
-                        .values()
+                (GetAssertionRequest) testObserver.values()
                         .get(0);
 
         final byte[] CLIENT_DATA_HASH = Base64.decode("aHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UE=", Base64.DEFAULT);
-
         assertThat(transformedGetAssertionRequest.getClientDataHash(), is(CLIENT_DATA_HASH));
 
         assertThat(transformedGetAssertionRequest.getRpId(), is("example.com"));
-
         assertThat(transformedGetAssertionRequest.getAllowList().size(), is(2));
-
         assertThat(transformedGetAssertionRequest.getOptions().size(), is(1));
-
     }
 
     @Test
@@ -132,15 +122,12 @@ public class BaseCborHandlerTest {
 
     @Test
     public void getInfoRequest_transformsWithRightValues() {
-
         TestObserver testObserver = cborHandler.decode(RAW_GET_INFO_REQUEST)
                 .test();
 
-        testObserver
-                .assertValueCount(1);
+        testObserver.assertValueCount(1);
 
         assertThat(testObserver.values().get(0), is(instanceOf(GetInfoRequest.class)));
-
     }
 
     @Test

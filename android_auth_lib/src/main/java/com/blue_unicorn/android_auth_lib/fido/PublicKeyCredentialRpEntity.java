@@ -1,8 +1,7 @@
 package com.blue_unicorn.android_auth_lib.fido;
 
 /**
- * Reference: https://www.w3.org/TR/webauthn/#dictdef-publickeycredentialrpentity
- *
+ * See <a href="https://www.w3.org/TR/webauthn/#dictdef-publickeycredentialrpentity">reference</a>
  */
 public interface PublicKeyCredentialRpEntity {
 
