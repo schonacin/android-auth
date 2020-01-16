@@ -10,38 +10,38 @@ import com.blue_unicorn.android_auth_lib.fido.GetInfoResponse;
 import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.MakeCredentialResponse;
 
-import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 class BaseAuthenticatorAPI implements AuthenticatorAPI{
 
 
-    public Observable<MakeCredentialRequest> makeCredential(MakeCredentialRequest request) {
+    public Single<MakeCredentialRequest> makeCredential(MakeCredentialRequest request) {
 
-        return Observable.just(request);
-
-    }
-
-    public Observable<MakeCredentialResponse> makeInternalCredential(MakeCredentialRequest request) {
-
-        return Observable.just(new BaseMakeCredentialResponse());
+        return Single.just(request);
 
     }
 
-    public Observable<GetAssertionRequest> getAssertion(GetAssertionRequest request) {
+    public Single<MakeCredentialResponse> makeInternalCredential(MakeCredentialRequest request) {
 
-        return Observable.just(request);
-
-    }
-
-    public Observable<GetAssertionResponse> getInternalAssertion(GetAssertionRequest request) {
-
-        return Observable.just(new BaseGetAssertionResponse());
+        return Single.just(new BaseMakeCredentialResponse());
 
     }
 
-    public Observable<GetInfoResponse> getInfo(GetInfoRequest request) {
+    public Single<GetAssertionRequest> getAssertion(GetAssertionRequest request) {
 
-        return Observable.just(new BaseGetInfoResponse());
+        return Single.just(request);
+
+    }
+
+    public Single<GetAssertionResponse> getInternalAssertion(GetAssertionRequest request) {
+
+        return Single.just(new BaseGetAssertionResponse());
+
+    }
+
+    public Single<GetInfoResponse> getInfo(GetInfoRequest request) {
+
+        return Single.just(new BaseGetInfoResponse());
 
     }
 

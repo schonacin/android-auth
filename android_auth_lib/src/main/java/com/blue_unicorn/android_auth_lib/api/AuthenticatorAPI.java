@@ -7,18 +7,18 @@ import com.blue_unicorn.android_auth_lib.fido.GetInfoResponse;
 import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.MakeCredentialResponse;
 
-import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 interface AuthenticatorAPI {
 
-    Observable<MakeCredentialRequest> makeCredential(MakeCredentialRequest request);
+    Single<MakeCredentialRequest> makeCredential(MakeCredentialRequest request);
 
-    Observable<MakeCredentialResponse> makeInternalCredential(MakeCredentialRequest request);
+    Single<MakeCredentialResponse> makeInternalCredential(MakeCredentialRequest request);
 
-    Observable<GetAssertionRequest> getAssertion(GetAssertionRequest request);
+    Single<GetAssertionRequest> getAssertion(GetAssertionRequest request);
 
-    Observable<GetAssertionResponse> getInternalAssertion(GetAssertionRequest request);
+    Single<GetAssertionResponse> getInternalAssertion(GetAssertionRequest request);
 
-    Observable<GetInfoResponse> getInfo(GetInfoRequest request);
+    Single<GetInfoResponse> getInfo(GetInfoRequest request);
 
 }
