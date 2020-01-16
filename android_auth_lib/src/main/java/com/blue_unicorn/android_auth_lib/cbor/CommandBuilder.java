@@ -19,8 +19,9 @@ final class CommandBuilder {
     @NonNull
     static Single<Command> buildCommand(byte[] input) {
         return Single.defer(() -> {
-            if (input.length == 0)
+            if (input.length == 0) {
                 return Single.error(new InvalidLengthException());
+            }
 
             byte value = input[0];
             byte[] rawParameters = new byte[input.length - 1];
@@ -34,8 +35,9 @@ final class CommandBuilder {
     @NonNull
     private static Single<String> decodeParameters(byte[] rawParameters) {
         return Single.defer(() -> {
-            if (rawParameters.length == 0)
+            if (rawParameters.length == 0) {
                 return Single.just("");
+            }
 
             CBORObject cborDecodedParameters = CBORObject.DecodeFromBytes(rawParameters, ENCODE_OPTIONS);
             String decodedParameters = cborDecodedParameters.ToJSONString();
