@@ -8,6 +8,9 @@
 # Java class files
 *.class
 
+# cmake files
+*.cxx/
+
 # Generated files
 bin/
 gen/

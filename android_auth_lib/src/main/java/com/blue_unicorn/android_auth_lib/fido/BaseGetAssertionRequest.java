@@ -5,6 +5,11 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * These serialized names correlate to the the table specified in:
+ * https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#commands
+ *
+ */
 public class BaseGetAssertionRequest implements GetAssertionRequest {
 
     @SerializedName("1")
