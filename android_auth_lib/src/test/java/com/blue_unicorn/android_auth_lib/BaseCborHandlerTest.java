@@ -1,5 +1,7 @@
 package com.blue_unicorn.android_auth_lib;
 
+import android.util.Base64;
+
 import com.blue_unicorn.android_auth_lib.cbor.BaseCborHandler;
 import com.blue_unicorn.android_auth_lib.cbor.CborHandler;
 import com.blue_unicorn.android_auth_lib.exception.InvalidCommandException;
@@ -15,25 +17,27 @@ import com.blue_unicorn.android_auth_lib.fido.RequestObject;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
-import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import io.reactivex.rxjava3.observers.TestObserver;
 
+@RunWith(RobolectricTestRunner.class)
 public class BaseCborHandlerTest {
 
-    private static final byte[] RAW_MAKE_CREDENTIAL_REQUEST = Base64.decodeBase64("AaUBWCDMVG/Vi0CDgAtgnuEKnn1oM9yeVFNAkbx+pfadNopNfAKiYmlka3dlYmF1dGhuLmlvZG5hbWVrd2ViYXV0aG4uaW8Do2JpZEq3mQEAAAAAAAAAZG5hbWVkVXNlcmtkaXNwbGF5TmFtZWR1c2VyBIqiY2FsZyZkdHlwZWpwdWJsaWMta2V5omNhbGc4ImR0eXBlanB1YmxpYy1rZXmiY2FsZzgjZHR5cGVqcHVibGljLWtleaJjYWxnOQEAZHR5cGVqcHVibGljLWtleaJjYWxnOQEBZHR5cGVqcHVibGljLWtleaJjYWxnOQECZHR5cGVqcHVibGljLWtleaJjYWxnOCRkdHlwZWpwdWJsaWMta2V5omNhbGc4JWR0eXBlanB1YmxpYy1rZXmiY2FsZzgmZHR5cGVqcHVibGljLWtleaJjYWxnJ2R0eXBlanB1YmxpYy1rZXkFgA==");
+    private static final byte[] RAW_MAKE_CREDENTIAL_REQUEST = Base64.decode("AaUBWCDMVG/Vi0CDgAtgnuEKnn1oM9yeVFNAkbx+pfadNopNfAKiYmlka3dlYmF1dGhuLmlvZG5hbWVrd2ViYXV0aG4uaW8Do2JpZEq3mQEAAAAAAAAAZG5hbWVkVXNlcmtkaXNwbGF5TmFtZWR1c2VyBIqiY2FsZyZkdHlwZWpwdWJsaWMta2V5omNhbGc4ImR0eXBlanB1YmxpYy1rZXmiY2FsZzgjZHR5cGVqcHVibGljLWtleaJjYWxnOQEAZHR5cGVqcHVibGljLWtleaJjYWxnOQEBZHR5cGVqcHVibGljLWtleaJjYWxnOQECZHR5cGVqcHVibGljLWtleaJjYWxnOCRkdHlwZWpwdWJsaWMta2V5omNhbGc4JWR0eXBlanB1YmxpYy1rZXmiY2FsZzgmZHR5cGVqcHVibGljLWtleaJjYWxnJ2R0eXBlanB1YmxpYy1rZXkFgA==", Base64.DEFAULT);
 
-    private static final byte[] RAW_GET_ASSERTION_REQUEST = Base64.decodeBase64("AqQBa2V4YW1wbGUuY29tAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEDgqJiaWRYQPIgBt5PkFr2ikOULwJPKl7OYD2cbUs9+L4I7QH8RCZG0DSFisdb7T/VgL+YCNlPy+6CubLvZnevCtzDWFLqa55kdHlwZWpwdWJsaWMta2V5omJpZFgyAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNkdHlwZWpwdWJsaWMta2V5BaFidXb1");
+    private static final byte[] RAW_GET_ASSERTION_REQUEST = Base64.decode("AqQBa2V4YW1wbGUuY29tAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEDgqJiaWRYQPIgBt5PkFr2ikOULwJPKl7OYD2cbUs9+L4I7QH8RCZG0DSFisdb7T/VgL+YCNlPy+6CubLvZnevCtzDWFLqa55kdHlwZWpwdWJsaWMta2V5omJpZFgyAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNkdHlwZWpwdWJsaWMta2V5BaFidXb1", Base64.DEFAULT);
 
-    private static final byte[] RAW_GET_INFO_REQUEST = Base64.decodeBase64("BA==");
+    private static final byte[] RAW_GET_INFO_REQUEST = Base64.decode("BA==", Base64.DEFAULT);
 
-    private static final byte[] RAW_INVALID_CMD_REQUEST = Base64.decodeBase64("/w==");
+    private static final byte[] RAW_INVALID_CMD_REQUEST = Base64.decode("/w==", Base64.DEFAULT);
 
     private static final byte[] RAW_EMPTY_REQUEST = new byte[]{};
 
-    private static final byte[] RAW_INVALID_PARAMETER_REQUEST = Base64.decodeBase64("AXc=");
+    private static final byte[] RAW_INVALID_PARAMETER_REQUEST = Base64.decode("AXc=", Base64.DEFAULT);
 
     private CborHandler cborHandler;
 
@@ -65,7 +69,7 @@ public class BaseCborHandlerTest {
                 (MakeCredentialRequest) testObserver
                         .values().get(0);
 
-        final byte[] CLIENT_DATA_HASH = Base64.decodeBase64("zFRv1YtAg4ALYJ7hCp59aDPcnlRTQJG8fqX2nTaKTXw=");
+        final byte[] CLIENT_DATA_HASH = Base64.decode("zFRv1YtAg4ALYJ7hCp59aDPcnlRTQJG8fqX2nTaKTXw=", Base64.DEFAULT);
         assertThat(transformedMakeCredentialRequest.getClientDataHash(), is(CLIENT_DATA_HASH));
 
         PublicKeyCredentialUserEntity user = transformedMakeCredentialRequest.getUser();
@@ -106,7 +110,7 @@ public class BaseCborHandlerTest {
                         .values()
                         .get(0);
 
-        final byte[] CLIENT_DATA_HASH = Base64.decodeBase64("aHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UE=");
+        final byte[] CLIENT_DATA_HASH = Base64.decode("aHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UE=", Base64.DEFAULT);
 
         assertThat(transformedGetAssertionRequest.getClientDataHash(), is(CLIENT_DATA_HASH));
 
@@ -140,7 +144,7 @@ public class BaseCborHandlerTest {
     }
 
     @Test
-    public void invalidCmdRequest_fails() {
+    public void invalidCommandRequest_fails() {
         cborHandler.decode(RAW_INVALID_CMD_REQUEST)
                 .test()
                 .assertError(InvalidCommandException.class);
@@ -154,7 +158,7 @@ public class BaseCborHandlerTest {
     }
 
     @Test
-    public void invalidParRequest_fails() {
+    public void invalidParameterRequest_fails() {
         cborHandler.decode(RAW_INVALID_PARAMETER_REQUEST)
                 .test()
                 .assertError(InvalidParameterException.class);
