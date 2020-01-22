@@ -3,7 +3,6 @@ package com.blue_unicorn.android_auth_lib.gson;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-
 public final class GsonHelper {
 
     private static final GsonHelper instance = new GsonHelper();

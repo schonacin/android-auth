@@ -7,12 +7,15 @@ import com.blue_unicorn.android_auth_lib.cbor.CborHandler;
 import com.blue_unicorn.android_auth_lib.exception.InvalidCommandException;
 import com.blue_unicorn.android_auth_lib.exception.InvalidLengthException;
 import com.blue_unicorn.android_auth_lib.exception.InvalidParameterException;
+import com.blue_unicorn.android_auth_lib.fido.BaseGetInfoResponse;
 import com.blue_unicorn.android_auth_lib.fido.GetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.fido.GetInfoRequest;
+import com.blue_unicorn.android_auth_lib.fido.GetInfoResponse;
 import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialRpEntity;
 import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialUserEntity;
 import com.blue_unicorn.android_auth_lib.fido.RequestObject;
+import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -21,6 +24,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import io.reactivex.rxjava3.observers.TestObserver;
 
@@ -149,6 +155,30 @@ public class BaseCborHandlerTest {
         cborHandler.decode(RAW_INVALID_PARAMETER_REQUEST)
                 .test()
                 .assertError(InvalidParameterException.class);
+    }
+
+    @Test
+    public void getInfoResponse_transformsCorrectly() {
+        Map<String, Boolean> options = new HashMap<>();
+        options.putIfAbsent("rk", true);
+        GetInfoResponse response = new BaseGetInfoResponse();
+        response.setAaguid(new byte[]{(byte)0xF1, (byte)0xD0, (byte)0xB1, (byte)0x8E, (byte)0x10, (byte)0x01, (byte)0x4A, (byte)0x81, (byte)0x43, (byte)0x41, (byte)0x1C, (byte)0xA1, (byte)0x04, (byte)0x00, (byte)0xF1, (byte)0xD0});
+        response.setMaxMsgSize(1024);
+        response.setVersions(new String[]{"FIDO_2_0"});
+        response.setOptions(options);
+
+        byte[] encodedResponse =
+        cborHandler.encode(response)
+                .test()
+                .assertNoErrors()
+                .assertComplete()
+                .values()
+                .get(0);
+
+        final String ENCODED_HEX_STRING_GET_INFO_RESPONSE = "00A40181684649444F5F325F300350F1D0B18E10014A8143411CA10400F1D004A162726BF505190400";
+        String encodedHexStringResponse = ArrayUtil.bytesToHex(encodedResponse);
+
+        assertThat(encodedHexStringResponse, is(ENCODED_HEX_STRING_GET_INFO_RESPONSE));
     }
 
 }
