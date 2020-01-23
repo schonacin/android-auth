@@ -1,17 +1,15 @@
-package com.blue_unicorn.android_auth_lib.framing;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_low_energy.framing;
 
 // implements concept of frames as described in https://fidoalliance.org/specs/fido-v2.0-ps-20190130/fido-client-to-authenticator-protocol-v2.0-ps-20190130.html#ble-framing
 // represents request frames as well as response frames, as the only difference in the CTAP2 specs is the mnemonic of the CMD/STAT field
-public class Frame {
+public class BaseFrame implements Frame {
+
     private byte CMDSTAT;
     private byte HLEN;
     private byte LLEN;
     private byte[] DATA;
 
-    public Frame(byte CMDSTAT, byte HLEN, byte LLEN, byte[] DATA) {
+    public BaseFrame(byte CMDSTAT, byte HLEN, byte LLEN, byte[] DATA) {
         if(DATA.length != HLEN << 8 + LLEN)
             return; // TODO: throw error: frame construction failed: malformed parameters
         this.CMDSTAT = CMDSTAT;

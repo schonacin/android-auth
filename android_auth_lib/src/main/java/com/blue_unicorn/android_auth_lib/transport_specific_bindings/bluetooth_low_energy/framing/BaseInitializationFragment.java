@@ -1,19 +1,20 @@
-package com.blue_unicorn.android_auth_lib.framing;
+package com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_low_energy.framing;
 
-public class InitializationFragment extends Fragment {
+public class BaseInitializationFragment extends BaseFragment implements InitializationFragment {
+
     private byte CMD;
     private byte HLEN;
     private byte LLEN;
     private byte[] DATA;
 
-    public InitializationFragment(byte CMD, byte HLEN, byte LLEN, byte[] DATA) {
+    public BaseInitializationFragment(byte CMD, byte HLEN, byte LLEN, byte[] DATA) {
         this.CMD = CMD;
         this.HLEN = HLEN;
         this.LLEN = LLEN;
         this.DATA = DATA;
     }
 
-    public InitializationFragment(byte[] rawFragment){
+    public BaseInitializationFragment(byte[] rawFragment){
         this.CMD = rawFragment[0];
         this.HLEN = rawFragment[1];
         this.LLEN = rawFragment[2];
