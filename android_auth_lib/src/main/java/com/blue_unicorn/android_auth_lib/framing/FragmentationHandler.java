@@ -9,11 +9,9 @@ import io.reactivex.rxjava3.core.*;
 public class FragmentationHandler {
 
     private int mtu;
-    private int remainingFrameSize;
 
-    public FragmentationHandler(int mtu, int frameSize) {
+    public FragmentationHandler(int mtu) {
         this.mtu = mtu;
-        this.remainingFrameSize = frameSize;
     }
 
     public Single<Frame> defragment(Flowable<Fragment> fragments, int mtu) {
@@ -21,9 +19,7 @@ public class FragmentationHandler {
                         .map(FrameBuffer::getFrame);
     }
 
-    // TODO: decide for a backpressure strategy
     public Flowable<Fragment> fragment(Single<Frame> frame) {
-        return frame.flatMapObservable(f -> Observable.fromIterable(new FrameBuffer(mtu, f).getFragments()))
-                .toFlowable();
+        return frame.flattenAsFlowable(f -> new FrameBuffer(mtu, f).getFragments());
     }
 }

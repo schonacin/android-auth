@@ -9,6 +9,12 @@ public class ContinuationFragment extends Fragment {
         this.DATA = DATA;
     }
 
+    public ContinuationFragment(byte[] rawFragment){
+        this.SEQ = rawFragment[0];
+        this.DATA = new byte[rawFragment.length - 1];
+        System.arraycopy(rawFragment, 1, this.DATA, 0, this.DATA.length);
+    }
+
     public byte getSEQ() {
         return SEQ;
     }
@@ -16,9 +22,4 @@ public class ContinuationFragment extends Fragment {
     public byte[] getDATA() {
         return DATA;
     }
-
-    // TODO: why not impement this as constructor?
-    /*public static Fragment fromByteArray(byte[] rawFragment) {
-
-    };*/
 }

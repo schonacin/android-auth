@@ -13,6 +13,14 @@ public class InitializationFragment extends Fragment {
         this.DATA = DATA;
     }
 
+    public InitializationFragment(byte[] rawFragment){
+        this.CMD = rawFragment[0];
+        this.HLEN = rawFragment[1];
+        this.LLEN = rawFragment[2];
+        this.DATA = new byte[rawFragment.length - 3];
+        System.arraycopy(rawFragment, 3, this.DATA, 0, this.DATA.length);
+    }
+
     public byte getCMD() {
         return CMD;
     }
@@ -28,10 +36,4 @@ public class InitializationFragment extends Fragment {
     public byte[] getDATA() {
         return DATA;
     }
-
-    // TODO: why not impement this as constructor?
-    /*public static Fragment fromByteArray(byte[] rawFragment) {
-
-        return new Fragment(rawFragment[0], rawFragment[1], rawFragment[2], System.arraycopy(rawFragment, 3, ));
-    }*/
 }

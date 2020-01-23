@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 // TODO: add description with reference to ctap2 spec
-// assumptions made:
+// assumptions made: TODO: write test for this cases
 // - first fragment is always initialization fragment
 // - continuation fragments must be in correct order (sequence numbers would not make sense then)
 // - if there is sequence number wraparound, continuation fragments with same sequence number are in correct order among each other
-// - except for the last fragment, all available space (= mtu) for data is used TODO: write test for this case
+// - except for the last fragment, all available space (= mtu) for data is used
 // - the MTU is at least 3 (to be able to transmit an initialization fragment)
-// TODO: make reactive
 public class FrameBuffer {
 
     private int initializationFragmentDataSize;
