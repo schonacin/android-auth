@@ -8,14 +8,19 @@ import com.blue_unicorn.android_auth_lib.exception.InvalidCommandException;
 import com.blue_unicorn.android_auth_lib.exception.InvalidLengthException;
 import com.blue_unicorn.android_auth_lib.exception.InvalidParameterException;
 import com.blue_unicorn.android_auth_lib.fido.AttestationStatement;
+import com.blue_unicorn.android_auth_lib.fido.BaseGetAssertionResponse;
 import com.blue_unicorn.android_auth_lib.fido.BaseGetInfoResponse;
 import com.blue_unicorn.android_auth_lib.fido.BaseMakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.fido.BasePublicKeyCredentialDescriptor;
+import com.blue_unicorn.android_auth_lib.fido.BasePublicKeyCredentialUserEntity;
 import com.blue_unicorn.android_auth_lib.fido.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.fido.GetAssertionResponse;
 import com.blue_unicorn.android_auth_lib.fido.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.fido.GetInfoResponse;
 import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.MakeCredentialResponse;
 import com.blue_unicorn.android_auth_lib.fido.PackedAttestationStatement;
+import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialDescriptor;
 import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialRpEntity;
 import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialUserEntity;
 import com.blue_unicorn.android_auth_lib.fido.RequestObject;
@@ -189,6 +194,7 @@ public class BaseCborHandlerTest {
     public void makeCredentialResponse_transformsCorrectly() {
         MakeCredentialResponse response = new BaseMakeCredentialResponse();
         response.setFmt("packed");
+
         byte[] authData = Base64.decode("EjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnir", Base64.DEFAULT); //141 bytes
         response.setAuthData(authData);
 
@@ -207,8 +213,39 @@ public class BaseCborHandlerTest {
                 .get(0);
 
         String encodedHexStringResponse = ArrayUtil.bytesToHex(encodedResponse);
-        final String ENCODED_HEX_STRING_MAKE_CREDENTIAL_RESPONSE = "";
+        final String ENCODED_HEX_STRING_MAKE_CREDENTIAL_RESPONSE = "00A301667061636B656402588D12345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678AB03A263616C672663736967541A1A1A1A1A1A1A1A1A1A1A1A1A1A2B2B2B2B2B2B";
 
+        assertThat(encodedHexStringResponse, is(ENCODED_HEX_STRING_MAKE_CREDENTIAL_RESPONSE));
+    }
+
+    @Test
+    public void getAssertionResponse_transformsCorrectly() {
+        GetAssertionResponse response = new BaseGetAssertionResponse();
+
+        PublicKeyCredentialDescriptor credential = new BasePublicKeyCredentialDescriptor("public-key", Base64.decode("EjRWeJCrze8=", Base64.DEFAULT));
+        response.setCredential(credential);
+
+        byte[] authData = Base64.decode("EjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnir", Base64.DEFAULT); //141 bytes
+        response.setAuthData(authData);
+
+        byte[] sig = Base64.decode("GhoaGhoaGhoaGhoaGhorKysrKys=", Base64.DEFAULT);
+        response.setSignature(sig);
+
+        PublicKeyCredentialUserEntity publicKeyCredentialUserEntity = new BasePublicKeyCredentialUserEntity(Base64.decode("EjRWeJCrze8SNFZ4kKvN7w==", Base64.DEFAULT));
+        response.setPublicKeyCredentialUserEntity(publicKeyCredentialUserEntity);
+
+        byte[] encodedResponse =
+                cborHandler.encode(response)
+                        .test()
+                        .assertNoErrors()
+                        .assertComplete()
+                        .values()
+                        .get(0);
+
+        String encodedHexStringResponse = ArrayUtil.bytesToHex(encodedResponse);
+        final String ENCODED_HEX_STRING_GET_ASSERTION_RESPONSE = "00A401A2626964481234567890ABCDEF64747970656A7075626C69632D6B657902588D12345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678AB03541A1A1A1A1A1A1A1A1A1A1A1A1A1A2B2B2B2B2B2B04A1626964501234567890ABCDEF1234567890ABCDEF";
+
+        assertThat(encodedHexStringResponse, is(ENCODED_HEX_STRING_GET_ASSERTION_RESPONSE));
     }
 
 }

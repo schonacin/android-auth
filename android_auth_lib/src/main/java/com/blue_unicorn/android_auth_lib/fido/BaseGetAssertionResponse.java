@@ -21,7 +21,7 @@ public class BaseGetAssertionResponse implements GetAssertionResponse {
     private PublicKeyCredentialUserEntity publicKeyCredentialUserEntity;
 
     @SerializedName("5")
-    private int numberOfCredentials;
+    private Integer numberOfCredentials;
 
     public void setCredential(PublicKeyCredentialDescriptor credential) {
         this.credential = credential;

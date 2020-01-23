@@ -2,6 +2,9 @@ package com.blue_unicorn.android_auth_lib.fido;
 
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * See <a href="https://www.w3.org/TR/webauthn/#packed-attestation">reference</a>
+ */
 public class PackedAttestationStatement implements AttestationStatement {
 
     @SerializedName("alg")
@@ -24,4 +27,5 @@ public class PackedAttestationStatement implements AttestationStatement {
     public void setX5c(byte[][] x5c) {
         this.x5c = x5c;
     }
+
 }

@@ -20,7 +20,7 @@ public class BaseGetInfoResponse implements GetInfoResponse {
     private Map<String, Boolean> options;
 
     @SerializedName("5")
-    private int maxMsgSize;
+    private Integer maxMsgSize;
 
     public void setVersions(String[] versions) {
         this.versions = versions;

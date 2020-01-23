@@ -38,4 +38,5 @@ public class BaseGetAssertionRequest implements GetAssertionRequest {
     public Map<String, Boolean> getOptions() {
         return options;
     }
+
 }
