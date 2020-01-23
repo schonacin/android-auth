@@ -2,6 +2,10 @@ package com.blue_unicorn.android_auth_lib.fido;
 
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * These serialized names correlate to the specification.
+ * See <a href="https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#commands">reference</a>
+ */
 public class BaseMakeCredentialResponse implements MakeCredentialResponse {
 
     @SerializedName("1")
@@ -11,7 +15,7 @@ public class BaseMakeCredentialResponse implements MakeCredentialResponse {
     private byte[] authData;
 
     @SerializedName("3")
-    private byte[] attStmt;
+    private AttestationStatement attStmt;
 
     public void setFmt(String fmt) {
         this.fmt = fmt;
@@ -21,7 +25,7 @@ public class BaseMakeCredentialResponse implements MakeCredentialResponse {
         this.authData = authData;
     }
 
-    public void setAttStmt(byte[] attStmt) {
+    public void setAttStmt(AttestationStatement attStmt) {
         this.attStmt = attStmt;
     }
 }

@@ -4,6 +4,10 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Map;
 
+/**
+ * These serialized names correlate to the specification.
+ * See <a href="https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#commands">reference</a>
+ */
 public class BaseGetInfoResponse implements GetInfoResponse {
 
     @SerializedName("1")

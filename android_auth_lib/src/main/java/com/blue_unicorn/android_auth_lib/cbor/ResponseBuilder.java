@@ -44,32 +44,50 @@ final class ResponseBuilder {
     @NonNull
     private static Single<CBORObject> adjustCborObject(CBORObject cborDecodedResponse) {
         return Single.defer(() -> {
-            Collection<CBORObject> cborObjectKeys = cborDecodedResponse.getKeys();
-            List<String> keys = new LinkedList<>();
-            for( CBORObject key: cborObjectKeys) {
-                keys.add(key.AsString());
-            }
-
-            CBORObject transformedCBORObject = CBORObject.NewMap();
-            for(String key: keys) {
-                CBORObject innerObject = cborDecodedResponse.get(key);
-                int integerKey = Integer.parseInt(key);
-                CBORType[] types = CBORType.values();
-                if(innerObject.getType() == CBORType.Array && innerObject.size() > 0 && innerObject.get(0).getType() == CBORType.Integer) {
-                    int length = innerObject.size();
-                    byte[] byteArray = new byte[innerObject.size()];
-                    for( int i = 0; i < innerObject.size(); i++) {
-                        CBORObject cborByte = innerObject.get(i);
-                        byte transformedByte = cborByte.AsNumber().ToByteUnchecked();
-                        byteArray[i] = transformedByte;
-                    }
-                    innerObject = CBORObject.FromObject(byteArray);
-                }
-                transformedCBORObject.set(integerKey, innerObject);
-            }
-
+            CBORObject transformedCBORObject = transformCBORMap(cborDecodedResponse, true);
             return Single.just(transformedCBORObject);
         });
+    }
+
+    @NonNull
+    private static CBORObject transformCBORMap(CBORObject map, boolean isFirstLayer) {
+        //I'm not happy with this yet
+        Collection<CBORObject> cborMapKeys = map.getKeys();
+        List<String> keys = new LinkedList<>();
+        for( CBORObject key: cborMapKeys) {
+            keys.add(key.AsString());
+        }
+
+        CBORObject transformedCBORObject = CBORObject.NewMap();
+        for( String key: keys) {
+            CBORObject innerObject = map.get(key);
+            if(innerObject.getType() == CBORType.Array && innerObject.size() > 0 && innerObject.get(0).getType() == CBORType.Integer) {
+                int length = innerObject.size();
+                byte[] byteArray = new byte[length];
+                for( int i = 0; i < length; i++) {
+                    CBORObject cborByte = innerObject.get(i);
+                    byte transformedByte = cborByte.AsNumber().ToByteUnchecked();
+                    byteArray[i] = transformedByte;
+                }
+                innerObject = CBORObject.FromObject(byteArray);
+            } else if(innerObject.getType() == CBORType.Map) {
+                innerObject = transformCBORMap(innerObject, false);
+            } else if(innerObject.getType() == CBORType.Array) {
+                for(int i=0; i<innerObject.size(); i++) {
+                    if(innerObject.get(i).getType() == CBORType.Map) {
+                        innerObject.set(i, transformCBORMap(innerObject.get(i), false));
+                    }
+                }
+            }
+
+            if(isFirstLayer) {
+                int integerKey = Integer.parseInt(key);
+                transformedCBORObject.set(integerKey, innerObject);
+            } else {
+                transformedCBORObject.set(key, innerObject);
+            }
+        }
+        return transformedCBORObject;
     }
 
     @NonNull
@@ -81,7 +99,6 @@ final class ResponseBuilder {
             System.arraycopy(encodedData, 0, completeResponse, CTAP1_ERR_SUCCESS.length, encodedData.length);
 
             return Single.just(completeResponse);
-
         });
     }
 }

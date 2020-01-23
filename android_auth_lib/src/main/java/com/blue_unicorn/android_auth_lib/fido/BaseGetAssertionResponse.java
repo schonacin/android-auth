@@ -2,6 +2,10 @@ package com.blue_unicorn.android_auth_lib.fido;
 
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * These serialized names correlate to the specification.
+ * See <a href="https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#commands">reference</a>
+ */
 public class BaseGetAssertionResponse implements GetAssertionResponse {
 
     @SerializedName("1")

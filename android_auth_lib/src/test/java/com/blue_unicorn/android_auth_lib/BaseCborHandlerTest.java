@@ -7,11 +7,15 @@ import com.blue_unicorn.android_auth_lib.cbor.CborHandler;
 import com.blue_unicorn.android_auth_lib.exception.InvalidCommandException;
 import com.blue_unicorn.android_auth_lib.exception.InvalidLengthException;
 import com.blue_unicorn.android_auth_lib.exception.InvalidParameterException;
+import com.blue_unicorn.android_auth_lib.fido.AttestationStatement;
 import com.blue_unicorn.android_auth_lib.fido.BaseGetInfoResponse;
+import com.blue_unicorn.android_auth_lib.fido.BaseMakeCredentialResponse;
 import com.blue_unicorn.android_auth_lib.fido.GetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.fido.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.fido.GetInfoResponse;
 import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.fido.MakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.fido.PackedAttestationStatement;
 import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialRpEntity;
 import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialUserEntity;
 import com.blue_unicorn.android_auth_lib.fido.RequestObject;
@@ -179,6 +183,32 @@ public class BaseCborHandlerTest {
         String encodedHexStringResponse = ArrayUtil.bytesToHex(encodedResponse);
 
         assertThat(encodedHexStringResponse, is(ENCODED_HEX_STRING_GET_INFO_RESPONSE));
+    }
+
+    @Test
+    public void makeCredentialResponse_transformsCorrectly() {
+        MakeCredentialResponse response = new BaseMakeCredentialResponse();
+        response.setFmt("packed");
+        byte[] authData = Base64.decode("EjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnir", Base64.DEFAULT); //141 bytes
+        response.setAuthData(authData);
+
+        AttestationStatement attStmt = new PackedAttestationStatement();
+        attStmt.setAlg(-7);
+        byte[] sig = Base64.decode("GhoaGhoaGhoaGhoaGhorKysrKys=", Base64.DEFAULT);
+        attStmt.setSig(sig);
+        response.setAttStmt(attStmt);
+
+        byte[] encodedResponse =
+        cborHandler.encode(response)
+                .test()
+                .assertNoErrors()
+                .assertComplete()
+                .values()
+                .get(0);
+
+        String encodedHexStringResponse = ArrayUtil.bytesToHex(encodedResponse);
+        final String ENCODED_HEX_STRING_MAKE_CREDENTIAL_RESPONSE = "";
+
     }
 
 }
