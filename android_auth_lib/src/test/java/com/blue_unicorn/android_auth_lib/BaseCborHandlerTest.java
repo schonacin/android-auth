@@ -24,7 +24,6 @@ import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialDescriptor;
 import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialRpEntity;
 import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialUserEntity;
 import com.blue_unicorn.android_auth_lib.fido.RequestObject;
-import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -168,26 +167,30 @@ public class BaseCborHandlerTest {
 
     @Test
     public void getInfoResponse_transformsCorrectly() {
+        GetInfoResponse response = new BaseGetInfoResponse();
+
         Map<String, Boolean> options = new HashMap<>();
         options.putIfAbsent("rk", true);
-        GetInfoResponse response = new BaseGetInfoResponse();
-        response.setAaguid(new byte[]{(byte)0xF1, (byte)0xD0, (byte)0xB1, (byte)0x8E, (byte)0x10, (byte)0x01, (byte)0x4A, (byte)0x81, (byte)0x43, (byte)0x41, (byte)0x1C, (byte)0xA1, (byte)0x04, (byte)0x00, (byte)0xF1, (byte)0xD0});
+        response.setOptions(options);
+
+        byte[] aaguid = Base64.decode("8dCxjhABSoFDQRyhBADx0A==", Base64.DEFAULT);
+        response.setAaguid(aaguid);
+
         response.setMaxMsgSize(1024);
         response.setVersions(new String[]{"FIDO_2_0"});
-        response.setOptions(options);
 
         byte[] encodedResponse =
         cborHandler.encode(response)
                 .test()
                 .assertNoErrors()
                 .assertComplete()
+                .assertValueCount(1)
                 .values()
                 .get(0);
 
-        final String ENCODED_HEX_STRING_GET_INFO_RESPONSE = "00A40181684649444F5F325F300350F1D0B18E10014A8143411CA10400F1D004A162726BF505190400";
-        String encodedHexStringResponse = ArrayUtil.bytesToHex(encodedResponse);
+        byte[] ENCODED_GET_INFO_RESPONSE = Base64.decode("AKQBgWhGSURPXzJfMANQ8dCxjhABSoFDQRyhBADx0AShYnJr9QUZBAA=", Base64.DEFAULT);
 
-        assertThat(encodedHexStringResponse, is(ENCODED_HEX_STRING_GET_INFO_RESPONSE));
+        assertThat(encodedResponse, is(ENCODED_GET_INFO_RESPONSE));
     }
 
     @Test
@@ -209,13 +212,13 @@ public class BaseCborHandlerTest {
                 .test()
                 .assertNoErrors()
                 .assertComplete()
+                .assertValueCount(1)
                 .values()
                 .get(0);
 
-        String encodedHexStringResponse = ArrayUtil.bytesToHex(encodedResponse);
-        final String ENCODED_HEX_STRING_MAKE_CREDENTIAL_RESPONSE = "00A301667061636B656402588D12345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678AB03A263616C672663736967541A1A1A1A1A1A1A1A1A1A1A1A1A1A2B2B2B2B2B2B";
+        final byte[] ENCODED_MAKE_CREDENTIAL_RESPONSE = Base64.decode("AKMBZnBhY2tlZAJYjRI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4qwOiY2FsZyZjc2lnVBoaGhoaGhoaGhoaGhoaKysrKysr", Base64.DEFAULT);
 
-        assertThat(encodedHexStringResponse, is(ENCODED_HEX_STRING_MAKE_CREDENTIAL_RESPONSE));
+        assertThat(encodedResponse, is(ENCODED_MAKE_CREDENTIAL_RESPONSE));
     }
 
     @Test
@@ -239,13 +242,13 @@ public class BaseCborHandlerTest {
                         .test()
                         .assertNoErrors()
                         .assertComplete()
+                        .assertValueCount(1)
                         .values()
                         .get(0);
 
-        String encodedHexStringResponse = ArrayUtil.bytesToHex(encodedResponse);
-        final String ENCODED_HEX_STRING_GET_ASSERTION_RESPONSE = "00A401A2626964481234567890ABCDEF64747970656A7075626C69632D6B657902588D12345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678ABCDEF5712345678AB03541A1A1A1A1A1A1A1A1A1A1A1A1A1A2B2B2B2B2B2B04A1626964501234567890ABCDEF1234567890ABCDEF";
+        final byte[] ENCODED_GET_ASSERTION_RESPONSE = Base64.decode("AKQBomJpZEgSNFZ4kKvN72R0eXBlanB1YmxpYy1rZXkCWI0SNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKsDVBoaGhoaGhoaGhoaGhoaKysrKysrBKFiaWRQEjRWeJCrze8SNFZ4kKvN7w==", Base64.DEFAULT);
 
-        assertThat(encodedHexStringResponse, is(ENCODED_HEX_STRING_GET_ASSERTION_RESPONSE));
+        assertThat(encodedResponse, is(ENCODED_GET_ASSERTION_RESPONSE));
     }
 
 }
