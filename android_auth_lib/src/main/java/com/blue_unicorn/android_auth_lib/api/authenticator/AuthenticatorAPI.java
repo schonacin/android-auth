@@ -1,4 +1,4 @@
-package com.blue_unicorn.android_auth_lib.api;
+package com.blue_unicorn.android_auth_lib.api.authenticator;
 
 import com.blue_unicorn.android_auth_lib.fido.GetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.fido.GetAssertionResponse;
@@ -9,7 +9,7 @@ import com.blue_unicorn.android_auth_lib.fido.MakeCredentialResponse;
 
 import io.reactivex.rxjava3.core.Single;
 
-interface AuthenticatorAPI {
+public interface AuthenticatorAPI {
 
     Single<MakeCredentialRequest> makeCredential(MakeCredentialRequest request);
 

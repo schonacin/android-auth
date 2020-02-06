@@ -11,4 +11,5 @@ public interface APIHandler {
     Single<FidoObject> callAPI(RequestObject request);
 
     Single<ResponseObject> updateAPI(RequestObject request);
+
 }
