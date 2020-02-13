@@ -2,11 +2,8 @@ package com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_
 
 import com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_low_energy.exceptions.InvalidCommandException;
 import com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_low_energy.exceptions.InvalidLengthException;
-import com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_low_energy.exceptions.InvalidSequenceNumberException;
 import com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_low_energy.exceptions.OtherException;
-import com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_low_energy.framing.data.BaseContinuationFragment;
 import com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_low_energy.framing.data.BaseFrame;
-import com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_low_energy.framing.data.BaseInitializationFragment;
 import com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_low_energy.framing.data.ContinuationFragment;
 import com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_low_energy.framing.data.Fragment;
 import com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_low_energy.framing.data.Frame;
@@ -21,7 +18,7 @@ import java.util.List;
 // - if there is sequence number wraparound, continuation fragments with same sequence number are in correct order among each other
 // - except for the last fragment, all available space (= maxLen) for data is used
 // - the maxLen is at least 3 (to be able to transmit an initialization fragment)
-public class BaseFrameBuffer implements FrameBuffer {
+public class BaseFrameAccumulator implements FrameAccumulator {
 
     private int initializationFragmentDataSize;
     private int continuationFragmentDataSize;
@@ -29,15 +26,15 @@ public class BaseFrameBuffer implements FrameBuffer {
     private InitializationFragment initializationFragment;
     private List<ContinuationFragment> continuationFragments;
 
-    public BaseFrameBuffer(int maxLen) {
+    public BaseFrameAccumulator(int maxLen) {
         setFragmentDataSizes(maxLen);
         this.continuationFragments = new ArrayList<>();
     }
 
-    public BaseFrameBuffer(int maxLen, Frame frame) throws InvalidCommandException, InvalidSequenceNumberException, InvalidLengthException, OtherException {
+    public BaseFrameAccumulator(int maxLen, Fragment fragment) throws InvalidCommandException, InvalidLengthException, OtherException {
         setFragmentDataSizes(maxLen);
-        this.frame = frame;
-        fragment();
+        this.continuationFragments = new ArrayList<>();
+        this.addFragment(fragment);
     }
 
     private void setFragmentDataSizes(int maxLen) {
@@ -45,33 +42,8 @@ public class BaseFrameBuffer implements FrameBuffer {
         this.continuationFragmentDataSize = maxLen - 1;
     }
 
-    private void fragment() throws InvalidCommandException, InvalidSequenceNumberException, InvalidLengthException, OtherException {
-        this.initializationFragment = extractInitializationFragment();
-        this.continuationFragments = extractContiniationFragments();
-        if(!isComplete())
-            throw new OtherException("Fragmentation error: frame could not be fragmented successfully");
-    }
-
-    private InitializationFragment extractInitializationFragment() throws InvalidCommandException, InvalidLengthException {
-        byte[] initializationFragmentData = new byte[this.initializationFragmentDataSize];
-        System.arraycopy(frame.getDATA(), 0, initializationFragmentData, 0, this.initializationFragmentDataSize);
-        return new BaseInitializationFragment(frame.getCMDSTAT(), frame.getHLEN(), frame.getLLEN(), initializationFragmentData);
-    }
-
-    private List<ContinuationFragment> extractContiniationFragments() throws InvalidSequenceNumberException {
-        List<ContinuationFragment> extractedContinuationFragments = new ArrayList<>(frame.getHLEN() << 8 + frame.getLLEN());
-        byte[] continuationFragmentData = new byte[this.continuationFragmentDataSize];
-        for (int i = this.initializationFragmentDataSize; i < frame.getDATA().length; i += this.continuationFragmentDataSize) {
-            if (i < frame.getDATA().length)
-                System.arraycopy(frame.getDATA(), i, continuationFragmentData, 0, this.continuationFragmentDataSize);
-            else
-                System.arraycopy(frame.getDATA(), i, continuationFragmentData, 0, frame.getDATA().length - i);
-            extractedContinuationFragments.add(new BaseContinuationFragment((byte) (i / this.continuationFragmentDataSize), continuationFragmentData));
-        }
-        return extractedContinuationFragments;
-    }
-
-
+    // TODO: safe completeness state in attribute & update every time something changes
+    @Override
     public boolean isComplete() {
         return initializationFragmentComplete() && continuationFragmentsComplete() && dataComplete();
     }
@@ -95,7 +67,7 @@ public class BaseFrameBuffer implements FrameBuffer {
         return totalDataSize == initializationFragment.getHLEN() << 8 + initializationFragment.getLLEN();
     }
 
-
+    @Override
     public void addFragment(Fragment fragment) throws InvalidCommandException, InvalidLengthException, OtherException {
         if (isComplete()) {
             if (fragment instanceof ContinuationFragment)
@@ -131,6 +103,7 @@ public class BaseFrameBuffer implements FrameBuffer {
         System.arraycopy(fragment.getDATA(), 0, this.frame.getDATA(), totalOffset, fragment.getDATA().length);
     }
 
+    // TODO: inefficient, seek faster solution
     private int getNumberOfContinuationFragmentsWithSEQ(int SEQ) {
         int counter = 0;
         for(ContinuationFragment continuationFragment : continuationFragments)
@@ -139,17 +112,10 @@ public class BaseFrameBuffer implements FrameBuffer {
         return counter;
     }
 
-
+    @Override
     public Frame getFrame() throws OtherException {
         if (!isComplete())
             throw new OtherException("Defragmentation error: frame is still incomplete");
         return this.frame;
-    }
-
-    public List<Fragment> getFragments() {
-        List<Fragment> fragments = new ArrayList<>(1 + continuationFragments.size());
-        fragments.add(initializationFragment);
-        fragments.addAll(continuationFragments);
-        return fragments;
     }
 }

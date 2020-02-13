@@ -25,11 +25,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    externalNativeBuild {
-        cmake {
-            path file('CMakeLists.txt')
-        }
-    }
     compileOptions {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
@@ -42,6 +37,7 @@ dependencies {
     implementation "io.reactivex.rxjava3:rxjava:3.x.y"
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation "io.reactivex.rxjava3:rxjava:3.0.0-RC5"
+    implementation "com.github.akarnokd:rxjava3-extensions:3.0.0-RC8"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'

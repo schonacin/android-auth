@@ -35,14 +35,17 @@ public class BaseInitializationFragment extends BaseFragment implements Initiali
             throw new InvalidLengthException("Invalid length error: initialization fragment DATA length " + super.getDATA().length + " is smaller than length specified in command parameters " + (HLEN << 8 + LLEN));
     }
 
+    @Override
     public byte getCMD() {
         return CMD;
     }
 
+    @Override
     public byte getHLEN() {
         return HLEN;
     }
 
+    @Override
     public byte getLLEN() {
         return LLEN;
     }

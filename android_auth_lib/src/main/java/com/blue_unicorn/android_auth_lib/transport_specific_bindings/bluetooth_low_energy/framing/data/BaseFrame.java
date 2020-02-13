@@ -25,18 +25,22 @@ public class BaseFrame implements Frame {
         this.DATA = DATA;
     }
 
+    @Override
     public byte getCMDSTAT() {
         return CMDSTAT;
     }
 
+    @Override
     public byte getHLEN() {
         return HLEN;
     }
 
+    @Override
     public byte getLLEN() {
         return LLEN;
     }
 
+    @Override
     public byte[] getDATA() {
         return DATA;
     }

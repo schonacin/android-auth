@@ -3,10 +3,12 @@ package com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_
 import com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_low_energy.framing.data.Fragment;
 import com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_low_energy.framing.data.Frame;
 
-import io.reactivex.rxjava3.core.Flowable;
-import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.*;
 
-public interface RxFragmentationHandler {
+public abstract class BaseFragmentationProvider implements RxFragmentationProvider {
 
-    Flowable<Fragment> fragment(Single<Frame> frame, int maxLen);
+    @Override
+    public Flowable<Fragment> fragment(Single<Frame> frame, int maxLen) {
+        return frame.flattenAsFlowable(f -> new BaseFrameSplitter(maxLen).split(f));
+    }
 }

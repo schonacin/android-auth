@@ -6,7 +6,7 @@ import com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_l
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
-public interface RxDefragmentationHandler {
+public interface RxFragmentationProvider {
 
-    Single<Frame> defragment(Flowable<Fragment> fragments, int maxLen);
+    Flowable<Fragment> fragment(Single<Frame> frame, int maxLen);
 }

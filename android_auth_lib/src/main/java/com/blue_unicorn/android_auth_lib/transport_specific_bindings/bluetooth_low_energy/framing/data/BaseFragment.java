@@ -13,6 +13,7 @@ public abstract class BaseFragment implements Fragment {
         System.arraycopy(rawFragment, offset, this.DATA, 0, this.DATA.length);
     }
 
+    @Override
     public byte[] getDATA() {
         return DATA;
     }

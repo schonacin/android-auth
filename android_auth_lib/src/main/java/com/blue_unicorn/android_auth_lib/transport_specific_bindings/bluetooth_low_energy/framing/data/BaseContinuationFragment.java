@@ -22,6 +22,7 @@ public class BaseContinuationFragment extends BaseFragment implements Continuati
             throw new InvalidSequenceNumberException("Invalid sequence number error: sequence number " + SEQ + " must be greater than zero");
     }
 
+    @Override
     public byte getSEQ() {
         return SEQ;
     }
