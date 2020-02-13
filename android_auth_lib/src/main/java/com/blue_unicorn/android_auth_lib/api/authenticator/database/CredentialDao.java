@@ -29,6 +29,12 @@ public abstract class CredentialDao {
     @Query("SELECT * FROM credentials WHERE id = :id LIMIT 1")
     public abstract PublicKeyCredentialSource getById(byte[] id);
 
+    @Query("SELECT * FROM credentials WHERE keyPairAlias = :alias LIMIT 1")
+    public abstract PublicKeyCredentialSource getByAlias(String alias);
+
+    @Query("DELETE FROM credentials")
+    public abstract void deleteAll();
+
     @Insert
     public abstract void insert(PublicKeyCredentialSource credential);
 

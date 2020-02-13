@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.blue_unicorn.android_auth_lib.AuthLibException;
 import com.blue_unicorn.android_auth_lib.api.authenticator.database.CredentialDatabase;
 import com.nexenio.rxkeystore.RxKeyStore;
+import com.nexenio.rxkeystore.provider.asymmetric.ec.RxECCryptoProvider;
 import com.upokecenter.cbor.CBORObject;
 
 import java.security.KeyFactory;
@@ -23,6 +24,7 @@ import java.security.spec.ECPoint;
 
 import com.blue_unicorn.android_auth_lib.api.authenticator.database.PublicKeyCredentialSource;
 import hu.akarnokd.rxjava3.bridge.RxJavaBridge;
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
@@ -33,10 +35,11 @@ import io.reactivex.rxjava3.core.Single;
 public class CredentialSafe {
 
     private static final String KEYSTORE_TYPE = "AndroidKeyStore";
-    private static final String CURVE_NAME = "secp256r1";
     private RxKeyStore rxKeyStore;
+    private RxECCryptoProvider cryptoProvider;
     private boolean authenticationRequired;
     private CredentialDatabase db;
+    private Context ctx;
 
     public CredentialSafe(Context ctx) {
         this(ctx, true);
@@ -44,53 +47,78 @@ public class CredentialSafe {
 
     CredentialSafe(Context ctx, boolean authenticationRequired) {
         this.rxKeyStore = new RxKeyStore(KEYSTORE_TYPE);
+        this.cryptoProvider = new RxECCryptoProvider(this.rxKeyStore);
         this.authenticationRequired = authenticationRequired;
-        this.db = CredentialDatabase.getDatabase(ctx);
+        this.ctx = ctx;
     }
 
     boolean supportsUserVerification() {
         return this.authenticationRequired;
     }
 
-    RxKeyStore getRxKeyStore() {
+    public RxKeyStore getRxKeyStore() {
         return this.rxKeyStore;
     }
 
-    private Single<KeyPair> generateNewES256KeyPair(String alias) {
-        return Single.defer(() -> {
-            KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_SIGN)
-                    .setAlgorithmParameterSpec(new ECGenParameterSpec(CURVE_NAME))
-                    .setDigests(KeyProperties.DIGEST_SHA256)
-                    .setUserAuthenticationRequired(this.authenticationRequired) // fingerprint or similar
-                    .build();
+    RxECCryptoProvider getCryptoProvider() {
+        return this.cryptoProvider;
+    }
 
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, KEYSTORE_TYPE);
-            keyPairGenerator.initialize(spec);
-            KeyPair keyPair = keyPairGenerator.generateKeyPair();
-            return Single.just(keyPair);
-        }).onErrorResumeNext(throwable -> Single.error(new AuthLibException("couldn't generate key pair!", throwable)));
+    private Single<CredentialDatabase> getInitializedDatabase() {
+        return Single.defer(() -> {
+            if (this.db == null) {
+                this.db = CredentialDatabase.getDatabase(ctx);
+            }
+            return Single.just(this.db);
+        }).onErrorResumeNext(throwable -> Single.error(new AuthLibException("couldn't initialize database", throwable)));
+    }
+
+    private Completable generateNewES256KeyPair(String alias) {
+        return cryptoProvider.generateKeyPair(alias, ctx)
+                .as(RxJavaBridge.toV3Single())
+                .flatMap(keyPair -> Single.just(cryptoProvider.setKeyPair(alias, keyPair)))
+                .flatMapCompletable(completable -> completable.as(RxJavaBridge.toV3Completable()))
+                .onErrorResumeNext(throwable -> Completable.error(new AuthLibException("couldn't generate key pair!", throwable)));
     }
 
     public Single<PublicKeyCredentialSource> generateCredential(@NonNull String rpEntityId, byte[] userHandle, String userDisplayName) {
         return Single.defer(() -> {
             PublicKeyCredentialSource credentialSource = new PublicKeyCredentialSource(rpEntityId, userHandle, userDisplayName);
             return generateNewES256KeyPair(credentialSource.keyPairAlias)
-                    .doOnSuccess(keyPair -> db.credentialDao().insert(credentialSource))
-                    .map(x -> credentialSource);
+                    .andThen(insertCredentialIntoDatabase(credentialSource))
+                    .andThen(Single.just(credentialSource));
         });
     }
 
-    public void deleteCredential(PublicKeyCredentialSource credentialSource) {
-        db.credentialDao().delete(credentialSource);
+    private Completable insertCredentialIntoDatabase(PublicKeyCredentialSource credential) {
+        return getInitializedDatabase()
+                .flatMapCompletable(database -> Completable.fromAction(() -> database.credentialDao().insert(credential)));
+    }
+
+    public Completable deleteCredential(PublicKeyCredentialSource credentialSource) {
+        return getInitializedDatabase()
+                .flatMapCompletable(database -> Completable.fromAction(() -> database.credentialDao().delete(credentialSource)));
+    }
+
+    public Completable deleteAllCredentials() {
+        return getInitializedDatabase()
+                .flatMapCompletable(database -> Completable.fromAction(() -> database.credentialDao().deleteAll()));
     }
 
     public Flowable<PublicKeyCredentialSource> getKeysForEntity(@NonNull String rpEntityId) {
-        return Single.defer(() -> Single.just(db.credentialDao().getAllByRpId(rpEntityId)))
+        return getInitializedDatabase()
+                .map(database -> database.credentialDao().getAllByRpId(rpEntityId))
                 .flatMapPublisher(Flowable::fromIterable);
     }
 
-    Single<PublicKeyCredentialSource> getCredentialSourceById(@NonNull byte[] id) {
-        return Single.defer(() -> Single.just(db.credentialDao().getById(id)));
+    public Single<PublicKeyCredentialSource> getCredentialSourceById(@NonNull byte[] id) {
+        return getInitializedDatabase()
+                .map(database -> database.credentialDao().getById(id));
+    }
+
+    public Single<PublicKeyCredentialSource> getCredentialSourceByAlias(@NonNull String alias) {
+        return getInitializedDatabase()
+                .map(database -> database.credentialDao().getByAlias(alias));
     }
 
     private Single<PublicKey> getPublicKeyByAlias(@NonNull String alias) {
@@ -100,7 +128,7 @@ public class CredentialSafe {
                 .onErrorResumeNext(throwable -> Single.error(new AuthLibException("couldn't get public key by alias", throwable)));
     }
 
-    private Single<PrivateKey> getPrivateKeyByAlias(@NonNull String alias) {
+    Single<PrivateKey> getPrivateKeyByAlias(@NonNull String alias) {
         return rxKeyStore.getKey(alias)
                 .as(RxJavaBridge.toV3Single())
                 .cast(PrivateKey.class)
@@ -178,10 +206,6 @@ public class CredentialSafe {
 
             return encodePointstoBytes(x,y);
         });
-    }
-
-    int incrementCredentialUseCounter(PublicKeyCredentialSource credential) {
-        return db.credentialDao().incrementUseCounter(credential);
     }
 
 }

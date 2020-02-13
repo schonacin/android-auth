@@ -1,11 +1,11 @@
 package com.blue_unicorn.android_auth_lib.api.authenticator;
 
-import com.blue_unicorn.android_auth_lib.fido.GetAssertionRequest;
-import com.blue_unicorn.android_auth_lib.fido.GetAssertionResponse;
-import com.blue_unicorn.android_auth_lib.fido.GetInfoRequest;
-import com.blue_unicorn.android_auth_lib.fido.GetInfoResponse;
-import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
-import com.blue_unicorn.android_auth_lib.fido.MakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.fido.request.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.fido.reponse.GetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.fido.request.GetInfoRequest;
+import com.blue_unicorn.android_auth_lib.fido.reponse.GetInfoResponse;
+import com.blue_unicorn.android_auth_lib.fido.request.MakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.fido.reponse.MakeCredentialResponse;
 
 import io.reactivex.rxjava3.core.Single;
 

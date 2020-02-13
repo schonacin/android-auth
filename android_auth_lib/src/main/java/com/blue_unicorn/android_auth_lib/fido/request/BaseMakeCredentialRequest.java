@@ -1,5 +1,8 @@
-package com.blue_unicorn.android_auth_lib.fido;
+package com.blue_unicorn.android_auth_lib.fido.request;
 
+import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialDescriptor;
+import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialRpEntity;
+import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialUserEntity;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -26,8 +29,28 @@ public class BaseMakeCredentialRequest implements MakeCredentialRequest {
     @SerializedName("5")
     private List<BasePublicKeyCredentialDescriptor> excludeList;
 
+    // TODO: options could have an own class
     @SerializedName("6")
     private Map<String, Boolean> options;
+
+    private boolean excluded;
+    private boolean approved;
+
+    public boolean isApproved() {
+        return approved;
+    }
+
+    public void setApproved(boolean approved) {
+        this.approved = approved;
+    }
+
+    public boolean isExcluded() {
+        return excluded;
+    }
+
+    public void setExcluded(boolean excluded) {
+        this.excluded = excluded;
+    }
 
     public byte[] getClientDataHash() {
         return clientDataHash;
@@ -51,5 +74,9 @@ public class BaseMakeCredentialRequest implements MakeCredentialRequest {
 
     public Map<String, Boolean> getOptions() {
         return options;
+    }
+
+    public boolean isValid() {
+        return (clientDataHash != null && rp.isValid() && user.isValid());
     }
 }

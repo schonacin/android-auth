@@ -2,7 +2,7 @@ package com.blue_unicorn.android_auth_lib.cbor;
 
 import androidx.annotation.NonNull;
 
-import com.blue_unicorn.android_auth_lib.fido.RequestObject;
+import com.blue_unicorn.android_auth_lib.fido.request.RequestObject;
 
 import io.reactivex.rxjava3.core.Single;
 

@@ -5,20 +5,19 @@ import android.util.Pair;
 
 import com.blue_unicorn.android_auth_lib.AuthLibException;
 import com.blue_unicorn.android_auth_lib.api.authenticator.database.PublicKeyCredentialSource;
-import com.blue_unicorn.android_auth_lib.fido.BaseGetAssertionResponse;
-import com.blue_unicorn.android_auth_lib.fido.BaseGetInfoResponse;
-import com.blue_unicorn.android_auth_lib.fido.BaseMakeCredentialResponse;
-import com.blue_unicorn.android_auth_lib.fido.GetAssertionRequest;
-import com.blue_unicorn.android_auth_lib.fido.GetAssertionResponse;
-import com.blue_unicorn.android_auth_lib.fido.GetInfoRequest;
-import com.blue_unicorn.android_auth_lib.fido.GetInfoResponse;
-import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
-import com.blue_unicorn.android_auth_lib.fido.MakeCredentialResponse;
-import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
-import com.nexenio.rxkeystore.provider.asymmetric.ec.RxECCryptoProvider;
+import com.blue_unicorn.android_auth_lib.fido.reponse.BaseGetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.fido.reponse.BaseGetInfoResponse;
+import com.blue_unicorn.android_auth_lib.fido.request.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.fido.reponse.GetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.fido.request.GetInfoRequest;
+import com.blue_unicorn.android_auth_lib.fido.reponse.GetInfoResponse;
+import com.blue_unicorn.android_auth_lib.fido.request.MakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.fido.reponse.MakeCredentialResponse;
 
 import java.nio.ByteBuffer;
 import java.security.KeyPair;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.reactivex.rxjava3.core.Single;
 
@@ -35,23 +34,25 @@ public class BaseAuthenticatorAPI implements AuthenticatorAPI{
     private static final Pair<String, Long> ES256_COSE = new Pair<>("public-key", (long) -7);
 
     private CredentialSafe credentialSafe;
-    private RxAsymmetricCryptoProvider cryptoProvider;
+
 
     public BaseAuthenticatorAPI(Context ctx, boolean authenticationRequired) {
         this.credentialSafe = new CredentialSafe(ctx, authenticationRequired);
-        this.cryptoProvider = new RxECCryptoProvider(this.credentialSafe.getRxKeyStore());
+
     }
 
     public Single<MakeCredentialRequest> makeCredential(MakeCredentialRequest request) {
-
-        return Single.just(request);
-
+        return Single.defer(() -> {
+            MakeCredential makeCredential = new MakeCredential(credentialSafe, request);
+            return makeCredential.operate();
+        });
     }
 
     public Single<MakeCredentialResponse> makeInternalCredential(MakeCredentialRequest request) {
-
-        return Single.just(new BaseMakeCredentialResponse());
-
+        return Single.defer(() -> {
+            MakeCredential makeCredential = new MakeCredential(credentialSafe, request);
+            return makeCredential.operateInner();
+        });
     }
 
     public Single<GetAssertionRequest> getAssertion(GetAssertionRequest request) {
@@ -67,9 +68,19 @@ public class BaseAuthenticatorAPI implements AuthenticatorAPI{
     }
 
     public Single<GetInfoResponse> getInfo(GetInfoRequest request) {
+        return buildOptions()
+                .map(options -> new BaseGetInfoResponse(Config.versions, Config.aaguid, options, Config.maxMsgSize));
+    }
 
-        return Single.just(new BaseGetInfoResponse());
-
+    private Single<Map<String, Boolean>> buildOptions() {
+        return Single.defer(() -> {
+            Map<String, Boolean> options = new HashMap<>();
+            options.put("plat", Config.plat);
+            options.put("rk", Config.rk);
+            options.put("up", Config.up);
+            options.put("uv", Config.uv);
+            return Single.just(options);
+        });
     }
 
     private Single<byte[]> constructAttestedCredentialData(PublicKeyCredentialSource credentialSource) {

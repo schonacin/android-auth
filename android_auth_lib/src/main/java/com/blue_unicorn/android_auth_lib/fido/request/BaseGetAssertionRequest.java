@@ -1,5 +1,6 @@
-package com.blue_unicorn.android_auth_lib.fido;
+package com.blue_unicorn.android_auth_lib.fido.request;
 
+import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialDescriptor;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -37,5 +38,9 @@ public class BaseGetAssertionRequest implements GetAssertionRequest {
 
     public Map<String, Boolean> getOptions() {
         return options;
+    }
+
+    public boolean isValid() {
+        return false;
     }
 }
