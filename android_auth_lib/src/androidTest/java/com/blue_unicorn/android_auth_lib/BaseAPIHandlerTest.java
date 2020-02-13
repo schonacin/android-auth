@@ -1,6 +1,5 @@
 package com.blue_unicorn.android_auth_lib;
 
-
 import android.content.Context;
 import android.util.Base64;
 
@@ -12,7 +11,10 @@ import com.blue_unicorn.android_auth_lib.api.authenticator.CredentialSafe;
 import com.blue_unicorn.android_auth_lib.api.authenticator.database.PublicKeyCredentialSource;
 import com.blue_unicorn.android_auth_lib.cbor.BaseCborHandler;
 import com.blue_unicorn.android_auth_lib.cbor.CborHandler;
+import com.blue_unicorn.android_auth_lib.fido.reponse.GetInfoResponse;
 import com.blue_unicorn.android_auth_lib.fido.reponse.MakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.fido.request.BaseGetInfoRequest;
+import com.blue_unicorn.android_auth_lib.fido.request.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.fido.request.MakeCredentialRequest;
 
 import static org.junit.Assert.*;
@@ -38,7 +40,7 @@ public class BaseAPIHandlerTest {
 
     @Before
     public void setUp() {
-        context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        this.context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         this.cborHandler = new BaseCborHandler();
         this.apiHandler = new BaseAPIHandler(context);
         this.credentialSafe = new CredentialSafe(context);
@@ -96,9 +98,22 @@ public class BaseAPIHandlerTest {
                 .values()
                 .get(0);
 
-        // debugging purposes
         assertThat(credentialSource.userDisplayName, is("User"));
         assertThat(credentialSource.rpId, is("webauthn.io"));
+    }
+
+    private Single<GetInfoResponse> completeGetInfo() {
+        GetInfoRequest request = new BaseGetInfoRequest();
+        return apiHandler.callAPI(request)
+                .cast(GetInfoResponse.class);
+    }
+
+    @Test
+    public void getInfo_GoesThroughAPI() {
+        completeGetInfo()
+                .test()
+                .assertNoErrors()
+                .assertValueCount(1);
     }
 
 }

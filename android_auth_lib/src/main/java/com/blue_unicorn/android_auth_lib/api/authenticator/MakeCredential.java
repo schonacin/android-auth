@@ -2,6 +2,10 @@ package com.blue_unicorn.android_auth_lib.api.authenticator;
 
 import com.blue_unicorn.android_auth_lib.AuthLibException;
 import com.blue_unicorn.android_auth_lib.api.authenticator.database.PublicKeyCredentialSource;
+import com.blue_unicorn.android_auth_lib.api.exceptions.CredentialExcludedException;
+import com.blue_unicorn.android_auth_lib.api.exceptions.OperationDeniedException;
+import com.blue_unicorn.android_auth_lib.api.exceptions.OtherException;
+import com.blue_unicorn.android_auth_lib.api.exceptions.UnsupportedAlgorithmException;
 import com.blue_unicorn.android_auth_lib.fido.reponse.BaseMakeCredentialResponse;
 import com.blue_unicorn.android_auth_lib.fido.request.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.reponse.MakeCredentialResponse;
@@ -57,7 +61,7 @@ class MakeCredential {
             if (request.isValid()) {
                 return Completable.complete();
             } else {
-                return Completable.error(AuthLibException::new);
+                return Completable.error(OtherException::new);
             }
         });
     }
@@ -90,7 +94,8 @@ class MakeCredential {
                 .map(value -> value == -7)
                 .skipWhile(isValid -> !isValid)
                 .firstOrError()
-                .flatMapCompletable(val -> Completable.complete());
+                .flatMapCompletable(val -> Completable.complete())
+                .onErrorResumeNext(throwable -> Completable.error(new UnsupportedAlgorithmException(throwable)));
     }
 
     private Completable checkOptions() {
@@ -100,9 +105,9 @@ class MakeCredential {
     private Completable handleUserApproval(MakeCredentialRequest request) {
         return Completable.defer(() -> {
             if(!request.isApproved()) {
-                return Completable.error(new AuthLibException("user did not approve!"));
+                return Completable.error(OperationDeniedException::new);
             } else if(request.isExcluded()) {
-                return Completable.error(new AuthLibException("credential is excluded"));
+                return Completable.error(CredentialExcludedException::new);
             } else {
                 return Completable.complete();
             }
