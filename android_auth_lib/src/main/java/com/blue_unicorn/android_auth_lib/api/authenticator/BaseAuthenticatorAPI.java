@@ -56,15 +56,17 @@ public class BaseAuthenticatorAPI implements AuthenticatorAPI{
     }
 
     public Single<GetAssertionRequest> getAssertion(GetAssertionRequest request) {
-
-        return Single.just(request);
-
+        return Single.defer(() -> {
+            GetAssertion getAssertion = new GetAssertion(credentialSafe, request);
+            return getAssertion.operate();
+        });
     }
 
     public Single<GetAssertionResponse> getInternalAssertion(GetAssertionRequest request) {
-
-        return Single.just(new BaseGetAssertionResponse());
-
+        return Single.defer(() -> {
+            GetAssertion getAssertion = new GetAssertion(credentialSafe, request);
+            return getAssertion.operateInner();
+        });
     }
 
     public Single<GetInfoResponse> getInfo(GetInfoRequest request) {
@@ -80,54 +82,6 @@ public class BaseAuthenticatorAPI implements AuthenticatorAPI{
             options.put("up", Config.up);
             options.put("uv", Config.uv);
             return Single.just(options);
-        });
-    }
-
-    private Single<byte[]> constructAttestedCredentialData(PublicKeyCredentialSource credentialSource) {
-        // | AAGUID | L | credentialId | credentialPublicKey |
-        // |   16   | 2 |      32      |          n          |
-        // total size: 50+n
-        return this.credentialSafe.getKeyPairByAlias(credentialSource.keyPairAlias)
-                .map(KeyPair::getPublic)
-                .flatMap(CredentialSafe::coseEncodePublicKey)
-                .flatMap(encodedPublicKey -> {
-                    ByteBuffer credentialData = ByteBuffer.allocate(16 + 2 + credentialSource.id.length + encodedPublicKey.length);
-
-                    // AAGUID will be 16 bytes of zeroes
-                    credentialData.position(16);
-                    credentialData.putShort((short) credentialSource.id.length); // L
-                    credentialData.put(credentialSource.id); // credentialId
-                    credentialData.put(encodedPublicKey);
-                    return Single.just(credentialData.array());
-                });
-    }
-
-    private Single<byte[]> constructAuthenticatorData(byte[] rpIdHash, byte[] attestedCredentialData, int authCounter) {
-        return Single.defer(() -> {
-            if (rpIdHash.length != 32) {
-                return Single.error(new AuthLibException("rpIdHash must be a 32-byte SHA-256 hash"));
-            }
-
-            byte flags = 0x00;
-            flags |= 0x01; // user present
-            if (this.credentialSafe.supportsUserVerification()) {
-                flags |= (0x01 << 2); // user verified
-            }
-            if (attestedCredentialData != null) {
-                flags |= (0x01 << 6); // attested credential data included
-            }
-
-            // 32-byte hash + 1-byte flags + 4 bytes signCount = 37 bytes
-            ByteBuffer authData = ByteBuffer.allocate(37 +
-                    (attestedCredentialData == null ? 0 : attestedCredentialData.length));
-
-            authData.put(rpIdHash);
-            authData.put(flags);
-            authData.putInt(authCounter);
-            if (attestedCredentialData != null) {
-                authData.put(attestedCredentialData);
-            }
-            return Single.just(authData.array());
         });
     }
 

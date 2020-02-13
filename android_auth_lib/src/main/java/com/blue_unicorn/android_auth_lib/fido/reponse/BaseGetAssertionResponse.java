@@ -25,6 +25,12 @@ public class BaseGetAssertionResponse implements GetAssertionResponse {
     @SerializedName("5")
     private Integer numberOfCredentials;
 
+    public BaseGetAssertionResponse(PublicKeyCredentialDescriptor credential, byte[] authData, byte[] signature) {
+        this.credential = credential;
+        this.authData = authData;
+        this.signature = signature;
+    }
+
     public void setCredential(PublicKeyCredentialDescriptor credential) {
         this.credential = credential;
     }

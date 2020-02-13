@@ -1,5 +1,8 @@
 package com.blue_unicorn.android_auth_lib.fido.request;
 
+import androidx.annotation.Nullable;
+
+import com.blue_unicorn.android_auth_lib.api.authenticator.database.PublicKeyCredentialSource;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialDescriptor;
 import com.google.gson.annotations.SerializedName;
 
@@ -24,6 +27,29 @@ public class BaseGetAssertionRequest implements GetAssertionRequest {
     @SerializedName("5")
     private Map<String, Boolean> options;
 
+    private boolean approved;
+
+    // TODO extract this to interface?
+    @Nullable
+    private PublicKeyCredentialSource selectedCredential;
+
+    public boolean isApproved() {
+        return approved;
+    }
+
+    public void setApproved(boolean approved) {
+        this.approved = approved;
+    }
+
+    @Nullable
+    public PublicKeyCredentialSource getSelectedCredential() {
+        return selectedCredential;
+    }
+
+    public void setSelectedCredential(@Nullable PublicKeyCredentialSource selectedCredential) {
+        this.selectedCredential = selectedCredential;
+    }
+
     public String getRpId() {
         return rpId;
     }
@@ -41,6 +67,6 @@ public class BaseGetAssertionRequest implements GetAssertionRequest {
     }
 
     public boolean isValid() {
-        return false;
+        return (rpId != null && clientDataHash != null);
     }
 }
