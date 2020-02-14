@@ -41,7 +41,7 @@ class GetAssertion {
                 .andThen(Single.just(request));
     }
 
-        // 2. - 4. & 6. is ignored as we do pinAuth and extensions are not supported
+        // 2. - 4. & 6. is ignored as pinAuth and extensions are not supported
 
     Single<GetAssertionResponse> operateInner() {
         // 7. - 8. handle user approval and whether credentials could be found

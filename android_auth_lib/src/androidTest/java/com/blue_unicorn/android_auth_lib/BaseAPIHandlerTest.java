@@ -10,6 +10,7 @@ import com.blue_unicorn.android_auth_lib.api.BaseAPIHandler;
 import com.blue_unicorn.android_auth_lib.api.authenticator.CredentialSafe;
 import com.blue_unicorn.android_auth_lib.api.authenticator.database.PublicKeyCredentialSource;
 import com.blue_unicorn.android_auth_lib.api.exceptions.NoCredentialsException;
+import com.blue_unicorn.android_auth_lib.api.exceptions.OperationDeniedException;
 import com.blue_unicorn.android_auth_lib.cbor.BaseCborHandler;
 import com.blue_unicorn.android_auth_lib.cbor.CborHandler;
 import com.blue_unicorn.android_auth_lib.fido.reponse.GetAssertionResponse;
@@ -35,7 +36,6 @@ public class BaseAPIHandlerTest {
     private static final byte[] RAW_MAKE_CREDENTIAL_REQUEST = Base64.decode("AaUBWCDMVG/Vi0CDgAtgnuEKnn1oM9yeVFNAkbx+pfadNopNfAKiYmlka3dlYmF1dGhuLmlvZG5hbWVrd2ViYXV0aG4uaW8Do2JpZEq3mQEAAAAAAAAAZG5hbWVkVXNlcmtkaXNwbGF5TmFtZWR1c2VyBIqiY2FsZyZkdHlwZWpwdWJsaWMta2V5omNhbGc4ImR0eXBlanB1YmxpYy1rZXmiY2FsZzgjZHR5cGVqcHVibGljLWtleaJjYWxnOQEAZHR5cGVqcHVibGljLWtleaJjYWxnOQEBZHR5cGVqcHVibGljLWtleaJjYWxnOQECZHR5cGVqcHVibGljLWtleaJjYWxnOCRkdHlwZWpwdWJsaWMta2V5omNhbGc4JWR0eXBlanB1YmxpYy1rZXmiY2FsZzgmZHR5cGVqcHVibGljLWtleaJjYWxnJ2R0eXBlanB1YmxpYy1rZXkFgA==", Base64.DEFAULT);
 
     private static final byte[] RAW_GET_ASSERTION_REQUEST = Base64.decode("AqQBa2V4YW1wbGUuY29tAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEDgqJiaWRYQPIgBt5PkFr2ikOULwJPKl7OYD2cbUs9+L4I7QH8RCZG0DSFisdb7T/VgL+YCNlPy+6CubLvZnevCtzDWFLqa55kdHlwZWpwdWJsaWMta2V5omJpZFgyAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNkdHlwZWpwdWJsaWMta2V5BaFidXb1", Base64.DEFAULT);
-
 
     private Context context;
 
@@ -67,11 +67,14 @@ public class BaseAPIHandlerTest {
                 .andThen(credentialSafe.deleteAllCredentials());
     }
 
-
-    private Single<MakeCredentialResponse> completeMakeCredential() {
+    private Single<MakeCredentialRequest> initiateMakeCredential() {
         return cborHandler.decode(RAW_MAKE_CREDENTIAL_REQUEST)
                 .flatMap(apiHandler::callAPI)
-                .cast(MakeCredentialRequest.class)
+                .cast(MakeCredentialRequest.class);
+    }
+
+    private Single<MakeCredentialResponse> completeMakeCredential() {
+        return initiateMakeCredential()
                 .flatMap(req -> {
                     req.setApproved(true);
                     return Single.just(req);
@@ -105,10 +108,22 @@ public class BaseAPIHandlerTest {
         assertThat(credentialSource.rpId, is("webauthn.io"));
     }
 
-    private Single<GetAssertionResponse> completeGetAssertion() {
+    @Test
+    public void makeCredential_FailsWithoutUserApproval() {
+        initiateMakeCredential()
+                .flatMap(apiHandler::updateAPI)
+                .test()
+                .assertError(OperationDeniedException.class);
+    }
+
+    private Single<GetAssertionRequest> initiateGetAssertion() {
         return cborHandler.decode(RAW_GET_ASSERTION_REQUEST)
                 .flatMap(apiHandler::callAPI)
-                .cast(GetAssertionRequest.class)
+                .cast(GetAssertionRequest.class);
+    }
+
+    private Single<GetAssertionResponse> completeGetAssertion() {
+        return initiateGetAssertion()
                 .flatMap(req -> {
                     req.setApproved(true);
                     return Single.just(req);
@@ -122,6 +137,33 @@ public class BaseAPIHandlerTest {
         completeGetAssertion()
                 .test()
                 .assertError(NoCredentialsException.class);
+    }
+
+    @Test
+    public void getAssertion_goesThroughAPI() {
+        completeMakeCredential()
+                .flatMap(res -> initiateGetAssertion())
+                .flatMap(getAssertionRequest -> credentialSafe.getRxKeyStore().getAliases()
+                        .firstOrError()
+                        .flatMap(this.credentialSafe::getCredentialSourceByAlias)
+                        .flatMap(credentialSource -> {
+                            // small hack to emulate a request with correct credential
+                            getAssertionRequest.setSelectedCredential(credentialSource);
+                            getAssertionRequest.setApproved(true);
+                            return Single.just(getAssertionRequest);
+                        }))
+                .flatMap(apiHandler::updateAPI)
+                .test()
+                .assertNoErrors()
+                .assertValueCount(1);
+    }
+
+    @Test
+    public void getAssertion_FailsWithoutUserApproval() {
+        initiateGetAssertion()
+                .flatMap(apiHandler::updateAPI)
+                .test()
+                .assertError(OperationDeniedException.class);
     }
 
     private Single<GetInfoResponse> completeGetInfo() {
