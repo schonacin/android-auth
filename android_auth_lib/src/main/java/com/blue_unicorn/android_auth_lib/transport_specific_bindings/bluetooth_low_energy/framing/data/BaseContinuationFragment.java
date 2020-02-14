@@ -10,7 +10,7 @@ public class BaseContinuationFragment extends BaseFragment implements Continuati
         super(DATA);
         setSEQ(SEQ);
 
-        if(getSEQ() < 0)
+        if (getSEQ() < 0)
             throw new InvalidSequenceNumberException("Invalid sequence number error: sequence number " + getSEQ() + " must be greater than zero");
     }
 
@@ -18,7 +18,7 @@ public class BaseContinuationFragment extends BaseFragment implements Continuati
         super(rawFragment, 1);
         setSEQ(rawFragment[0]);
 
-        if(getSEQ() < 0)
+        if (getSEQ() < 0)
             throw new InvalidSequenceNumberException("Invalid sequence number error: sequence number " + getSEQ() + " must be greater than zero");
     }
 

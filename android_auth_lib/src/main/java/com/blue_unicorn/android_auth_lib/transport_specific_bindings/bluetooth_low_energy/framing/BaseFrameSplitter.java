@@ -17,7 +17,7 @@ public class BaseFrameSplitter implements FrameSplitter {
 
     private int maxLen;
 
-    BaseFrameSplitter(int maxLen){
+    BaseFrameSplitter(int maxLen) {
         setMaxLen(maxLen);
     }
 

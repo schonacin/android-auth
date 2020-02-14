@@ -5,7 +5,7 @@ import com.blue_unicorn.android_auth_lib.transport_specific_bindings.bluetooth_l
 
 import io.reactivex.rxjava3.core.*;
 
-public abstract class BaseFragmentationProvider implements RxFragmentationProvider {
+public class BaseFragmentationProvider implements RxFragmentationProvider {
 
     @Override
     public Flowable<Fragment> fragment(Single<Frame> frame, int maxLen) {

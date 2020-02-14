@@ -63,7 +63,7 @@ public class BaseFrameAccumulator implements FrameAccumulator {
 
     private boolean dataComplete() {
         int totalDataSize = getInitializationFragment().getDATA().length;
-        for(ContinuationFragment continuationFragment : getContinuationFragments())
+        for (ContinuationFragment continuationFragment : getContinuationFragments())
             totalDataSize += continuationFragment.getDATA().length;
         return totalDataSize == getInitializationFragment().getHLEN() << 8 + getInitializationFragment().getLLEN();
     }
@@ -92,7 +92,7 @@ public class BaseFrameAccumulator implements FrameAccumulator {
     }
 
     private void addContinuationFragment(ContinuationFragment fragment) throws InvalidLengthException {
-        if(getFrame().getDATA().length + fragment.getDATA().length > getFrame().getHLEN() << 8 + getFrame().getLLEN())
+        if (getFrame().getDATA().length + fragment.getDATA().length > getFrame().getHLEN() << 8 + getFrame().getLLEN())
             throw new InvalidLengthException("Invalid length error: frame buffer DATA length " + (getFrame().getDATA().length + fragment.getDATA().length) + " is greater than length declared in HLEN and LLEN " + (getFrame().getHLEN() << 8 + getFrame().getLLEN()));
 
         getContinuationFragments().add(fragment);
@@ -107,8 +107,8 @@ public class BaseFrameAccumulator implements FrameAccumulator {
     // TODO: inefficient, seek faster solution
     private int getNumberOfContinuationFragmentsWithSEQ(int SEQ) {
         int counter = 0;
-        for(ContinuationFragment continuationFragment : getContinuationFragments())
-            if(SEQ == continuationFragment.getSEQ())
+        for (ContinuationFragment continuationFragment : getContinuationFragments())
+            if (SEQ == continuationFragment.getSEQ())
                 counter++;
         return counter;
     }
@@ -120,7 +120,7 @@ public class BaseFrameAccumulator implements FrameAccumulator {
         return getFrame();
     }
 
-    private Frame getFrame(){
+    private Frame getFrame() {
         return frame;
     }
 

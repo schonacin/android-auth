@@ -17,9 +17,9 @@ public class BaseInitializationFragment extends BaseFragment implements Initiali
         setHLEN(HLEN);
         setLLEN(LLEN);
 
-        if(!Command.commands.contains(getCMD()) && !Keepalive.status.contains(getCMD()))
+        if (!Command.commands.contains(getCMD()) && !Keepalive.status.contains(getCMD()))
             throw new InvalidCommandException("Invalid command error: initialization fragment command " + getCMD() + " is not specified");
-        if(getDATA().length < getHLEN() << 8 + getLLEN())
+        if (getDATA().length < getHLEN() << 8 + getLLEN())
             throw new InvalidLengthException("Invalid length error: initialization fragment DATA length " + getDATA().length + " is smaller than length specified in command parameters " + (getHLEN() << 8 + getLLEN()));
     }
 
@@ -29,9 +29,9 @@ public class BaseInitializationFragment extends BaseFragment implements Initiali
         setHLEN(rawFragment[1]);
         setLLEN(rawFragment[2]);
 
-        if(!Command.commands.contains(getCMD()) && !Keepalive.status.contains(getCMD()))
+        if (!Command.commands.contains(getCMD()) && !Keepalive.status.contains(getCMD()))
             throw new InvalidCommandException("Invalid command error: initialization fragment command " + getCMD() + " is not specified");
-        if(getDATA().length < getHLEN() << 8 + getLLEN())
+        if (getDATA().length < getHLEN() << 8 + getLLEN())
             throw new InvalidLengthException("Invalid length error: initialization fragment DATA length " + getDATA().length + " is smaller than length specified in command parameters " + (getHLEN() << 8 + getLLEN()));
     }
 
