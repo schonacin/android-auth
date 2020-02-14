@@ -2,17 +2,17 @@ package com.blue_unicorn.android_auth_lib;
 
 import android.util.Base64;
 
-import com.blue_unicorn.android_auth_lib.cbor.BaseCborHandler;
-import com.blue_unicorn.android_auth_lib.cbor.CborHandler;
-import com.blue_unicorn.android_auth_lib.exception.InvalidCommandException;
-import com.blue_unicorn.android_auth_lib.exception.InvalidLengthException;
-import com.blue_unicorn.android_auth_lib.exception.InvalidParameterException;
-import com.blue_unicorn.android_auth_lib.fido.GetAssertionRequest;
-import com.blue_unicorn.android_auth_lib.fido.GetInfoRequest;
-import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
-import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialRpEntity;
-import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialUserEntity;
-import com.blue_unicorn.android_auth_lib.fido.RequestObject;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.BaseCborHandler;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.CborHandler;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.InvalidCommandException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.InvalidLengthException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.InvalidParameterException;
+import com.blue_unicorn.android_auth_lib.ctap2.data.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.data.GetInfoRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.data.MakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.data.PublicKeyCredentialRpEntity;
+import com.blue_unicorn.android_auth_lib.ctap2.data.PublicKeyCredentialUserEntity;
+import com.blue_unicorn.android_auth_lib.ctap2.data.RequestObject;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
