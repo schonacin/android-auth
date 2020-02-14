@@ -19,10 +19,10 @@ public class BaseFrame implements Frame {
         if(DATA.length != HLEN << 8 + LLEN)
             throw new InvalidLengthException("Invalid length error: frame DATA length " + DATA.length + " does not equal length specified in command parameters " + (HLEN << 8 + LLEN));
 
-        this.CMDSTAT = CMDSTAT;
-        this.HLEN = HLEN;
-        this.LLEN = LLEN;
-        this.DATA = DATA;
+        setCMDSTAT(CMDSTAT);
+        setHLEN(HLEN);
+        setLLEN(LLEN);
+        setDATA(DATA);
     }
 
     @Override
@@ -31,8 +31,18 @@ public class BaseFrame implements Frame {
     }
 
     @Override
+    public void setCMDSTAT(byte CMDSTAT) {
+        this.CMDSTAT = CMDSTAT;
+    }
+
+    @Override
     public byte getHLEN() {
         return HLEN;
+    }
+
+    @Override
+    public void setHLEN(byte HLEN) {
+        this.HLEN = HLEN;
     }
 
     @Override
@@ -41,7 +51,17 @@ public class BaseFrame implements Frame {
     }
 
     @Override
+    public void setLLEN(byte LLEN) {
+        this.LLEN = LLEN;
+    }
+
+    @Override
     public byte[] getDATA() {
         return DATA;
+    }
+
+    @Override
+    public void setDATA(byte[] DATA) {
+        this.DATA = DATA;
     }
 }

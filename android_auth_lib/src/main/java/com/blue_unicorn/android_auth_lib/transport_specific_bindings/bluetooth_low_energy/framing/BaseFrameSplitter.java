@@ -17,14 +17,14 @@ public class BaseFrameSplitter implements FrameSplitter {
 
     private int maxLen;
 
-    public BaseFrameSplitter(int maxLen){
-        this.maxLen = maxLen;
+    BaseFrameSplitter(int maxLen){
+        setMaxLen(maxLen);
     }
 
     @Override
     public List<Fragment> split(Frame frame) throws InvalidCommandException, InvalidSequenceNumberException, InvalidLengthException {
-        InitializationFragment initializationFragment = extractInitializationFragment(maxLen, frame);
-        List<ContinuationFragment> continuationFragments = extractContinuationFragments(maxLen, frame);
+        InitializationFragment initializationFragment = extractInitializationFragment(frame);
+        List<ContinuationFragment> continuationFragments = extractContinuationFragments(frame);
 
         List<Fragment> fragments = new ArrayList<>(1 + continuationFragments.size());
         fragments.add(initializationFragment);
@@ -33,17 +33,17 @@ public class BaseFrameSplitter implements FrameSplitter {
         return fragments;
     }
 
-    private InitializationFragment extractInitializationFragment(int maxLen, Frame frame) throws InvalidCommandException, InvalidLengthException {
-        int initializationFragmentDataSize = maxLen - 3;
+    private InitializationFragment extractInitializationFragment(Frame frame) throws InvalidCommandException, InvalidLengthException {
+        int initializationFragmentDataSize = getMaxLen() - 3;
         byte[] initializationFragmentData = new byte[initializationFragmentDataSize];
 
         System.arraycopy(frame.getDATA(), 0, initializationFragmentData, 0, initializationFragmentDataSize);
         return new BaseInitializationFragment(frame.getCMDSTAT(), frame.getHLEN(), frame.getLLEN(), initializationFragmentData);
     }
 
-    private List<ContinuationFragment> extractContinuationFragments(int maxLen, Frame frame) throws InvalidSequenceNumberException {
-        int initializationFragmentDataSize = maxLen - 3;
-        int continuationFragmentDataSize = maxLen - 1;
+    private List<ContinuationFragment> extractContinuationFragments(Frame frame) throws InvalidSequenceNumberException {
+        int initializationFragmentDataSize = getMaxLen() - 3;
+        int continuationFragmentDataSize = getMaxLen() - 1;
         List<ContinuationFragment> extractedContinuationFragments = new ArrayList<>(frame.getHLEN() << 8 + frame.getLLEN());
         byte[] continuationFragmentData = new byte[continuationFragmentDataSize];
 
@@ -56,4 +56,13 @@ public class BaseFrameSplitter implements FrameSplitter {
         }
         return extractedContinuationFragments;
     }
+
+    private int getMaxLen() {
+        return maxLen;
+    }
+
+    private void setMaxLen(int maxLen) {
+        this.maxLen = maxLen;
+    }
+
 }

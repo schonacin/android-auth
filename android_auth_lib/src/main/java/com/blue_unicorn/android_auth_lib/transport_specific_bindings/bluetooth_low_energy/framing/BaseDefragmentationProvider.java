@@ -17,6 +17,6 @@ public abstract class BaseDefragmentationProvider implements RxDefragmentationPr
                 return new BaseFrameAccumulator(maxLen, fragment);
             accumulator.addFragment(fragment);
             return accumulator;
-        }).filter(FrameAccumulator::isComplete).map(FrameAccumulator::getFrame);
+        }).filter(FrameAccumulator::isComplete).map(FrameAccumulator::getAssembledFrame);
     }
 }

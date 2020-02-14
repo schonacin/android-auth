@@ -12,5 +12,5 @@ public interface FrameAccumulator {
 
     boolean isComplete();
 
-    Frame getFrame() throws OtherException;
+    Frame getAssembledFrame() throws OtherException;
 }

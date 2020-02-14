@@ -4,9 +4,17 @@ public interface Frame {
 
     byte getCMDSTAT();
 
+    void setCMDSTAT(byte CMDSTAT);
+
     byte getHLEN();
+
+    void setHLEN(byte HLEN);
 
     byte getLLEN();
 
+    void setLLEN(byte LLEN);
+
     byte[] getDATA();
+
+    void setDATA(byte[] DATA);
 }
