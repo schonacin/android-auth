@@ -1,4 +1,4 @@
-package com.blue_unicorn.android_auth_lib.ctap2;
+package com.blue_unicorn.android_auth_lib.android;
 
 import android.content.ComponentName;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package com.blue_unicorn.android_auth_lib.ctap2;
+package com.blue_unicorn.android_auth_lib.android;
 
 public abstract class RequestObject extends FidoObject {
 }
