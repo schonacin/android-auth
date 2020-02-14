@@ -14,7 +14,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import hu.akarnokd.rxjava3.bridge.RxJavaBridge;
 import io.reactivex.rxjava3.core.Completable;
 
 public class CredentialSafeTest {
@@ -42,7 +41,6 @@ public class CredentialSafeTest {
 
     private Completable resetKeystoreAndDatabase() {
         return credentialSafe.getRxKeyStore().deleteAllEntries()
-                .as(RxJavaBridge.toV3Completable())
                 .andThen(credentialSafe.deleteAllCredentials());
     }
 

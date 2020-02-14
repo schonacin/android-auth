@@ -53,11 +53,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'com.upokecenter:cbor:4.1.0'
     implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'com.github.neXenio:RxKeyStore:master-SNAPSHOT'
-
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.17'
-    implementation "com.github.akarnokd:rxjava3-bridge:3.0.0-RC8"
-
+    implementation 'com.github.schonacin:RxKeyStore:RxJava3_update-SNAPSHOT'
     implementation "io.reactivex.rxjava3:rxjava:3.0.0-RC6"
 
     implementation "android.arch.lifecycle:extensions:1.1.1"

@@ -12,7 +12,6 @@ import com.blue_unicorn.android_auth_lib.fido.webauthn.PackedAttestationStatemen
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
 
-import hu.akarnokd.rxjava3.bridge.RxJavaBridge;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
@@ -117,9 +116,8 @@ class MakeCredential {
         return generateCredential()
                 .flatMap(credential -> Single.zip(helper.hashSha256(request.getRp().getId()), helper.constructAttestedCredentialData(credential), helper::constructAuthenticatorData)
                         .flatMap(x -> x)
-                        // TODO create Wrapper for nexenios library which handles the conversions
                         .flatMap(authData -> Single.zip(Single.just(ArrayUtil.concatBytes(authData, request.getClientDataHash())), credentialSafe.getPrivateKeyByAlias(credential.keyPairAlias), cryptoProvider::sign)
-                                .flatMap(single -> single.as(RxJavaBridge.toV3Single()))
+                                .flatMap(x -> x)
                                 .map(PackedAttestationStatement::new)
                                 .map(attStmt -> new BaseMakeCredentialResponse(authData, attStmt))));
     }

@@ -12,7 +12,6 @@ import com.blue_unicorn.android_auth_lib.fido.webauthn.PublicKeyCredentialDescri
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
 
-import hu.akarnokd.rxjava3.bridge.RxJavaBridge;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
@@ -117,7 +116,7 @@ class GetAssertion {
     private Single<GetAssertionResponse> constructResponse() {
         return constructAuthenticatorData()
                 .flatMap(authData -> Single.zip(Single.just(ArrayUtil.concatBytes(authData, request.getClientDataHash())), this.credentialSafe.getPrivateKeyByAlias(request.getSelectedCredential().keyPairAlias), cryptoProvider::sign)
-                        .flatMap(single -> single.as(RxJavaBridge.toV3Single()))
+                        .flatMap(x -> x)
                         .flatMap(sig -> constructCredentialDescriptor()
                         .map(descriptor -> new BaseGetAssertionResponse(descriptor, authData, sig))));
     }

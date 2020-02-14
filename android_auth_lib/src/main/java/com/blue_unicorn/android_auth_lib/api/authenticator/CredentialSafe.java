@@ -1,9 +1,7 @@
 package com.blue_unicorn.android_auth_lib.api.authenticator;
 
 import android.content.Context;
-import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyInfo;
-import android.security.keystore.KeyProperties;
 import androidx.annotation.NonNull;
 
 import com.blue_unicorn.android_auth_lib.AuthLibException;
@@ -14,16 +12,13 @@ import com.upokecenter.cbor.CBORObject;
 
 import java.security.KeyFactory;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.interfaces.ECPublicKey;
-import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECPoint;
 
 import com.blue_unicorn.android_auth_lib.api.authenticator.database.PublicKeyCredentialSource;
-import hu.akarnokd.rxjava3.bridge.RxJavaBridge;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
@@ -75,9 +70,7 @@ public class CredentialSafe {
 
     private Completable generateNewES256KeyPair(String alias) {
         return cryptoProvider.generateKeyPair(alias, ctx)
-                .as(RxJavaBridge.toV3Single())
-                .flatMap(keyPair -> Single.just(cryptoProvider.setKeyPair(alias, keyPair)))
-                .flatMapCompletable(completable -> completable.as(RxJavaBridge.toV3Completable()))
+                .flatMapCompletable(keyPair -> cryptoProvider.setKeyPair(alias, keyPair))
                 .onErrorResumeNext(throwable -> Completable.error(new AuthLibException("couldn't generate key pair!", throwable)));
     }
 
@@ -123,14 +116,12 @@ public class CredentialSafe {
 
     private Single<PublicKey> getPublicKeyByAlias(@NonNull String alias) {
         return rxKeyStore.getCertificate(alias)
-                .as(RxJavaBridge.toV3Single())
                 .map(Certificate::getPublicKey)
                 .onErrorResumeNext(throwable -> Single.error(new AuthLibException("couldn't get public key by alias", throwable)));
     }
 
     Single<PrivateKey> getPrivateKeyByAlias(@NonNull String alias) {
         return rxKeyStore.getKey(alias)
-                .as(RxJavaBridge.toV3Single())
                 .cast(PrivateKey.class)
                 .onErrorResumeNext(throwable -> Single.error(new AuthLibException("couldn't get private key by alias", throwable)));
     }
