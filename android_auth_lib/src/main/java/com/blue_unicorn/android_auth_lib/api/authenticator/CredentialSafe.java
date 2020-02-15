@@ -24,8 +24,8 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
 /**
- * Inspired by
- * <a href="https://github.com/duo-labs/android-webauthn-authenticator">library</a>* from duo-labs
+ * Handles the generation and retrieval of credentials via a specific database and the keystore.
+ * Inspired by <a href="https://github.com/duo-labs/android-webauthn-authenticator">this library</a>* developed by duo-labs
  */
 public class CredentialSafe {
 
@@ -40,7 +40,7 @@ public class CredentialSafe {
         this(ctx, true);
     }
 
-    CredentialSafe(Context ctx, boolean authenticationRequired) {
+    public CredentialSafe(Context ctx, boolean authenticationRequired) {
         this.rxKeyStore = new RxKeyStore(KEYSTORE_TYPE);
         this.cryptoProvider = new RxECCryptoProvider(this.rxKeyStore);
         this.authenticationRequired = authenticationRequired;

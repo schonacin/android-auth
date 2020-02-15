@@ -146,9 +146,11 @@ public class BaseAPIHandlerTest {
                 .flatMap(getAssertionRequest -> credentialSafe.getRxKeyStore().getAliases()
                         .firstOrError()
                         .flatMap(this.credentialSafe::getCredentialSourceByAlias)
-                        .flatMap(credentialSource -> {
+                        .toFlowable()
+                        .toList()
+                        .flatMap(credentials -> {
                             // small hack to emulate a request with correct credential
-                            getAssertionRequest.setSelectedCredential(credentialSource);
+                            getAssertionRequest.setSelectedCredentials(credentials);
                             getAssertionRequest.setApproved(true);
                             return Single.just(getAssertionRequest);
                         }))

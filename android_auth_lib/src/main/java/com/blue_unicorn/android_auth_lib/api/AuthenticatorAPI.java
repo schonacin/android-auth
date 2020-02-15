@@ -1,4 +1,4 @@
-package com.blue_unicorn.android_auth_lib.api.authenticator;
+package com.blue_unicorn.android_auth_lib.api;
 
 import com.blue_unicorn.android_auth_lib.fido.request.GetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.fido.reponse.GetAssertionResponse;
@@ -9,6 +9,11 @@ import com.blue_unicorn.android_auth_lib.fido.reponse.MakeCredentialResponse;
 
 import io.reactivex.rxjava3.core.Single;
 
+/**
+ * Provides the methods of the Authenticator API.
+ * Complex methods with user interference are split into two methods in order to authenticate the process in between.
+ * See <a href="https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#authenticator-api">specification</a>
+ */
 public interface AuthenticatorAPI {
 
     Single<MakeCredentialRequest> makeCredential(MakeCredentialRequest request);

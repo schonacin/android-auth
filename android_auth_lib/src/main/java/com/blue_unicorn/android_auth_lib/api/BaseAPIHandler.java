@@ -3,8 +3,6 @@ package com.blue_unicorn.android_auth_lib.api;
 import android.content.Context;
 
 import com.blue_unicorn.android_auth_lib.AuthLibException;
-import com.blue_unicorn.android_auth_lib.api.authenticator.AuthenticatorAPI;
-import com.blue_unicorn.android_auth_lib.api.authenticator.BaseAuthenticatorAPI;
 import com.blue_unicorn.android_auth_lib.fido.FidoObject;
 import com.blue_unicorn.android_auth_lib.fido.request.GetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.fido.request.GetInfoRequest;

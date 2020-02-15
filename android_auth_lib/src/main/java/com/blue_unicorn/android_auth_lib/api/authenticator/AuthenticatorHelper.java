@@ -9,6 +9,10 @@ import java.security.MessageDigest;
 
 import io.reactivex.rxjava3.core.Single;
 
+/**
+ * Provides functions that are used in multiple Authenticator API methods.
+ * Inspired by/ copied from <a href="https://github.com/duo-labs/android-webauthn-authenticator">this library</a>* developed by duo-labs.
+ */
 final class AuthenticatorHelper {
 
     private CredentialSafe credentialSafe;

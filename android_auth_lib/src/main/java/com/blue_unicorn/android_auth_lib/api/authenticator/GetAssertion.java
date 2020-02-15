@@ -1,5 +1,7 @@
 package com.blue_unicorn.android_auth_lib.api.authenticator;
 
+import com.blue_unicorn.android_auth_lib.AuthLibException;
+import com.blue_unicorn.android_auth_lib.api.authenticator.database.PublicKeyCredentialSource;
 import com.blue_unicorn.android_auth_lib.api.exceptions.NoCredentialsException;
 import com.blue_unicorn.android_auth_lib.api.exceptions.OperationDeniedException;
 import com.blue_unicorn.android_auth_lib.api.exceptions.OtherException;
@@ -12,11 +14,16 @@ import com.blue_unicorn.android_auth_lib.fido.webauthn.PublicKeyCredentialDescri
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
 
+import java.security.PrivateKey;
+
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
-class GetAssertion {
+/**
+ * Represents the authenticatorGetAssertion method.
+ * See <a href="https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#authenticatorGetAssertion">specification</a>
+ */
+public class GetAssertion {
 
     private CredentialSafe credentialSafe;
     private RxAsymmetricCryptoProvider cryptoProvider;
@@ -24,14 +31,14 @@ class GetAssertion {
     private GetAssertionRequest request;
 
     //TODO maybe make this a singleton
-    GetAssertion(CredentialSafe credentialSafe, GetAssertionRequest request) {
+    public GetAssertion(CredentialSafe credentialSafe, GetAssertionRequest request) {
         this.credentialSafe = credentialSafe;
         this.cryptoProvider = this.credentialSafe.getCryptoProvider();
         this.request = request;
         this.helper = new AuthenticatorHelper(this.credentialSafe);
     }
 
-    Single<GetAssertionRequest> operate() {
+    public Single<GetAssertionRequest> operate() {
         // 0. check if request is valid
         // 1. check credentials in allowList if Existent
         // 5. check options
@@ -41,9 +48,9 @@ class GetAssertion {
                 .andThen(Single.just(request));
     }
 
-        // 2. - 4. & 6. is ignored as pinAuth and extensions are not supported
+    // 2. - 4. & 6. is ignored as pinAuth and extensions are not supported
 
-    Single<GetAssertionResponse> operateInner() {
+    public Single<GetAssertionResponse> operateInner() {
         // 7. - 8. handle user approval and whether credentials could be found
         // 9. - 12. construct response
         return handleUserApproval()
@@ -60,19 +67,12 @@ class GetAssertion {
         });
     }
 
-    private Flowable<byte[]> getAllowedIds() {
-        // TODO error handling
-        return Single.just(request.getAllowList())
-                .flatMapPublisher(Flowable::fromIterable)
-                .map(PublicKeyCredentialDescriptor::getId);
-    }
-
     private boolean isInAllowedCredentialIds(byte[] id) {
         if (request.getAllowList() == null) {
             // if the allow list is non existent, all credentials are valid
             return true;
         }
-        for (PublicKeyCredentialDescriptor descriptor: request.getAllowList()) {
+        for (PublicKeyCredentialDescriptor descriptor : request.getAllowList()) {
             if (descriptor.getId() == id) {
                 return true;
             }
@@ -81,11 +81,10 @@ class GetAssertion {
     }
 
     private Completable checkForCredentials() {
-        // TODO: should we handle the Maybe<>?
         return credentialSafe.getKeysForEntity(request.getRpId())
                 .filter(credentialSource -> isInAllowedCredentialIds(credentialSource.id))
-                .firstElement()
-                .flatMapCompletable(credential -> Completable.fromAction(() -> request.setSelectedCredential(credential)));
+                .toList()
+                .flatMapCompletable(credentials -> Completable.fromAction(() -> request.setSelectedCredentials(credentials)));
     }
 
     private Completable checkOptions() {
@@ -94,9 +93,9 @@ class GetAssertion {
 
     private Completable handleUserApproval() {
         return Completable.defer(() -> {
-            if(!request.isApproved()) {
+            if (!request.isApproved()) {
                 return Completable.error(OperationDeniedException::new);
-            } else if(request.getSelectedCredential() == null) {
+            } else if (request.getSelectedCredentials() == null || request.getSelectedCredentials().isEmpty()) {
                 return Completable.error(NoCredentialsException::new);
             } else {
                 return Completable.complete();
@@ -104,21 +103,43 @@ class GetAssertion {
         });
     }
 
-    private Single<byte[]> constructAuthenticatorData() {
-        return helper.hashSha256(request.getRpId())
-                .flatMap(rpIdHash -> helper.constructAuthenticatorData(rpIdHash, null));
+    private Single<PublicKeyCredentialSource> getSelectedCredentialIfAvailable() {
+        return Single.defer(() -> {
+            if (!request.getSelectedCredentials().isEmpty()) {
+                // TODO: do we handle getNextAssertion? taking the first credential for now
+                return Single.just(request.getSelectedCredentials().get(0));
+            } else {
+                return Single.error(new AuthLibException("no selected credentials"));
+            }
+        }).cache();
     }
 
     private Single<PublicKeyCredentialDescriptor> constructCredentialDescriptor() {
-        return Single.just(new BasePublicKeyCredentialDescriptor("public-key", request.getSelectedCredential().id));
+        return getSelectedCredentialIfAvailable()
+                .flatMap(credentialSource -> Single.just(new BasePublicKeyCredentialDescriptor("public-key", credentialSource.id)));
+    }
+
+    private Single<byte[]> constructAuthenticatorData() {
+        return helper.hashSha256(request.getRpId())
+                .flatMap(rpIdHash -> helper.constructAuthenticatorData(rpIdHash, null))
+                .cache();
+    }
+
+    private Single<byte[]> generateSignature() {
+        return Single.defer(() -> {
+            Single<byte[]> dataToSign = constructAuthenticatorData()
+                    .map(authData -> ArrayUtil.concatBytes(authData, request.getClientDataHash()));
+
+            Single<PrivateKey> privateKey = getSelectedCredentialIfAvailable()
+                    .flatMap(credentialSource -> credentialSafe.getPrivateKeyByAlias(credentialSource.keyPairAlias));
+
+            return Single.zip(dataToSign, privateKey, cryptoProvider::sign)
+                    .flatMap(x -> x);
+        });
     }
 
     private Single<GetAssertionResponse> constructResponse() {
-        return constructAuthenticatorData()
-                .flatMap(authData -> Single.zip(Single.just(ArrayUtil.concatBytes(authData, request.getClientDataHash())), this.credentialSafe.getPrivateKeyByAlias(request.getSelectedCredential().keyPairAlias), cryptoProvider::sign)
-                        .flatMap(x -> x)
-                        .flatMap(sig -> constructCredentialDescriptor()
-                        .map(descriptor -> new BaseGetAssertionResponse(descriptor, authData, sig))));
+        return Single.zip(constructCredentialDescriptor(), constructAuthenticatorData(), generateSignature(), BaseGetAssertionResponse::new);
     }
 
 }

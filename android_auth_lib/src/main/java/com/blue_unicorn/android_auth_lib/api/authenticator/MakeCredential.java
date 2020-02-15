@@ -8,15 +8,22 @@ import com.blue_unicorn.android_auth_lib.api.exceptions.UnsupportedAlgorithmExce
 import com.blue_unicorn.android_auth_lib.fido.reponse.BaseMakeCredentialResponse;
 import com.blue_unicorn.android_auth_lib.fido.request.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.reponse.MakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.fido.webauthn.AttestationStatement;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.PackedAttestationStatement;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
+
+import java.security.PrivateKey;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
-class MakeCredential {
+/**
+ * Represents the authenticatorMakeCredential method.
+ * See <a href="https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#authenticatorMakeCredential">specification</a>
+ */
+public class MakeCredential {
 
     private CredentialSafe credentialSafe;
     private RxAsymmetricCryptoProvider cryptoProvider;
@@ -24,14 +31,14 @@ class MakeCredential {
     private AuthenticatorHelper helper;
 
     //TODO maybe make this a singleton
-    MakeCredential(CredentialSafe credentialSafe, MakeCredentialRequest request) {
+    public MakeCredential(CredentialSafe credentialSafe, MakeCredentialRequest request) {
         this.credentialSafe = credentialSafe;
         this.cryptoProvider = this.credentialSafe.getCryptoProvider();
         this.request = request;
         this.helper = new AuthenticatorHelper(this.credentialSafe);
     }
 
-    Single<MakeCredentialRequest> operate() {
+    public Single<MakeCredentialRequest> operate() {
         // 0. check if request is valid
         // 1. check if excludeList parameter is present
         // 2. check for valid algorithm
@@ -45,7 +52,7 @@ class MakeCredential {
 
         // we skip 4. - 7. (extensions & pinAuth are not supported)
 
-    Single<MakeCredentialResponse> operateInner() {
+    public Single<MakeCredentialResponse> operateInner() {
         // 8. handle user confirmation & whether credential was excluded
         // 9. - 11. create key pair return response
         return handleUserApproval()
@@ -112,17 +119,49 @@ class MakeCredential {
         });
     }
 
-    private Single<MakeCredentialResponse> constructResponse() {
-        return generateCredential()
-                .flatMap(credential -> Single.zip(helper.hashSha256(request.getRp().getId()), helper.constructAttestedCredentialData(credential), helper::constructAuthenticatorData)
-                        .flatMap(x -> x)
-                        .flatMap(authData -> Single.zip(Single.just(ArrayUtil.concatBytes(authData, request.getClientDataHash())), credentialSafe.getPrivateKeyByAlias(credential.keyPairAlias), cryptoProvider::sign)
-                                .flatMap(x -> x)
-                                .map(PackedAttestationStatement::new)
-                                .map(attStmt -> new BaseMakeCredentialResponse(authData, attStmt))));
-    }
-
     private Single<PublicKeyCredentialSource> generateCredential() {
         return credentialSafe.generateCredential(request.getRp().getId(), request.getUser().getId(), request.getUser().getName());
+    }
+
+    private Single<PublicKeyCredentialSource> getGeneratedCredential() {
+        return generateCredential()
+                .cache();
+    }
+
+    private Single<byte[]> constructAttestedCredentialData() {
+        return getGeneratedCredential()
+                .flatMap(helper::constructAttestedCredentialData);
+    }
+
+    private Single<byte[]> constructAuthenticatorData() {
+        return Single.zip(helper.hashSha256(request.getRp().getId()), constructAttestedCredentialData(), helper::constructAuthenticatorData)
+                .flatMap(x -> x);
+    }
+
+    private Single<byte[]> getAuthenticatorData() {
+        return constructAuthenticatorData()
+                .cache();
+    }
+
+    private Single<byte[]> generateSignature() {
+        return Single.defer(() -> {
+            Single<byte[]> dataToSign = getAuthenticatorData()
+                    .map(authData -> ArrayUtil.concatBytes(authData, request.getClientDataHash()));
+
+            Single<PrivateKey> privateKey = getGeneratedCredential()
+                    .flatMap(credentialSource -> credentialSafe.getPrivateKeyByAlias(credentialSource.keyPairAlias));
+
+            return Single.zip(dataToSign, privateKey, cryptoProvider::sign)
+                    .flatMap(x -> x);
+        });
+    }
+
+    private Single<AttestationStatement> constructAttestationStatement() {
+        return generateSignature()
+                .map(PackedAttestationStatement::new);
+    }
+
+    private Single<MakeCredentialResponse> constructResponse() {
+        return Single.zip(getAuthenticatorData(), constructAttestationStatement(), BaseMakeCredentialResponse::new);
     }
 }

@@ -13,20 +13,6 @@ public class BasePublicKeyCredentialUserEntity implements PublicKeyCredentialUse
     @SerializedName("displayName")
     private String displayName;
 
-    public BasePublicKeyCredentialUserEntity(byte[] id) {
-        this(id, null, null);
-    }
-
-    public BasePublicKeyCredentialUserEntity(byte[] id, String name) {
-        this(id, name, null);
-    }
-
-    public BasePublicKeyCredentialUserEntity(byte[] id, String name, String displayName) {
-        this.id = id;
-        this.name = name;
-        this.displayName = displayName;
-    }
-
     public byte[] getId() {
         return id;
     }

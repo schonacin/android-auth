@@ -29,9 +29,7 @@ public class BaseGetAssertionRequest implements GetAssertionRequest {
 
     private boolean approved;
 
-    // TODO extract this to interface?
-    @Nullable
-    private PublicKeyCredentialSource selectedCredential;
+    private List<PublicKeyCredentialSource> selectedCredentials;
 
     public boolean isApproved() {
         return approved;
@@ -41,13 +39,12 @@ public class BaseGetAssertionRequest implements GetAssertionRequest {
         this.approved = approved;
     }
 
-    @Nullable
-    public PublicKeyCredentialSource getSelectedCredential() {
-        return selectedCredential;
+    public List<PublicKeyCredentialSource> getSelectedCredentials() {
+        return selectedCredentials;
     }
 
-    public void setSelectedCredential(@Nullable PublicKeyCredentialSource selectedCredential) {
-        this.selectedCredential = selectedCredential;
+    public void setSelectedCredentials(List<PublicKeyCredentialSource> selectedCredentials) {
+        this.selectedCredentials = selectedCredentials;
     }
 
     public String getRpId() {

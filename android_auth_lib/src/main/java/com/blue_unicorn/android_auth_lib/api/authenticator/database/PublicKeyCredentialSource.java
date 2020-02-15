@@ -11,8 +11,8 @@ import androidx.room.PrimaryKey;
 import java.security.SecureRandom;
 
 /**
- * Inspired by/ Copied from:
- * <a href="https://github.com/duo-labs/android-webauthn-authenticator">library</a>* from duo-labs
+ * Represents the credentials that are generated and stored in the database.
+ * Inspired by/ copied from: <a href="https://github.com/duo-labs/android-webauthn-authenticator">library</a>* developed by duo-labs
  */
 @Entity(tableName = "credentials", indices = {@Index("rpId")})
 public class PublicKeyCredentialSource {

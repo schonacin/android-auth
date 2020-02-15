@@ -11,8 +11,7 @@ import androidx.room.Update;
 import java.util.List;
 
 /**
- * Inspired by/ Copied from:
- * <a href="https://github.com/duo-labs/android-webauthn-authenticator">library</a>* from duo-labs
+ * Inspired by/ copied from: <a href="https://github.com/duo-labs/android-webauthn-authenticator">library</a>* developed by duo-labs
  */
 @Dao
 public abstract class CredentialDao {

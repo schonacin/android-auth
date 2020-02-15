@@ -18,8 +18,17 @@ public class PackedAttestationStatement implements AttestationStatement {
 
     public PackedAttestationStatement(byte[] sig) {
         // TODO outsource algorithm identifier to Config or somewhere else
-        this.alg= -7;
+        this(-7, sig);
+    }
+
+    public PackedAttestationStatement(int alg, byte[] sig) {
+        this(alg, sig, null);
+    }
+
+    public PackedAttestationStatement(int alg, byte[] sig, byte[][] x5c) {
+        this.alg = alg;
         this.sig = sig;
+        this.x5c = x5c;
     }
 
     public void setAlg(int alg) {
