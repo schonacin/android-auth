@@ -1,6 +1,6 @@
 package com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions;
 
-public abstract class BluetoothLowEnergyException extends Exception {
+public abstract class BleException extends Exception {
 
     private byte errorCode;
 
@@ -8,12 +8,12 @@ public abstract class BluetoothLowEnergyException extends Exception {
         return errorCode;
     }
 
-    BluetoothLowEnergyException(byte errorCode, String message) {
+    BleException(byte errorCode, String message) {
         super(message);
         this.errorCode = errorCode;
     }
 
-    BluetoothLowEnergyException(byte errorCode, String message, Throwable cause) {
+    BleException(byte errorCode, String message, Throwable cause) {
         super(message, cause);
         this.errorCode = errorCode;
     }

@@ -9,11 +9,13 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Frame;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.InitializationFragment;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
 // TODO: add description with reference to ctap2 spec
-// assumptions made: TODO: write test for these cases
+// assumptions made:
 // - if there is sequence number wraparound, continuation fragments with same sequence number are in correct order
 // - except for the last fragment, all available space (= maxLen) for data is used
 // - maxLen is at least 3 (to be able to transmit an initialization fragment)
@@ -21,21 +23,26 @@ class BaseFrameAccumulator implements FrameAccumulator {
 
     private int initializationFragmentDataSize;
     private int continuationFragmentDataSize;
+    private int accumulatedDataSize;
+    private int totalDataSize;
+    private int[] sequenceNumberCount;
+    private boolean initializationFragmentAccumulated;
+
     private Frame frame;
 
-    // TODO: remove
-    private InitializationFragment initializationFragment;
-    private List<ContinuationFragment> continuationFragments;
+    BaseFrameAccumulator(int maxLen) throws OtherException {
+        if (maxLen < 3)
+            throw new OtherException("Defragmentation error: maxLen (" + maxLen + ") is smaller than minimum allowed maxLen (3)");
 
-
-    BaseFrameAccumulator(int maxLen) {
+        setSequenceNumberCount(new int[0x80]);
+        setInitializationFragmentAccumulated(false);
+        setAccumulatedDataSize(0);
+        setTotalDataSize(0);
         setFragmentDataSizes(maxLen);
-        setContinuationFragments(new ArrayList<>());
     }
 
     BaseFrameAccumulator(int maxLen, Fragment fragment) throws InvalidCommandException, InvalidLengthException, OtherException {
-        setFragmentDataSizes(maxLen);
-        setContinuationFragments(new ArrayList<>());
+        this(maxLen);
         addFragment(fragment);
     }
 
@@ -44,34 +51,34 @@ class BaseFrameAccumulator implements FrameAccumulator {
         setContinuationFragmentDataSize(maxLen - 1);
     }
 
-    // TODO: safe completeness state in attribute & update every time something changes
     @Override
     public boolean isComplete() {
         return initializationFragmentComplete() && continuationFragmentsComplete() && dataComplete();
     }
 
     private boolean initializationFragmentComplete() {
-        return getInitializationFragment() != null;
+        return isInitializationFragmentAccumulated();
     }
 
     private boolean continuationFragmentsComplete() {
-        int frameDataSize = getFrame().getHLEN() << 8 + getFrame().getLLEN();
+        int frameDataSize = getAssembledLength(getFrame().getHLEN(), getFrame().getLLEN());
         int totalContinuationFragmentsDataSize = (frameDataSize - getInitializationFragmentDataSize());
         int expectedNumberOfContinuationFragments = totalContinuationFragmentsDataSize / getContinuationFragmentDataSize() + totalContinuationFragmentsDataSize % getContinuationFragmentDataSize() / totalContinuationFragmentsDataSize;
 
-        return getContinuationFragments().size() == expectedNumberOfContinuationFragments;
+        int continuationFragmentsCount = 0;
+        for (int sequenceNumberCount : getSequenceNumberCount())
+            continuationFragmentsCount += sequenceNumberCount;
+
+        return continuationFragmentsCount == expectedNumberOfContinuationFragments;
     }
 
     private boolean dataComplete() {
-        int totalDataSize = getInitializationFragment().getDATA().length;
-        for (ContinuationFragment continuationFragment : getContinuationFragments())
-            totalDataSize += continuationFragment.getDATA().length;
-        return totalDataSize == getInitializationFragment().getHLEN() << 8 + getInitializationFragment().getLLEN();
+        return getAccumulatedDataSize() == getTotalDataSize();
     }
 
     @Override
     public void addFragment(Fragment fragment) throws InvalidCommandException, InvalidLengthException, OtherException {
-        if (isComplete()) {
+        if (!isComplete()) {
             if (fragment instanceof ContinuationFragment)
                 addContinuationFragment(((ContinuationFragment) fragment));
             else if (fragment instanceof InitializationFragment)
@@ -82,36 +89,37 @@ class BaseFrameAccumulator implements FrameAccumulator {
     }
 
     private void addInitializationFragment(InitializationFragment fragment) throws InvalidCommandException, InvalidLengthException, OtherException {
-        if (getInitializationFragment() != null)
+        if (isInitializationFragmentAccumulated())
             throw new OtherException("Defragmentation error: received multiple initialization fragments for same frame");
 
-        setInitializationFragment(fragment);
+        setInitializationFragmentAccumulated(true);
+        setTotalDataSize(getAssembledLength(fragment.getHLEN(), fragment.getLLEN()));
+        setAccumulatedDataSize(getAccumulatedDataSize() + fragment.getDATA().length);
 
-        byte[] dataArray = new byte[fragment.getHLEN() << 8 + fragment.getLLEN()];
+        if (getAccumulatedDataSize() > getTotalDataSize())
+            throw new InvalidLengthException("Invalid length error: accumulated data length " + getAccumulatedDataSize() + fragment.getDATA().length + " is greater than length declared in HLEN and LLEN " + getTotalDataSize());
+
+        byte[] dataArray = new byte[getTotalDataSize()];
         System.arraycopy(fragment.getDATA(), 0, dataArray, 0, fragment.getDATA().length);
         setFrame(new BaseFrame(fragment.getCMD(), fragment.getHLEN(), fragment.getLLEN(), dataArray));
     }
 
     private void addContinuationFragment(ContinuationFragment fragment) throws InvalidLengthException {
-        if (getFrame().getDATA().length + fragment.getDATA().length > getFrame().getHLEN() << 8 + getFrame().getLLEN())
-            throw new InvalidLengthException("Invalid length error: frame buffer DATA length " + (getFrame().getDATA().length + fragment.getDATA().length) + " is greater than length declared in HLEN and LLEN " + (getFrame().getHLEN() << 8 + getFrame().getLLEN()));
+        setAccumulatedDataSize(getAccumulatedDataSize() + fragment.getDATA().length);
 
-        getContinuationFragments().add(fragment);
+        if (isInitializationFragmentAccumulated() && getAccumulatedDataSize() + fragment.getDATA().length > getTotalDataSize())
+            throw new InvalidLengthException("Invalid length error: accumulated data length " + getAccumulatedDataSize() + fragment.getDATA().length  + " is greater than length declared in HLEN and LLEN " + getTotalDataSize());
 
         int initializationFragmentDataOffset = getInitializationFragmentDataSize();
         int continuationFragmentDataOffset = getContinuationFragmentDataSize() * fragment.getSEQ();
-        int wraparoundOffset = 0x80 * getNumberOfContinuationFragmentsWithSEQ(fragment.getSEQ());
+        int wraparoundOffset = 0x80 * getSequenceNumberCount()[fragment.getSEQ()];
         int totalOffset = wraparoundOffset + continuationFragmentDataOffset + initializationFragmentDataOffset;
         System.arraycopy(fragment.getDATA(), 0, getFrame().getDATA(), totalOffset, fragment.getDATA().length);
+        getSequenceNumberCount()[fragment.getSEQ()]++;
     }
 
-    // TODO: inefficient, seek faster solution
-    private int getNumberOfContinuationFragmentsWithSEQ(int SEQ) {
-        int counter = 0;
-        for (ContinuationFragment continuationFragment : getContinuationFragments())
-            if (SEQ == continuationFragment.getSEQ())
-                counter++;
-        return counter;
+    private int getAssembledLength(byte HLEN, byte LLEN) {
+        return ((int) HLEN << 8) + (int) LLEN;
     }
 
     @Override
@@ -121,12 +129,25 @@ class BaseFrameAccumulator implements FrameAccumulator {
         return getFrame();
     }
 
+
     private Frame getFrame() {
         return frame;
     }
 
     private void setFrame(Frame frame) {
         this.frame = frame;
+    }
+
+    private void setInitializationFragmentAccumulated(boolean initializationFragmentAccumulated) {
+        this.initializationFragmentAccumulated = initializationFragmentAccumulated;
+    }
+
+    private int[] getSequenceNumberCount() {
+        return sequenceNumberCount;
+    }
+
+    private void setSequenceNumberCount(int[] sequenceNumberCount) {
+        this.sequenceNumberCount = sequenceNumberCount;
     }
 
     private int getInitializationFragmentDataSize() {
@@ -145,19 +166,23 @@ class BaseFrameAccumulator implements FrameAccumulator {
         this.continuationFragmentDataSize = continuationFragmentDataSize;
     }
 
-    private InitializationFragment getInitializationFragment() {
-        return initializationFragment;
+    private int getAccumulatedDataSize() {
+        return accumulatedDataSize;
     }
 
-    private void setInitializationFragment(InitializationFragment initializationFragment) {
-        this.initializationFragment = initializationFragment;
+    private void setAccumulatedDataSize(int accumulatedDataSize) {
+        this.accumulatedDataSize = accumulatedDataSize;
     }
 
-    private List<ContinuationFragment> getContinuationFragments() {
-        return continuationFragments;
+    private int getTotalDataSize() {
+        return totalDataSize;
     }
 
-    private void setContinuationFragments(List<ContinuationFragment> continuationFragments) {
-        this.continuationFragments = continuationFragments;
+    private void setTotalDataSize(int totalDataSize) {
+        this.totalDataSize = totalDataSize;
+    }
+
+    private boolean isInitializationFragmentAccumulated() {
+        return initializationFragmentAccumulated;
     }
 }

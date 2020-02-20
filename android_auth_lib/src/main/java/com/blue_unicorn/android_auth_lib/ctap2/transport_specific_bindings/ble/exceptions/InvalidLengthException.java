@@ -2,7 +2,7 @@ package com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.
 
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.constants.Error;
 
-public class InvalidLengthException extends BluetoothLowEnergyException {
+public class InvalidLengthException extends BleException {
 
     public InvalidLengthException(String message) {
         super(Error.ERR_INVALID_LEN, message);

@@ -13,5 +13,4 @@ public final class BaseCborHandler implements CborHandler {
         return CommandBuilder.buildCommand(input)
                 .flatMap(CommandMapper::mapRespectiveMethod);
     }
-
 }

@@ -7,16 +7,16 @@ public class BaseContinuationFragment extends BaseFragment implements Continuati
     private byte SEQ;
 
     public BaseContinuationFragment(byte SEQ, byte[] DATA) throws InvalidSequenceNumberException {
-        super(DATA);
-        setSEQ(SEQ);
-
-        if (getSEQ() < 0)
-            throw new InvalidSequenceNumberException("Invalid sequence number error: sequence number " + getSEQ() + " must be greater than zero");
+        this(SEQ, DATA, 0);
     }
 
     public BaseContinuationFragment(byte[] rawFragment) throws InvalidSequenceNumberException {
-        super(rawFragment, 1);
-        setSEQ(rawFragment[0]);
+        this(rawFragment[0], rawFragment, 1);
+    }
+
+    private BaseContinuationFragment(byte SEQ, byte[] DATA, int offset) throws InvalidSequenceNumberException {
+        super(DATA, offset);
+        setSEQ(SEQ);
 
         if (getSEQ() < 0)
             throw new InvalidSequenceNumberException("Invalid sequence number error: sequence number " + getSEQ() + " must be greater than zero");

@@ -12,6 +12,7 @@ public class BaseDefragmentationProvider implements RxDefragmentationProvider {
     // TODO: could be maybe done more elegantly with windowUntil + collect?
     @Override
     public Flowable<Frame> defragment(Flowable<Fragment> fragments, int maxLen) {
+
         return fragments.scanWith(() -> new BaseFrameAccumulator(maxLen), (accumulator, fragment) -> {
             if (accumulator.isComplete())
                 return new BaseFrameAccumulator(maxLen, fragment);

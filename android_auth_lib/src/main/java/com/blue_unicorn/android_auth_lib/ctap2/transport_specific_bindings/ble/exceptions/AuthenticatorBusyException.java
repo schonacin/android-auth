@@ -2,7 +2,7 @@ package com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.
 
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.constants.Error;
 
-public class AuthenticatorBusyException extends BluetoothLowEnergyException {
+public class AuthenticatorBusyException extends BleException {
 
     public AuthenticatorBusyException(String message) {
         super(Error.ERR_BUSY, message);
