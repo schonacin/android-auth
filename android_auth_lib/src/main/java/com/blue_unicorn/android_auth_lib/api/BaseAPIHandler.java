@@ -14,16 +14,14 @@ import io.reactivex.rxjava3.core.Single;
 
 public class BaseAPIHandler implements APIHandler {
 
-    private Context context;
+    private AuthenticatorAPI api;
 
     public BaseAPIHandler(Context context) {
-        this.context = context;
+        this.api = new BaseAuthenticatorAPI(context, true);
     }
 
     public Single<FidoObject> callAPI(RequestObject request) {
         return Single.defer(() -> {
-            AuthenticatorAPI api = new BaseAuthenticatorAPI(context, true);
-
             if (request instanceof MakeCredentialRequest) {
                 return api.makeCredential((MakeCredentialRequest)request);
             } else if (request instanceof GetAssertionRequest) {
@@ -38,8 +36,6 @@ public class BaseAPIHandler implements APIHandler {
 
     public Single<ResponseObject> updateAPI(RequestObject request) {
         return Single.defer(() -> {
-            AuthenticatorAPI api = new BaseAuthenticatorAPI(context, true);
-
             if (request instanceof MakeCredentialRequest) {
                 return api.makeInternalCredential((MakeCredentialRequest) request);
             } else if (request instanceof GetAssertionRequest) {

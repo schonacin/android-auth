@@ -15,6 +15,10 @@ public class BasePublicKeyCredentialDescriptor implements PublicKeyCredentialDes
     @SerializedName("transports")
     private List<String> transports;
 
+    public BasePublicKeyCredentialDescriptor(byte[] id) {
+        this("public-key", id);
+    }
+
     public BasePublicKeyCredentialDescriptor(String type, byte[] id) {
         this(type, id, null);
     }

@@ -77,7 +77,7 @@ public class CredentialSafe {
     public Single<PublicKeyCredentialSource> generateCredential(@NonNull String rpEntityId, byte[] userHandle, String userDisplayName) {
         return Single.defer(() -> {
             PublicKeyCredentialSource credentialSource = new PublicKeyCredentialSource(rpEntityId, userHandle, userDisplayName);
-            return generateNewES256KeyPair(credentialSource.keyPairAlias)
+            return generateNewES256KeyPair(credentialSource.getKeyPairAlias())
                     .andThen(insertCredentialIntoDatabase(credentialSource))
                     .andThen(Single.just(credentialSource));
         });

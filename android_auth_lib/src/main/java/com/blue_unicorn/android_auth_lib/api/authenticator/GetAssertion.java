@@ -123,7 +123,8 @@ public class GetAssertion {
 
     private Single<PublicKeyCredentialDescriptor> constructCredentialDescriptor() {
         return getSelectedCredential()
-                .flatMap(credentialSource -> Single.just(new BasePublicKeyCredentialDescriptor("public-key", credentialSource.id)));
+                .map(PublicKeyCredentialSource::getId)
+                .map(BasePublicKeyCredentialDescriptor::new);
     }
 
     private Single<byte[]> authenticatorData;
@@ -146,7 +147,8 @@ public class GetAssertion {
                     .map(authData -> ArrayUtil.concatBytes(authData, request.getClientDataHash()));
 
             Single<PrivateKey> privateKey = getSelectedCredential()
-                    .flatMap(credentialSource -> credentialSafe.getPrivateKeyByAlias(credentialSource.keyPairAlias));
+                    .map(PublicKeyCredentialSource::getKeyPairAlias)
+                    .flatMap(credentialSafe::getPrivateKeyByAlias);
 
             return Single.zip(dataToSign, privateKey, cryptoProvider::sign)
                     .flatMap(x -> x);

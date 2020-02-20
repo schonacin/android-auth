@@ -110,8 +110,8 @@ public class BaseAPIHandlerTest {
                         .values()
                         .get(0);
 
-        assertThat(credentialSource.userDisplayName, is("User"));
-        assertThat(credentialSource.rpId, is("webauthn.io"));
+        assertThat(credentialSource.getUserDisplayName(), is("User"));
+        assertThat(credentialSource.getRpId(), is("webauthn.io"));
     }
 
     @Test

@@ -34,16 +34,15 @@ final class AuthenticatorHelper {
         // | AAGUID | L | credentialId | credentialPublicKey |
         // |   16   | 2 |      32      |          n          |
         // total size: 50+n
-        return this.credentialSafe.getKeyPairByAlias(credentialSource.keyPairAlias)
+        return this.credentialSafe.getKeyPairByAlias(credentialSource.getKeyPairAlias())
                 .map(KeyPair::getPublic)
                 .flatMap(CredentialSafe::coseEncodePublicKey)
                 .flatMap(encodedPublicKey -> {
-                    ByteBuffer credentialData = ByteBuffer.allocate(16 + 2 + credentialSource.id.length + encodedPublicKey.length);
+                    ByteBuffer credentialData = ByteBuffer.allocate(16 + 2 + credentialSource.getId().length + encodedPublicKey.length);
 
-                    // AAGUID will be 16 bytes of zeroes
-                    credentialData.position(16);
-                    credentialData.putShort((short) credentialSource.id.length); // L
-                    credentialData.put(credentialSource.id); // credentialId
+                    credentialData.put(Config.AAGUID);
+                    credentialData.putShort((short) credentialSource.getId().length); // L
+                    credentialData.put(credentialSource.getId()); // credentialId
                     credentialData.put(encodedPublicKey);
                     return Single.just(credentialData.array());
                 });

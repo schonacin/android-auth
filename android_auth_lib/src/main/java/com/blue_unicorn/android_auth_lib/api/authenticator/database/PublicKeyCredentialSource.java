@@ -33,14 +33,6 @@ public class PublicKeyCredentialSource {
     @Ignore
     private static final String KEYPAIR_PREFIX = "virgil-keypair-";
 
-    /**
-     * Construct a new PublicKeyCredentialSource. This is the canonical object that represents a
-     * WebAuthn credential.
-     *
-     * @param rpId            The relying party ID.
-     * @param userHandle      The unique ID used by the RP to identify the user.
-     * @param userDisplayName A human-readable display name for the user.
-     */
     public PublicKeyCredentialSource(@NonNull String rpId, byte[] userHandle, String userDisplayName) {
         ensureRandomInitialized();
         this.id = new byte[32];
@@ -61,4 +53,21 @@ public class PublicKeyCredentialSource {
             PublicKeyCredentialSource.random = new SecureRandom();
         }
     }
+
+    public byte[] getId() {
+        return id;
+    }
+
+    public String getKeyPairAlias() {
+        return keyPairAlias;
+    }
+
+    public String getRpId() {
+        return rpId;
+    }
+
+    public String getUserDisplayName() {
+        return userDisplayName;
+    }
+
 }

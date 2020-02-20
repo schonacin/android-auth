@@ -18,13 +18,11 @@ import io.reactivex.rxjava3.core.Completable;
 
 public class CredentialSafeTest {
 
-    private Context context;
-
     private CredentialSafe credentialSafe;
 
     @Before
     public void setUp() {
-        context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         this.credentialSafe = new CredentialSafe(context);
 
         resetKeystoreAndDatabase()
@@ -54,16 +52,16 @@ public class CredentialSafeTest {
                         .values()
                         .get(0);
 
-        assertTrue(credential.id.length > 0);
-        assertTrue(credential.keyPairAlias.length() > 0);
-        assertThat(credential.userDisplayName, is("me"));
+        assertTrue(credential.getId().length > 0);
+        assertTrue(credential.getKeyPairAlias().length() > 0);
+        assertThat(credential.getUserDisplayName(), is("me"));
     }
 
     @Test
     public void credential_existsInDatabase() {
         PublicKeyCredentialSource credential =
                 credentialSafe.generateCredential("haha.io", new byte[]{0x56, 0x34}, "me")
-                        .map(credentialSource -> credentialSource.id)
+                        .map(PublicKeyCredentialSource::getId)
                         .flatMap(id -> credentialSafe.getCredentialSourceById(id))
                         .test()
                         .assertNoErrors()
@@ -71,16 +69,16 @@ public class CredentialSafeTest {
                         .values()
                         .get(0);
 
-        assertTrue(credential.id.length > 0);
-        assertTrue(credential.keyPairAlias.length() > 0);
-        assertThat(credential.userDisplayName, is("me"));
+        assertTrue(credential.getId().length > 0);
+        assertTrue(credential.getKeyPairAlias().length() > 0);
+        assertThat(credential.getUserDisplayName(), is("me"));
     }
 
     @Test
     public void credential_existsInKeystore() {
         String alias =
                 credentialSafe.generateCredential("haha.io", new byte[]{0x56, 0x34}, "me")
-                        .map(credentialSource -> credentialSource.keyPairAlias)
+                        .map(PublicKeyCredentialSource::getKeyPairAlias)
                         .flatMapPublisher(a -> credentialSafe.getRxKeyStore().getAliases())
                         .firstOrError()
                         .test()

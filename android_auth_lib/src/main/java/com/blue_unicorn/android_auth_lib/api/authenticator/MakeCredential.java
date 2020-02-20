@@ -75,7 +75,7 @@ public class MakeCredential {
                 return Single.just(request.getExcludeList())
                         .flatMapPublisher(Flowable::fromIterable)
                         .switchMapSingle(descriptor -> this.credentialSafe.getCredentialSourceById(descriptor.getId()))
-                        .map(credentialSource -> (credentialSource != null && credentialSource.rpId.equals(request.getRp().getId())))
+                        .map(credentialSource -> (credentialSource != null && credentialSource.getRpId().equals(request.getRp().getId())))
                         .contains(true)
                         .flatMapCompletable(excluded -> {
                             request.setExcluded(excluded);
@@ -157,7 +157,7 @@ public class MakeCredential {
                     .map(authData -> ArrayUtil.concatBytes(authData, request.getClientDataHash()));
 
             Single<PrivateKey> privateKey = getGeneratedCredential()
-                    .map(credentialSource -> credentialSource.keyPairAlias)
+                    .map(PublicKeyCredentialSource::getKeyPairAlias)
                     .flatMap(credentialSafe::getPrivateKeyByAlias);
 
             return Single.zip(dataToSign, privateKey, cryptoProvider::sign)
