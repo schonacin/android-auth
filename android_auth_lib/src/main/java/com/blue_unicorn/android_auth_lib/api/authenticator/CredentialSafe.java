@@ -89,7 +89,8 @@ public class CredentialSafe {
     }
 
     public Completable deleteCredential(PublicKeyCredentialSource credentialSource) {
-        return getInitializedDatabase()
+        return rxKeyStore.deleteEntry(credentialSource.getKeyPairAlias())
+                .andThen(getInitializedDatabase())
                 .flatMapCompletable(database -> Completable.fromAction(() -> database.credentialDao().delete(credentialSource)));
     }
 
@@ -190,10 +191,6 @@ public class CredentialSafe {
             byte[] x = toUnsignedFixedLength(xVariableLength, 32);
 
             byte[] y = toUnsignedFixedLength(yVariableLength, 32);
-
-            if (x.length != 32 || y.length != 32) {
-                return Single.error(new AuthLibException());
-            }
 
             return encodePointstoBytes(x,y);
         });

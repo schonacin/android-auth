@@ -90,4 +90,24 @@ public class CredentialSafeTest {
         assertTrue(alias.length() > 0);
     }
 
+    @Test
+    public void credential_IsSuccessfullyDeleted() {
+        credentialSafe.generateCredential("haha.io", new byte[]{0x56, 0x34}, "me")
+                .flatMapCompletable(credentialSafe::deleteCredential)
+                .andThen(credentialSafe.getRxKeyStore().getAliases())
+                .test()
+                .assertValueCount(0)
+                .assertNoErrors();
+    }
+
+    @Test
+    public void keyPair_DoesNotRequireVerification() {
+        credentialSafe.generateCredential("haha.io", new byte[]{0x56, 0x34}, "me")
+                .map(PublicKeyCredentialSource::getKeyPairAlias)
+                .flatMap(credentialSafe::keyRequiresVerification)
+                .test()
+                .assertValue(false)
+                .assertNoErrors();
+    }
+
 }

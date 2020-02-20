@@ -41,7 +41,9 @@ public class BaseAPIHandlerTest {
 
     private static final byte[] RAW_MAKE_CREDENTIAL_REQUEST_WITH_INVALID_OPTION = Base64.decode("AaYBWCDMVG/Vi0CDgAtgnuEKnn1oM9yeVFNAkbx+pfadNopNfAKiYmlka3dlYmF1dGhuLmlvZG5hbWVrd2ViYXV0aG4uaW8Do2JpZEq3mQEAAAAAAAAAZG5hbWVkVXNlcmtkaXNwbGF5TmFtZWR1c2VyBIqiY2FsZyZkdHlwZWpwdWJsaWMta2V5omNhbGc4ImR0eXBlanB1YmxpYy1rZXmiY2FsZzgjZHR5cGVqcHVibGljLWtleaJjYWxnOQEAZHR5cGVqcHVibGljLWtleaJjYWxnOQEBZHR5cGVqcHVibGljLWtleaJjYWxnOQECZHR5cGVqcHVibGljLWtleaJjYWxnOCRkdHlwZWpwdWJsaWMta2V5omNhbGc4JWR0eXBlanB1YmxpYy1rZXmiY2FsZzgmZHR5cGVqcHVibGljLWtleaJjYWxnJ2R0eXBlanB1YmxpYy1rZXkFgAahZHBsYXT0", Base64.DEFAULT);
 
-    private static final byte[] RAW_GET_ASSERTION_REQUEST = Base64.decode("AqQBa2V4YW1wbGUuY29tAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEDgqJiaWRYQPIgBt5PkFr2ikOULwJPKl7OYD2cbUs9+L4I7QH8RCZG0DSFisdb7T/VgL+YCNlPy+6CubLvZnevCtzDWFLqa55kdHlwZWpwdWJsaWMta2V5omJpZFgyAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNkdHlwZWpwdWJsaWMta2V5BaFidXb1", Base64.DEFAULT);
+    private static final byte[] RAW_GET_ASSERTION_REQUEST = Base64.decode("AqQBa3dlYmF1dGhuLmlvAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEDgqJiaWRYQPIgBt5PkFr2ikOULwJPKl7OYD2cbUs9+L4I7QH8RCZG0DSFisdb7T/VgL+YCNlPy+6CubLvZnevCtzDWFLqa55kdHlwZWpwdWJsaWMta2V5omJpZFgyAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNkdHlwZWpwdWJsaWMta2V5BaFidXb1", Base64.DEFAULT);
+
+    private static final byte[] RAW_GET_ASSERTION_REQUEST_WITHOUT_ALLOWLIST = Base64.decode("AqMBa3dlYmF1dGhuLmlvAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEFoWJ1dvU=", Base64.DEFAULT);
 
     private static final byte[] RAW_GET_ASSERTION_REQUEST_WITH_INVALID_OPTION = Base64.decode("AqQBa2V4YW1wbGUuY29tAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEDgqJiaWRYQPIgBt5PkFr2ikOULwJPKl7OYD2cbUs9+L4I7QH8RCZG0DSFisdb7T/VgL+YCNlPy+6CubLvZnevCtzDWFLqa55kdHlwZWpwdWJsaWMta2V5omJpZFgyAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNkdHlwZWpwdWJsaWMta2V5BaJidXb1ZHBsYXT0", Base64.DEFAULT);
 
@@ -165,6 +167,33 @@ public class BaseAPIHandlerTest {
         completeGetAssertion(RAW_GET_ASSERTION_REQUEST)
                 .test()
                 .assertError(NoCredentialsException.class);
+    }
+
+    @Test
+    public void getAssertion_FailsWithWrongAllowList() {
+        completeMakeCredential(RAW_MAKE_CREDENTIAL_REQUEST)
+                .flatMap(res -> initiateGetAssertion(RAW_GET_ASSERTION_REQUEST))
+                .flatMap(getAssertionRequest -> {
+                    getAssertionRequest.setApproved(true);
+                    return Single.just(getAssertionRequest);
+                })
+                .flatMap(apiHandler::updateAPI)
+                .test()
+                .assertError(NoCredentialsException.class);
+    }
+
+    @Test
+    public void getAssertion_GoesThroughAPI_WithoutAllowList() {
+        completeMakeCredential(RAW_MAKE_CREDENTIAL_REQUEST)
+                .flatMap(res -> initiateGetAssertion(RAW_GET_ASSERTION_REQUEST_WITHOUT_ALLOWLIST))
+                .flatMap(getAssertionRequest -> {
+                    getAssertionRequest.setApproved(true);
+                    return Single.just(getAssertionRequest);
+                })
+                .flatMap(apiHandler::updateAPI)
+                .test()
+                .assertNoErrors()
+                .assertValueCount(1);
     }
 
     @Test
