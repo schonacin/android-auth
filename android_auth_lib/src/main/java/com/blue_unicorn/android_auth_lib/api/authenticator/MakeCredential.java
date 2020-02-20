@@ -10,6 +10,7 @@ import com.blue_unicorn.android_auth_lib.fido.request.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.reponse.MakeCredentialResponse;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.AttestationStatement;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.PackedAttestationStatement;
+import com.blue_unicorn.android_auth_lib.fido.webauthn.PublicKeyCredentialParameter;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
 
@@ -30,7 +31,6 @@ public class MakeCredential {
     private MakeCredentialRequest request;
     private AuthenticatorHelper helper;
 
-    //TODO maybe make this a singleton
     public MakeCredential(CredentialSafe credentialSafe, MakeCredentialRequest request) {
         this.credentialSafe = credentialSafe;
         this.cryptoProvider = this.credentialSafe.getCryptoProvider();
@@ -90,10 +90,8 @@ public class MakeCredential {
     private Completable checkForValidAlgorithm() {
         return Single.just(request.getPubKeyCredParams())
                 .flatMapPublisher(Flowable::fromArray)
-                .map(map -> map.get("alg"))
-                .cast(Double.class)
-                .map(Double::intValue)
-                .contains(-7)
+                .map(PublicKeyCredentialParameter::getAlg)
+                .contains(Config.COSE_ALGORITHM_IDENTIFIER)
                 .flatMapCompletable(isSupported -> {
                     if (isSupported) {
                         return Completable.complete();
@@ -119,13 +117,18 @@ public class MakeCredential {
         });
     }
 
-    private Single<PublicKeyCredentialSource> generateCredential() {
-        return credentialSafe.generateCredential(request.getRp().getId(), request.getUser().getId(), request.getUser().getName());
-    }
+    // TODO: Is this the most reasonable way to have a method with singleton behaviour?
+    private Single<PublicKeyCredentialSource> generatedCredential;
 
     private Single<PublicKeyCredentialSource> getGeneratedCredential() {
-        return generateCredential()
-                .cache();
+        return Single.defer(() -> {
+            if (this.generatedCredential == null) {
+                this.generatedCredential =
+                        credentialSafe.generateCredential(request.getRp().getId(), request.getUser().getId(), request.getUser().getName())
+                        .cache();
+            }
+            return this.generatedCredential;
+        });
     }
 
     private Single<byte[]> constructAttestedCredentialData() {
@@ -133,14 +136,19 @@ public class MakeCredential {
                 .flatMap(helper::constructAttestedCredentialData);
     }
 
-    private Single<byte[]> constructAuthenticatorData() {
-        return Single.zip(helper.hashSha256(request.getRp().getId()), constructAttestedCredentialData(), helper::constructAuthenticatorData)
-                .flatMap(x -> x);
-    }
+
+    private Single<byte[]> authenticatorData;
 
     private Single<byte[]> getAuthenticatorData() {
-        return constructAuthenticatorData()
-                .cache();
+        return Single.defer(() -> {
+            if (this.authenticatorData == null) {
+                this.authenticatorData =
+                        Single.zip(helper.hashSha256(request.getRp().getId()), constructAttestedCredentialData(), helper::constructAuthenticatorData)
+                                .flatMap(x -> x)
+                                .cache();
+            }
+            return this.authenticatorData;
+        });
     }
 
     private Single<byte[]> generateSignature() {
@@ -149,7 +157,8 @@ public class MakeCredential {
                     .map(authData -> ArrayUtil.concatBytes(authData, request.getClientDataHash()));
 
             Single<PrivateKey> privateKey = getGeneratedCredential()
-                    .flatMap(credentialSource -> credentialSafe.getPrivateKeyByAlias(credentialSource.keyPairAlias));
+                    .map(credentialSource -> credentialSource.keyPairAlias)
+                    .flatMap(credentialSafe::getPrivateKeyByAlias);
 
             return Single.zip(dataToSign, privateKey, cryptoProvider::sign)
                     .flatMap(x -> x);

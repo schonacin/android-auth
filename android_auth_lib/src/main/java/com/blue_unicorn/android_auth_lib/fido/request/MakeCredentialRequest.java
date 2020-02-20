@@ -4,6 +4,7 @@ import com.blue_unicorn.android_auth_lib.fido.request.properties.Approvable;
 import com.blue_unicorn.android_auth_lib.fido.request.properties.Excludable;
 import com.blue_unicorn.android_auth_lib.fido.request.properties.Validatable;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialDescriptor;
+import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialParameter;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialRpEntity;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialUserEntity;
 
@@ -22,7 +23,7 @@ public interface MakeCredentialRequest extends RequestObject, Excludable, Approv
 
     BasePublicKeyCredentialUserEntity getUser();
 
-    Map[] getPubKeyCredParams();
+    BasePublicKeyCredentialParameter[] getPubKeyCredParams();
 
     List<BasePublicKeyCredentialDescriptor> getExcludeList();
 

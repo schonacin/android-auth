@@ -1,6 +1,7 @@
 package com.blue_unicorn.android_auth_lib.fido.request;
 
 import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialDescriptor;
+import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialParameter;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialRpEntity;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialUserEntity;
 import com.google.gson.annotations.SerializedName;
@@ -24,12 +25,11 @@ public class BaseMakeCredentialRequest implements MakeCredentialRequest {
     private BasePublicKeyCredentialUserEntity user;
 
     @SerializedName("4")
-    private Map[] pubKeyCredParams;
+    private BasePublicKeyCredentialParameter[] pubKeyCredParams;
 
     @SerializedName("5")
     private List<BasePublicKeyCredentialDescriptor> excludeList;
 
-    // TODO: options could have an own class
     @SerializedName("6")
     private Map<String, Boolean> options;
 
@@ -64,7 +64,7 @@ public class BaseMakeCredentialRequest implements MakeCredentialRequest {
         return user;
     }
 
-    public Map[] getPubKeyCredParams() {
+    public BasePublicKeyCredentialParameter[] getPubKeyCredParams() {
         return pubKeyCredParams;
     }
 

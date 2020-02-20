@@ -30,7 +30,6 @@ public class GetAssertion {
     private AuthenticatorHelper helper;
     private GetAssertionRequest request;
 
-    //TODO maybe make this a singleton
     public GetAssertion(CredentialSafe credentialSafe, GetAssertionRequest request) {
         this.credentialSafe = credentialSafe;
         this.cryptoProvider = this.credentialSafe.getCryptoProvider();
@@ -48,7 +47,7 @@ public class GetAssertion {
                 .andThen(Single.just(request));
     }
 
-    // 2. - 4. & 6. is ignored as pinAuth and extensions are not supported
+    // 2. - 4. & 6. are ignored as pinAuth and extensions are not supported
 
     public Single<GetAssertionResponse> operateInner() {
         // 7. - 8. handle user approval and whether credentials could be found
@@ -103,34 +102,50 @@ public class GetAssertion {
         });
     }
 
-    private Single<PublicKeyCredentialSource> getSelectedCredentialIfAvailable() {
+    private Single<PublicKeyCredentialSource> selectedCredential;
+
+    private Single<PublicKeyCredentialSource> getSelectedCredential() {
         return Single.defer(() -> {
-            if (!request.getSelectedCredentials().isEmpty()) {
-                // TODO: do we handle getNextAssertion? taking the first credential for now
-                return Single.just(request.getSelectedCredentials().get(0));
-            } else {
-                return Single.error(new AuthLibException("no selected credentials"));
+            if (this.selectedCredential == null) {
+                this.selectedCredential =
+                        Single.defer(() -> {
+                            if (!request.getSelectedCredentials().isEmpty()) {
+                                // TODO: do we handle getNextAssertion? taking the first credential for now
+                                return Single.just(request.getSelectedCredentials().get(0));
+                            } else {
+                                return Single.error(new AuthLibException("no selected credentials"));
+                            }
+                        }).cache();
             }
-        }).cache();
+            return this.selectedCredential;
+        });
     }
 
     private Single<PublicKeyCredentialDescriptor> constructCredentialDescriptor() {
-        return getSelectedCredentialIfAvailable()
+        return getSelectedCredential()
                 .flatMap(credentialSource -> Single.just(new BasePublicKeyCredentialDescriptor("public-key", credentialSource.id)));
     }
 
-    private Single<byte[]> constructAuthenticatorData() {
-        return helper.hashSha256(request.getRpId())
-                .flatMap(rpIdHash -> helper.constructAuthenticatorData(rpIdHash, null))
-                .cache();
+    private Single<byte[]> authenticatorData;
+
+    private Single<byte[]> getAuthenticatorData() {
+        return Single.defer(() -> {
+            if (this.authenticatorData == null) {
+                this.authenticatorData =
+                        helper.hashSha256(request.getRpId())
+                                .flatMap(rpIdHash -> helper.constructAuthenticatorData(rpIdHash, null))
+                                .cache();
+            }
+            return this.authenticatorData;
+        });
     }
 
     private Single<byte[]> generateSignature() {
         return Single.defer(() -> {
-            Single<byte[]> dataToSign = constructAuthenticatorData()
+            Single<byte[]> dataToSign = getAuthenticatorData()
                     .map(authData -> ArrayUtil.concatBytes(authData, request.getClientDataHash()));
 
-            Single<PrivateKey> privateKey = getSelectedCredentialIfAvailable()
+            Single<PrivateKey> privateKey = getSelectedCredential()
                     .flatMap(credentialSource -> credentialSafe.getPrivateKeyByAlias(credentialSource.keyPairAlias));
 
             return Single.zip(dataToSign, privateKey, cryptoProvider::sign)
@@ -139,7 +154,7 @@ public class GetAssertion {
     }
 
     private Single<GetAssertionResponse> constructResponse() {
-        return Single.zip(constructCredentialDescriptor(), constructAuthenticatorData(), generateSignature(), BaseGetAssertionResponse::new);
+        return Single.zip(constructCredentialDescriptor(), getAuthenticatorData(), generateSignature(), BaseGetAssertionResponse::new);
     }
 
 }

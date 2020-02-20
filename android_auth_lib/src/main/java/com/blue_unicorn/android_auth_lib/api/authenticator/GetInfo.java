@@ -21,16 +21,16 @@ public class GetInfo {
     private Single<Map<String, Boolean>> constructOptions() {
         return Single.defer(() -> {
             Map<String, Boolean> options = new HashMap<>();
-            options.put("plat", Config.plat);
-            options.put("rk", Config.rk);
-            options.put("up", Config.up);
-            options.put("uv", Config.uv);
+            options.put("plat", Config.PLAT);
+            options.put("rk", Config.RK);
+            options.put("up", Config.UP);
+            options.put("uv", Config.UV);
             return Single.just(options);
         });
     }
 
     private Single<GetInfoResponse> constructResponse() {
-        return Single.zip(Single.just(Config.versions), Single.just(Config.aaguid), constructOptions(), Single.just(Config.maxMsgSize), BaseGetInfoResponse::new);
+        return Single.zip(Single.just(Config.VERSIONS), Single.just(Config.AAGUID), constructOptions(), Single.just(Config.MAX_MSG_SIZE), BaseGetInfoResponse::new);
     }
 
 }

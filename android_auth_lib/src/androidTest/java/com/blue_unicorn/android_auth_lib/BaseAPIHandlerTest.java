@@ -37,15 +37,13 @@ public class BaseAPIHandlerTest {
 
     private static final byte[] RAW_GET_ASSERTION_REQUEST = Base64.decode("AqQBa2V4YW1wbGUuY29tAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEDgqJiaWRYQPIgBt5PkFr2ikOULwJPKl7OYD2cbUs9+L4I7QH8RCZG0DSFisdb7T/VgL+YCNlPy+6CubLvZnevCtzDWFLqa55kdHlwZWpwdWJsaWMta2V5omJpZFgyAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNkdHlwZWpwdWJsaWMta2V5BaFidXb1", Base64.DEFAULT);
 
-    private Context context;
-
     private CborHandler cborHandler;
     private APIHandler apiHandler;
     private CredentialSafe credentialSafe;
 
     @Before
     public void setUp() {
-        this.context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         this.cborHandler = new BaseCborHandler();
         this.apiHandler = new BaseAPIHandler(context);
         this.credentialSafe = new CredentialSafe(context);
@@ -86,23 +84,31 @@ public class BaseAPIHandlerTest {
     @Test
     public void makeCredential_GoesThroughAPI() {
         completeMakeCredential()
-            .test()
-            .assertNoErrors()
-            .assertValueCount(1);
+                .test()
+                .assertNoErrors()
+                .assertValueCount(1);
+    }
+
+    @Test
+    public void makeCredential_CreatesKeyPair() {
+        completeMakeCredential()
+                .flatMapPublisher(response -> credentialSafe.getRxKeyStore().getAliases())
+                .test()
+                .assertNoErrors()
+                .assertValueCount(1);
     }
 
     @Test
     public void makeCredential_CreatesCredentialInDatabase() {
         PublicKeyCredentialSource credentialSource =
                 completeMakeCredential()
-                .flatMapPublisher(response -> credentialSafe.getRxKeyStore().getAliases())
-                .firstOrError()
-                .flatMap(alias -> credentialSafe.getCredentialSourceByAlias(alias))
-                .test()
-                .assertNoErrors()
-                .assertValueCount(1)
-                .values()
-                .get(0);
+                        .flatMapPublisher(response -> credentialSafe.getRxKeyStore().getAliases())
+                        .flatMapSingle(alias -> credentialSafe.getCredentialSourceByAlias(alias))
+                        .test()
+                        .assertNoErrors()
+                        .assertValueCount(1)
+                        .values()
+                        .get(0);
 
         assertThat(credentialSource.userDisplayName, is("User"));
         assertThat(credentialSource.rpId, is("webauthn.io"));
@@ -144,9 +150,7 @@ public class BaseAPIHandlerTest {
         completeMakeCredential()
                 .flatMap(res -> initiateGetAssertion())
                 .flatMap(getAssertionRequest -> credentialSafe.getRxKeyStore().getAliases()
-                        .firstOrError()
-                        .flatMap(this.credentialSafe::getCredentialSourceByAlias)
-                        .toFlowable()
+                        .flatMapSingle(this.credentialSafe::getCredentialSourceByAlias)
                         .toList()
                         .flatMap(credentials -> {
                             // small hack to emulate a request with correct credential

@@ -1,5 +1,6 @@
 package com.blue_unicorn.android_auth_lib.fido.webauthn;
 
+import com.blue_unicorn.android_auth_lib.api.authenticator.Config;
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -17,8 +18,7 @@ public class PackedAttestationStatement implements AttestationStatement {
     private byte[][] x5c;
 
     public PackedAttestationStatement(byte[] sig) {
-        // TODO outsource algorithm identifier to Config or somewhere else
-        this(-7, sig);
+        this(Config.COSE_ALGORITHM_IDENTIFIER, sig);
     }
 
     public PackedAttestationStatement(int alg, byte[] sig) {
