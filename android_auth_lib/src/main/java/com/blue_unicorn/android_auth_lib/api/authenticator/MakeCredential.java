@@ -11,6 +11,7 @@ import com.blue_unicorn.android_auth_lib.fido.request.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.reponse.MakeCredentialResponse;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.AttestationStatement;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.PackedAttestationStatement;
+import com.blue_unicorn.android_auth_lib.fido.webauthn.PublicKeyCredentialDescriptor;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.PublicKeyCredentialParameter;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
@@ -76,7 +77,8 @@ public class MakeCredential {
             if (request.getExcludeList() != null) {
                 return Single.just(request.getExcludeList())
                         .flatMapPublisher(Flowable::fromIterable)
-                        .switchMapSingle(descriptor -> this.credentialSafe.getCredentialSourceById(descriptor.getId()))
+                        .map(PublicKeyCredentialDescriptor::getId)
+                        .switchMapSingle(this.credentialSafe::getCredentialSourceById)
                         .map(credentialSource -> (credentialSource != null && credentialSource.getRpId().equals(request.getRp().getId())))
                         .contains(true)
                         .flatMapCompletable(excluded -> {
