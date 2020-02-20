@@ -2,6 +2,7 @@ package com.blue_unicorn.android_auth_lib.api.authenticator;
 
 import com.blue_unicorn.android_auth_lib.AuthLibException;
 import com.blue_unicorn.android_auth_lib.api.authenticator.database.PublicKeyCredentialSource;
+import com.blue_unicorn.android_auth_lib.api.exceptions.InvalidOptionException;
 import com.blue_unicorn.android_auth_lib.api.exceptions.NoCredentialsException;
 import com.blue_unicorn.android_auth_lib.api.exceptions.OperationDeniedException;
 import com.blue_unicorn.android_auth_lib.api.exceptions.OtherException;
@@ -15,8 +16,10 @@ import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
 
 import java.security.PrivateKey;
+import java.util.Map;
 
 import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
 /**
@@ -87,7 +90,23 @@ public class GetAssertion {
     }
 
     private Completable checkOptions() {
-        return Completable.complete();
+        if (request.getOptions() == null) {
+            return Completable.complete();
+        } else {
+            return Single.just(request.getOptions())
+                    .map(Map::keySet)
+                    .flatMapPublisher(Flowable::fromIterable)
+                    .flatMapCompletable(key -> {
+                        // relevant options for getAssertion are up and uv
+                        // no need to process these because we will handle user presence and verification regardless
+                        // if rk and plat are set however we return an exception, as there are not valid for getAssertion
+                        if (key.equals("rk") || key.equals("plat")) {
+                            return Completable.error(InvalidOptionException::new);
+                        } else {
+                            return Completable.complete();
+                        }
+                    });
+        }
     }
 
     private Completable handleUserApproval() {

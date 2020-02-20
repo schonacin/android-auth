@@ -2,6 +2,7 @@ package com.blue_unicorn.android_auth_lib.api.authenticator;
 
 import com.blue_unicorn.android_auth_lib.api.authenticator.database.PublicKeyCredentialSource;
 import com.blue_unicorn.android_auth_lib.api.exceptions.CredentialExcludedException;
+import com.blue_unicorn.android_auth_lib.api.exceptions.InvalidOptionException;
 import com.blue_unicorn.android_auth_lib.api.exceptions.OperationDeniedException;
 import com.blue_unicorn.android_auth_lib.api.exceptions.OtherException;
 import com.blue_unicorn.android_auth_lib.api.exceptions.UnsupportedAlgorithmException;
@@ -15,6 +16,7 @@ import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
 
 import java.security.PrivateKey;
+import java.util.Map;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
@@ -102,7 +104,23 @@ public class MakeCredential {
     }
 
     private Completable checkOptions() {
-        return Completable.complete();
+        if (request.getOptions() == null) {
+            return Completable.complete();
+        } else {
+            return Single.just(request.getOptions())
+                    .map(Map::keySet)
+                    .flatMapPublisher(Flowable::fromIterable)
+                    .flatMapCompletable(key -> {
+                        // relevant options for makeCredential are rk and uv
+                        // no need to process these because we will save credentials and verify the user regardless
+                        // if up and plat are set however we return an exception, as they are not valid for makeCredential
+                        if (key.equals("up") || key.equals("plat")) {
+                            return Completable.error(InvalidOptionException::new);
+                        } else {
+                            return Completable.complete();
+                        }
+                    });
+        }
     }
 
     private Completable handleUserApproval() {
