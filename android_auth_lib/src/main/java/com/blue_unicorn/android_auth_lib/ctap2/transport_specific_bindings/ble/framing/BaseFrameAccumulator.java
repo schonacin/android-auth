@@ -46,9 +46,11 @@ class BaseFrameAccumulator implements FrameAccumulator {
         setContinuationFragmentDataSize(maxLen - 1);
     }
 
+    // TODO: called very often, optimize performance and only call where it's really necessary
     @Override
     public boolean isComplete() {
-        return initializationFragmentComplete() && continuationFragmentsComplete() && dataComplete();
+        boolean result = initializationFragmentComplete() && continuationFragmentsComplete() && dataComplete();
+        return result;
     }
 
     private boolean initializationFragmentComplete() {
@@ -56,13 +58,21 @@ class BaseFrameAccumulator implements FrameAccumulator {
     }
 
     private boolean continuationFragmentsComplete() {
-        int frameDataSize = getAssembledLength(getFrame().getHLEN(), getFrame().getLLEN());
-        int totalContinuationFragmentsDataSize = (frameDataSize - getInitializationFragmentDataSize());
-        int expectedNumberOfContinuationFragments = totalContinuationFragmentsDataSize / getContinuationFragmentDataSize() + totalContinuationFragmentsDataSize % getContinuationFragmentDataSize() / totalContinuationFragmentsDataSize;
 
         int continuationFragmentsCount = 0;
         for (int sequenceNumberCount : getSequenceNumberCount())
             continuationFragmentsCount += sequenceNumberCount;
+
+        if(continuationFragmentsCount == 0)
+            return totalDataSize <= initializationFragmentDataSize;
+
+        int frameDataSize = getAssembledLength(getFrame().getHLEN(), getFrame().getLLEN());
+        int totalContinuationFragmentsDataSize = (frameDataSize - getInitializationFragmentDataSize());
+        int expectedNumberOfContinuationFragments = 0;
+        if(totalContinuationFragmentsDataSize != 0)
+            expectedNumberOfContinuationFragments = totalContinuationFragmentsDataSize / getContinuationFragmentDataSize();
+        if(totalContinuationFragmentsDataSize % getContinuationFragmentDataSize() != 0)
+            expectedNumberOfContinuationFragments++;
 
         return continuationFragmentsCount == expectedNumberOfContinuationFragments;
     }
@@ -107,7 +117,7 @@ class BaseFrameAccumulator implements FrameAccumulator {
 
         int initializationFragmentDataOffset = getInitializationFragmentDataSize();
         int continuationFragmentDataOffset = getContinuationFragmentDataSize() * fragment.getSEQ();
-        int wraparoundOffset = 0x80 * getSequenceNumberCount()[fragment.getSEQ()];
+        int wraparoundOffset = 0x80 * getContinuationFragmentDataSize() * getSequenceNumberCount()[fragment.getSEQ()];
         int totalOffset = wraparoundOffset + continuationFragmentDataOffset + initializationFragmentDataOffset;
         System.arraycopy(fragment.getDATA(), 0, getFrame().getDATA(), totalOffset, fragment.getDATA().length);
         getSequenceNumberCount()[fragment.getSEQ()]++;
