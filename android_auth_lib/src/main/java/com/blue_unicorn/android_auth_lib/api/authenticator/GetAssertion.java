@@ -9,7 +9,6 @@ import com.blue_unicorn.android_auth_lib.api.exceptions.OtherException;
 import com.blue_unicorn.android_auth_lib.fido.reponse.BaseGetAssertionResponse;
 import com.blue_unicorn.android_auth_lib.fido.reponse.GetAssertionResponse;
 import com.blue_unicorn.android_auth_lib.fido.request.GetAssertionRequest;
-
 import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialDescriptor;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.PublicKeyCredentialDescriptor;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
@@ -29,13 +28,15 @@ import io.reactivex.rxjava3.core.Single;
 public class GetAssertion {
 
     private CredentialSafe credentialSafe;
-    private RxAsymmetricCryptoProvider cryptoProvider;
+    private RxAsymmetricCryptoProvider rxCryptoProvider;
     private AuthenticatorHelper helper;
     private GetAssertionRequest request;
+    private Single<PublicKeyCredentialSource> selectedCredential;
+    private Single<byte[]> authenticatorData;
 
     public GetAssertion(CredentialSafe credentialSafe, GetAssertionRequest request) {
         this.credentialSafe = credentialSafe;
-        this.cryptoProvider = this.credentialSafe.getCryptoProvider();
+        this.rxCryptoProvider = this.credentialSafe.getRxCryptoProvider();
         this.request = request;
         this.helper = new AuthenticatorHelper(this.credentialSafe);
     }
@@ -121,8 +122,6 @@ public class GetAssertion {
         });
     }
 
-    private Single<PublicKeyCredentialSource> selectedCredential;
-
     private Single<PublicKeyCredentialSource> getSelectedCredential() {
         return Single.defer(() -> {
             if (this.selectedCredential == null) {
@@ -146,13 +145,11 @@ public class GetAssertion {
                 .map(BasePublicKeyCredentialDescriptor::new);
     }
 
-    private Single<byte[]> authenticatorData;
-
     private Single<byte[]> getAuthenticatorData() {
         return Single.defer(() -> {
             if (this.authenticatorData == null) {
                 this.authenticatorData =
-                        helper.hashSha256(request.getRpId())
+                        AuthenticatorHelper.hashSha256(request.getRpId())
                                 .flatMap(rpIdHash -> helper.constructAuthenticatorData(rpIdHash, null))
                                 .cache();
             }
@@ -169,7 +166,7 @@ public class GetAssertion {
                     .map(PublicKeyCredentialSource::getKeyPairAlias)
                     .flatMap(credentialSafe::getPrivateKeyByAlias);
 
-            return Single.zip(dataToSign, privateKey, cryptoProvider::sign)
+            return Single.zip(dataToSign, privateKey, rxCryptoProvider::sign)
                     .flatMap(x -> x);
         });
     }

@@ -21,12 +21,11 @@ final class AuthenticatorHelper {
         this.credentialSafe = credentialSafe;
     }
 
-    Single<byte[]> hashSha256(String data) {
-        return Single.defer(() -> {
+    static Single<byte[]> hashSha256(String data) {
+        return Single.fromCallable(() -> {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             messageDigest.update(data.getBytes());
-            byte[] hash = messageDigest.digest();
-            return Single.just(hash);
+            return messageDigest.digest();
         }).onErrorResumeNext(throwable -> Single.error(new AuthLibException("couldn't hash data", throwable)));
     }
 
@@ -37,14 +36,14 @@ final class AuthenticatorHelper {
         return this.credentialSafe.getKeyPairByAlias(credentialSource.getKeyPairAlias())
                 .map(KeyPair::getPublic)
                 .flatMap(CredentialSafe::coseEncodePublicKey)
-                .flatMap(encodedPublicKey -> {
+                .map(encodedPublicKey -> {
                     ByteBuffer credentialData = ByteBuffer.allocate(16 + 2 + credentialSource.getId().length + encodedPublicKey.length);
 
                     credentialData.put(Config.AAGUID);
                     credentialData.putShort((short) credentialSource.getId().length); // L
                     credentialData.put(credentialSource.getId()); // credentialId
                     credentialData.put(encodedPublicKey);
-                    return Single.just(credentialData.array());
+                    return credentialData.array();
                 });
     }
 

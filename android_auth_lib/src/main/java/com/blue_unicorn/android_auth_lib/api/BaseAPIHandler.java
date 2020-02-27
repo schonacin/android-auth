@@ -4,11 +4,11 @@ import android.content.Context;
 
 import com.blue_unicorn.android_auth_lib.AuthLibException;
 import com.blue_unicorn.android_auth_lib.fido.FidoObject;
+import com.blue_unicorn.android_auth_lib.fido.reponse.ResponseObject;
 import com.blue_unicorn.android_auth_lib.fido.request.GetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.fido.request.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.fido.request.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.request.RequestObject;
-import com.blue_unicorn.android_auth_lib.fido.reponse.ResponseObject;
 
 import io.reactivex.rxjava3.core.Single;
 
@@ -23,7 +23,7 @@ public class BaseAPIHandler implements APIHandler {
     public Single<FidoObject> callAPI(RequestObject request) {
         return Single.defer(() -> {
             if (request instanceof MakeCredentialRequest) {
-                return api.makeCredential((MakeCredentialRequest)request);
+                return api.makeCredential((MakeCredentialRequest) request);
             } else if (request instanceof GetAssertionRequest) {
                 return api.getAssertion((GetAssertionRequest) request);
             } else if (request instanceof GetInfoRequest) {

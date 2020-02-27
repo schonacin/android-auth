@@ -14,18 +14,18 @@ import io.reactivex.rxjava3.core.Single;
  */
 public class GetInfo {
 
-    public Single<GetInfoResponse > operate(){
+    public Single<GetInfoResponse> operate() {
         return constructResponse();
     }
 
     private Single<Map<String, Boolean>> constructOptions() {
-        return Single.defer(() -> {
+        return Single.fromCallable(() -> {
             Map<String, Boolean> options = new HashMap<>();
             options.put("plat", Config.PLAT);
             options.put("rk", Config.RK);
             options.put("up", Config.UP);
             options.put("uv", Config.UV);
-            return Single.just(options);
+            return options;
         });
     }
 

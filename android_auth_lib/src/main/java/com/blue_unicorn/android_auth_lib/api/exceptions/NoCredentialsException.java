@@ -18,5 +18,5 @@ public class NoCredentialsException extends AuthenticatorException {
     public NoCredentialsException(Throwable cause) {
         super(cause);
     }
-    
+
 }

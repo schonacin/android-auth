@@ -1,8 +1,8 @@
 package com.blue_unicorn.android_auth_lib.api;
 
 import com.blue_unicorn.android_auth_lib.fido.FidoObject;
-import com.blue_unicorn.android_auth_lib.fido.request.RequestObject;
 import com.blue_unicorn.android_auth_lib.fido.reponse.ResponseObject;
+import com.blue_unicorn.android_auth_lib.fido.request.RequestObject;
 
 import io.reactivex.rxjava3.core.Single;
 

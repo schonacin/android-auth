@@ -11,12 +11,12 @@ import androidx.room.RoomDatabase;
  */
 @Database(entities = {PublicKeyCredentialSource.class}, version = 3, exportSchema = false)
 public abstract class CredentialDatabase extends RoomDatabase {
-    private static CredentialDatabase INSTANCE;
     private static final String CREDENTIAL_DB_NAME = "credentialmetadata";
+    private static CredentialDatabase INSTANCE;
 
-    public static CredentialDatabase getDatabase(Context ctx) {
+    public static CredentialDatabase getDatabase(Context context) {
         if (INSTANCE == null) {
-            INSTANCE = Room.databaseBuilder(ctx.getApplicationContext(), CredentialDatabase.class, CREDENTIAL_DB_NAME)
+            INSTANCE = Room.databaseBuilder(context.getApplicationContext(), CredentialDatabase.class, CREDENTIAL_DB_NAME)
                     .allowMainThreadQueries()
                     .build();
         }

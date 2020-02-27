@@ -8,7 +8,6 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.blue_unicorn.android_auth_lib.api.APIHandler;
 import com.blue_unicorn.android_auth_lib.api.BaseAPIHandler;
 import com.blue_unicorn.android_auth_lib.api.authenticator.CredentialSafe;
-import com.blue_unicorn.android_auth_lib.api.authenticator.database.PublicKeyCredentialSource;
 import com.blue_unicorn.android_auth_lib.api.exceptions.InvalidOptionException;
 import com.blue_unicorn.android_auth_lib.api.exceptions.NoCredentialsException;
 import com.blue_unicorn.android_auth_lib.api.exceptions.OperationDeniedException;
@@ -23,15 +22,15 @@ import com.blue_unicorn.android_auth_lib.fido.request.GetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.fido.request.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.fido.request.MakeCredentialRequest;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class BaseAPIHandlerTest {
 
@@ -56,7 +55,7 @@ public class BaseAPIHandlerTest {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         this.cborHandler = new BaseCborHandler();
         this.apiHandler = new BaseAPIHandler(context);
-        this.credentialSafe = new CredentialSafe(context);
+        this.credentialSafe = new CredentialSafe(context, true);
 
         resetKeystoreAndDatabase()
                 .test()
@@ -83,10 +82,7 @@ public class BaseAPIHandlerTest {
 
     private Single<MakeCredentialResponse> completeMakeCredential(byte[] request) {
         return initiateMakeCredential(request)
-                .flatMap(req -> {
-                    req.setApproved(true);
-                    return Single.just(req);
-                })
+                .doOnSuccess(req -> req.setApproved(true))
                 .flatMap(apiHandler::updateAPI)
                 .cast(MakeCredentialResponse.class);
     }
@@ -110,18 +106,17 @@ public class BaseAPIHandlerTest {
 
     @Test
     public void makeCredential_CreatesCredentialInDatabase() {
-        PublicKeyCredentialSource credentialSource =
-                completeMakeCredential(RAW_MAKE_CREDENTIAL_REQUEST)
-                        .flatMapPublisher(response -> credentialSafe.getRxKeyStore().getAliases())
-                        .flatMapSingle(alias -> credentialSafe.getCredentialSourceByAlias(alias))
-                        .test()
-                        .assertNoErrors()
-                        .assertValueCount(1)
-                        .values()
-                        .get(0);
-
-        assertThat(credentialSource.getUserDisplayName(), is("User"));
-        assertThat(credentialSource.getRpId(), is("webauthn.io"));
+        completeMakeCredential(RAW_MAKE_CREDENTIAL_REQUEST)
+                .flatMapPublisher(response -> credentialSafe.getRxKeyStore().getAliases())
+                .flatMapSingle(alias -> credentialSafe.getCredentialSourceByAlias(alias))
+                .test()
+                .assertNoErrors()
+                .assertValueCount(1)
+                .assertValueAt(0, credentialSource -> {
+                    assertThat(credentialSource.getUserDisplayName(), is("User"));
+                    assertThat(credentialSource.getRpId(), is("webauthn.io"));
+                    return true;
+                });
     }
 
     @Test
@@ -154,10 +149,7 @@ public class BaseAPIHandlerTest {
 
     private Single<GetAssertionResponse> completeGetAssertion(byte[] request) {
         return initiateGetAssertion(request)
-                .flatMap(req -> {
-                    req.setApproved(true);
-                    return Single.just(req);
-                })
+                .doOnSuccess(req -> req.setApproved(true))
                 .flatMap(apiHandler::updateAPI)
                 .cast(GetAssertionResponse.class);
     }
@@ -173,10 +165,7 @@ public class BaseAPIHandlerTest {
     public void getAssertion_FailsWithWrongAllowList() {
         completeMakeCredential(RAW_MAKE_CREDENTIAL_REQUEST)
                 .flatMap(res -> initiateGetAssertion(RAW_GET_ASSERTION_REQUEST))
-                .flatMap(getAssertionRequest -> {
-                    getAssertionRequest.setApproved(true);
-                    return Single.just(getAssertionRequest);
-                })
+                .doOnSuccess(req -> req.setApproved(true))
                 .flatMap(apiHandler::updateAPI)
                 .test()
                 .assertError(NoCredentialsException.class);
@@ -186,10 +175,7 @@ public class BaseAPIHandlerTest {
     public void getAssertion_GoesThroughAPI_WithoutAllowList() {
         completeMakeCredential(RAW_MAKE_CREDENTIAL_REQUEST)
                 .flatMap(res -> initiateGetAssertion(RAW_GET_ASSERTION_REQUEST_WITHOUT_ALLOWLIST))
-                .flatMap(getAssertionRequest -> {
-                    getAssertionRequest.setApproved(true);
-                    return Single.just(getAssertionRequest);
-                })
+                .doOnSuccess(req -> req.setApproved(true))
                 .flatMap(apiHandler::updateAPI)
                 .test()
                 .assertNoErrors()

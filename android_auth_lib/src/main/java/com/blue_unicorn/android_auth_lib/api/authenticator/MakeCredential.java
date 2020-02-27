@@ -7,8 +7,8 @@ import com.blue_unicorn.android_auth_lib.api.exceptions.OperationDeniedException
 import com.blue_unicorn.android_auth_lib.api.exceptions.OtherException;
 import com.blue_unicorn.android_auth_lib.api.exceptions.UnsupportedAlgorithmException;
 import com.blue_unicorn.android_auth_lib.fido.reponse.BaseMakeCredentialResponse;
-import com.blue_unicorn.android_auth_lib.fido.request.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.reponse.MakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.fido.request.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.AttestationStatement;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.PackedAttestationStatement;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.PublicKeyCredentialDescriptor;
@@ -30,13 +30,15 @@ import io.reactivex.rxjava3.core.Single;
 public class MakeCredential {
 
     private CredentialSafe credentialSafe;
-    private RxAsymmetricCryptoProvider cryptoProvider;
+    private RxAsymmetricCryptoProvider rxCryptoProvider;
     private MakeCredentialRequest request;
     private AuthenticatorHelper helper;
+    private Single<PublicKeyCredentialSource> generatedCredential;
+    private Single<byte[]> authenticatorData;
 
     public MakeCredential(CredentialSafe credentialSafe, MakeCredentialRequest request) {
         this.credentialSafe = credentialSafe;
-        this.cryptoProvider = this.credentialSafe.getCryptoProvider();
+        this.rxCryptoProvider = this.credentialSafe.getRxCryptoProvider();
         this.request = request;
         this.helper = new AuthenticatorHelper(this.credentialSafe);
     }
@@ -53,7 +55,7 @@ public class MakeCredential {
                 .andThen(Single.just(request));
     }
 
-        // we skip 4. - 7. (extensions & pinAuth are not supported)
+    // we skip 4. - 7. (extensions & pinAuth are not supported)
 
     public Single<MakeCredentialResponse> operateInner() {
         // 8. handle user confirmation & whether credential was excluded
@@ -81,10 +83,7 @@ public class MakeCredential {
                         .switchMapSingle(this.credentialSafe::getCredentialSourceById)
                         .map(credentialSource -> (credentialSource != null && credentialSource.getRpId().equals(request.getRp().getId())))
                         .contains(true)
-                        .flatMapCompletable(excluded -> {
-                            request.setExcluded(excluded);
-                            return Completable.complete();
-                        });
+                        .flatMapCompletable(excluded -> Completable.fromAction(() -> request.setExcluded(excluded)));
             } else {
                 return Completable.fromAction(() -> request.setExcluded(false));
             }
@@ -127,9 +126,9 @@ public class MakeCredential {
 
     private Completable handleUserApproval() {
         return Completable.defer(() -> {
-            if(!request.isApproved()) {
+            if (!request.isApproved()) {
                 return Completable.error(OperationDeniedException::new);
-            } else if(request.isExcluded()) {
+            } else if (request.isExcluded()) {
                 return Completable.error(CredentialExcludedException::new);
             } else {
                 return Completable.complete();
@@ -137,15 +136,12 @@ public class MakeCredential {
         });
     }
 
-    // TODO: Is this the most reasonable way to have a method with singleton behaviour?
-    private Single<PublicKeyCredentialSource> generatedCredential;
-
     private Single<PublicKeyCredentialSource> getGeneratedCredential() {
         return Single.defer(() -> {
             if (this.generatedCredential == null) {
                 this.generatedCredential =
                         credentialSafe.generateCredential(request.getRp().getId(), request.getUser().getId(), request.getUser().getName())
-                        .cache();
+                                .cache();
             }
             return this.generatedCredential;
         });
@@ -156,14 +152,11 @@ public class MakeCredential {
                 .flatMap(helper::constructAttestedCredentialData);
     }
 
-
-    private Single<byte[]> authenticatorData;
-
     private Single<byte[]> getAuthenticatorData() {
         return Single.defer(() -> {
             if (this.authenticatorData == null) {
                 this.authenticatorData =
-                        Single.zip(helper.hashSha256(request.getRp().getId()), constructAttestedCredentialData(), helper::constructAuthenticatorData)
+                        Single.zip(AuthenticatorHelper.hashSha256(request.getRp().getId()), constructAttestedCredentialData(), helper::constructAuthenticatorData)
                                 .flatMap(x -> x)
                                 .cache();
             }
@@ -180,7 +173,7 @@ public class MakeCredential {
                     .map(PublicKeyCredentialSource::getKeyPairAlias)
                     .flatMap(credentialSafe::getPrivateKeyByAlias);
 
-            return Single.zip(dataToSign, privateKey, cryptoProvider::sign)
+            return Single.zip(dataToSign, privateKey, rxCryptoProvider::sign)
                     .flatMap(x -> x);
         });
     }

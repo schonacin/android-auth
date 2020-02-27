@@ -5,8 +5,8 @@ package com.blue_unicorn.android_auth_lib.fido.request.properties;
  */
 public interface Approvable {
 
-    void setApproved(boolean approved);
-
     boolean isApproved();
+
+    void setApproved(boolean approved);
 
 }

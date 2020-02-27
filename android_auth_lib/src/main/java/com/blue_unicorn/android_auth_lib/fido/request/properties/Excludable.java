@@ -5,8 +5,8 @@ package com.blue_unicorn.android_auth_lib.fido.request.properties;
  */
 public interface Excludable {
 
-    void setExcluded(boolean excluded);
-
     boolean isExcluded();
+
+    void setExcluded(boolean excluded);
 
 }

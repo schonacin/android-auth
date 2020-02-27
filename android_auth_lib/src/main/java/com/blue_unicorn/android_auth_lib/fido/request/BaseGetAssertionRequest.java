@@ -1,7 +1,5 @@
 package com.blue_unicorn.android_auth_lib.fido.request;
 
-import androidx.annotation.Nullable;
-
 import com.blue_unicorn.android_auth_lib.api.authenticator.database.PublicKeyCredentialSource;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialDescriptor;
 import com.google.gson.annotations.SerializedName;

@@ -26,7 +26,7 @@ public class BaseGetInfoResponse implements GetInfoResponse {
         this(versions, aaguid, null, null);
     }
 
-    public BaseGetInfoResponse(String[] versions, byte[] aaguid, Map<String,Boolean> options, Integer maxMsgSize) {
+    public BaseGetInfoResponse(String[] versions, byte[] aaguid, Map<String, Boolean> options, Integer maxMsgSize) {
         this.versions = versions;
         this.aaguid = aaguid;
         this.options = options;
