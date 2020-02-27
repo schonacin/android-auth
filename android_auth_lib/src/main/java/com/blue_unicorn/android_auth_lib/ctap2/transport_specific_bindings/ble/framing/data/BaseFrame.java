@@ -16,8 +16,8 @@ public class BaseFrame implements Frame {
     public BaseFrame(byte CMDSTAT, byte HLEN, byte LLEN, byte[] DATA) throws InvalidCommandException, InvalidLengthException {
         if (!Command.commands.contains(CMDSTAT))
             throw new InvalidCommandException("Invalid command error: frame command " + CMDSTAT + " is not specified");
-        if (DATA.length != HLEN << 8 + LLEN)
-            throw new InvalidLengthException("Invalid length error: frame DATA length " + DATA.length + " does not equal length specified in command parameters " + (HLEN << 8 + LLEN));
+        if (DATA.length != (((HLEN & 0xff) << 8) + (LLEN & 0xff)))
+            throw new InvalidLengthException("Invalid length error: frame DATA length " + DATA.length + " does not equal length specified in command parameters " + (((HLEN & 0xff) << 8) + (LLEN & 0xff)));
 
         setCMDSTAT(CMDSTAT);
         setHLEN(HLEN);

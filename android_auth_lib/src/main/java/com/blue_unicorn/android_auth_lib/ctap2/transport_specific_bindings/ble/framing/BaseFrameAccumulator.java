@@ -9,11 +9,6 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Frame;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.InitializationFragment;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
-
 // TODO: add description with reference to ctap2 spec
 // assumptions made:
 // - if there is sequence number wraparound, continuation fragments with same sequence number are in correct order
@@ -97,7 +92,7 @@ class BaseFrameAccumulator implements FrameAccumulator {
         setAccumulatedDataSize(getAccumulatedDataSize() + fragment.getDATA().length);
 
         if (getAccumulatedDataSize() > getTotalDataSize())
-            throw new InvalidLengthException("Invalid length error: accumulated data length " + getAccumulatedDataSize() + fragment.getDATA().length + " is greater than length declared in HLEN and LLEN " + getTotalDataSize());
+            throw new InvalidLengthException("Invalid length error: accumulated data length " + getAccumulatedDataSize() + " is greater than length declared in HLEN and LLEN " + getTotalDataSize());
 
         byte[] dataArray = new byte[getTotalDataSize()];
         System.arraycopy(fragment.getDATA(), 0, dataArray, 0, fragment.getDATA().length);
@@ -107,8 +102,8 @@ class BaseFrameAccumulator implements FrameAccumulator {
     private void addContinuationFragment(ContinuationFragment fragment) throws InvalidLengthException {
         setAccumulatedDataSize(getAccumulatedDataSize() + fragment.getDATA().length);
 
-        if (isInitializationFragmentAccumulated() && getAccumulatedDataSize() + fragment.getDATA().length > getTotalDataSize())
-            throw new InvalidLengthException("Invalid length error: accumulated data length " + getAccumulatedDataSize() + fragment.getDATA().length  + " is greater than length declared in HLEN and LLEN " + getTotalDataSize());
+        if (isInitializationFragmentAccumulated() && getAccumulatedDataSize() > getTotalDataSize())
+            throw new InvalidLengthException("Invalid length error: accumulated data length " + getAccumulatedDataSize() + " is greater than length declared in HLEN and LLEN " + getTotalDataSize());
 
         int initializationFragmentDataOffset = getInitializationFragmentDataSize();
         int continuationFragmentDataOffset = getContinuationFragmentDataSize() * fragment.getSEQ();
@@ -119,7 +114,7 @@ class BaseFrameAccumulator implements FrameAccumulator {
     }
 
     private int getAssembledLength(byte HLEN, byte LLEN) {
-        return ((int) HLEN << 8) + (int) LLEN;
+        return ((HLEN & 0xff) << 8) + (LLEN & 0xff);
     }
 
     @Override
