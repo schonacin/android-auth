@@ -24,27 +24,27 @@ public class BaseAuthenticatorAPI implements AuthenticatorAPI {
     }
 
     public Single<MakeCredentialRequest> makeCredential(MakeCredentialRequest request) {
-        return Single.just(new MakeCredential(credentialSafe, request))
+        return Single.fromCallable(() -> new MakeCredential(credentialSafe, request))
                 .flatMap(MakeCredential::operate);
     }
 
     public Single<MakeCredentialResponse> makeInternalCredential(MakeCredentialRequest request) {
-        return Single.just(new MakeCredential(credentialSafe, request))
+        return Single.fromCallable(() -> new MakeCredential(credentialSafe, request))
                 .flatMap(MakeCredential::operateInner);
     }
 
     public Single<GetAssertionRequest> getAssertion(GetAssertionRequest request) {
-        return Single.just(new GetAssertion(credentialSafe, request))
+        return Single.fromCallable(() -> new GetAssertion(credentialSafe, request))
                 .flatMap(GetAssertion::operate);
     }
 
     public Single<GetAssertionResponse> getInternalAssertion(GetAssertionRequest request) {
-        return Single.just(new GetAssertion(credentialSafe, request))
+        return Single.fromCallable(() -> new GetAssertion(credentialSafe, request))
                 .flatMap(GetAssertion::operateInner);
     }
 
     public Single<GetInfoResponse> getInfo(GetInfoRequest request) {
-        return Single.just(new GetInfo())
+        return Single.fromCallable(GetInfo::new)
                 .flatMap(GetInfo::operate);
     }
 

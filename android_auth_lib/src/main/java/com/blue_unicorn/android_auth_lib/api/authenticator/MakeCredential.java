@@ -105,23 +105,25 @@ public class MakeCredential {
     }
 
     private Completable checkOptions() {
-        if (request.getOptions() == null) {
-            return Completable.complete();
-        } else {
-            return Single.just(request.getOptions())
-                    .map(Map::keySet)
-                    .flatMapPublisher(Flowable::fromIterable)
-                    .flatMapCompletable(key -> {
-                        // relevant options for makeCredential are rk and uv
-                        // no need to process these because we will save credentials and verify the user regardless
-                        // if up and plat are set however we return an exception, as they are not valid for makeCredential
-                        if (key.equals("up") || key.equals("plat")) {
-                            return Completable.error(InvalidOptionException::new);
-                        } else {
-                            return Completable.complete();
-                        }
-                    });
-        }
+        return Completable.defer(() -> {
+            if (request.getOptions() == null) {
+                return Completable.complete();
+            } else {
+                return Single.just(request.getOptions())
+                        .map(Map::keySet)
+                        .flatMapPublisher(Flowable::fromIterable)
+                        .flatMapCompletable(key -> {
+                            // relevant options for makeCredential are rk and uv
+                            // no need to process these because we will save credentials and verify the user regardless
+                            // if up and plat are set however we return an exception, as they are not valid for makeCredential
+                            if (key.equals("up") || key.equals("plat")) {
+                                return Completable.error(InvalidOptionException::new);
+                            } else {
+                                return Completable.complete();
+                            }
+                        });
+            }
+        });
     }
 
     private Completable handleUserApproval() {

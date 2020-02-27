@@ -91,23 +91,25 @@ public class GetAssertion {
     }
 
     private Completable checkOptions() {
-        if (request.getOptions() == null) {
-            return Completable.complete();
-        } else {
-            return Single.just(request.getOptions())
-                    .map(Map::keySet)
-                    .flatMapPublisher(Flowable::fromIterable)
-                    .flatMapCompletable(key -> {
-                        // relevant options for getAssertion are up and uv
-                        // no need to process these because we will handle user presence and verification regardless
-                        // if rk and plat are set however we return an exception, as there are not valid for getAssertion
-                        if (key.equals("rk") || key.equals("plat")) {
-                            return Completable.error(InvalidOptionException::new);
-                        } else {
-                            return Completable.complete();
-                        }
-                    });
-        }
+        return Completable.defer(() -> {
+            if (request.getOptions() == null) {
+                return Completable.complete();
+            } else {
+                return Single.just(request.getOptions())
+                        .map(Map::keySet)
+                        .flatMapPublisher(Flowable::fromIterable)
+                        .flatMapCompletable(key -> {
+                            // relevant options for getAssertion are up and uv
+                            // no need to process these because we will handle user presence and verification regardless
+                            // if rk and plat are set however we return an exception, as there are not valid for getAssertion
+                            if (key.equals("rk") || key.equals("plat")) {
+                                return Completable.error(InvalidOptionException::new);
+                            } else {
+                                return Completable.complete();
+                            }
+                        });
+            }
+        });
     }
 
     private Completable handleUserApproval() {
