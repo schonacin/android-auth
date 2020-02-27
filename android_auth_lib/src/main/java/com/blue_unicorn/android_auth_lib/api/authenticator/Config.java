@@ -50,7 +50,7 @@ public final class Config {
 
     /**
      * The supported COSEAlgorithmIdentifier.
-     * -7 for ECDSA w/ SHA-256 as registered in the IANA COSE Algorithms registry
+     * Supported is -7 for ECDSA w/ SHA-256 as registered in the IANA COSE Algorithms registry
      */
     public static int COSE_ALGORITHM_IDENTIFIER = -7;
 
