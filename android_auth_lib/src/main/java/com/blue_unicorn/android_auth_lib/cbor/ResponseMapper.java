@@ -16,21 +16,21 @@ final class ResponseMapper {
 
     static Single<String> mapRespectiveMethod(ResponseObject responseObject) {
         return Single.defer(() -> {
-            if(responseObject instanceof GetInfoResponse) {
-                return Single.fromCallable(() -> processResponse(responseObject));
-            } else if (responseObject instanceof MakeCredentialResponse) {
-                return Single.fromCallable(() -> processResponse(responseObject));
-            } else if (responseObject instanceof GetAssertionResponse) {
-                return Single.fromCallable(() -> processResponse(responseObject));
+            if(responseObject instanceof GetInfoResponse ||
+                    responseObject instanceof MakeCredentialResponse ||
+                    responseObject instanceof GetAssertionResponse) {
+                return processResponse(responseObject);
             } else {
                 return Single.error(new AndroidAuthLibException());
             }
         });
     }
 
-    private static String processResponse(ResponseObject response) {
-        Gson gson = new Gson();
-        return gson.toJson(response);
+    private static Single<String> processResponse(ResponseObject response) {
+        return Single.fromCallable(() -> {
+            Gson gson = new Gson();
+            return gson.toJson(response);
+        });
     }
 
 }

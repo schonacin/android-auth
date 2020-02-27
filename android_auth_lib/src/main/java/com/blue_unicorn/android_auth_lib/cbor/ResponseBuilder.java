@@ -26,24 +26,21 @@ final class ResponseBuilder {
 
     @NonNull
     static Single<byte[]> buildResponse(String data) {
-        return Single.defer(() -> encodeData(data)
-                .flatMap(ResponseBuilder::prependSuccessStatus));
+        return encodeData(data)
+                .flatMap(ResponseBuilder::prependSuccessStatus);
     }
 
     @NonNull
     private static Single<byte[]> encodeData(String data) {
-        return Single.defer(() -> Single.just(CBORObject.FromJSONString(data, JSON_OPTIONS))
+        return Single.fromCallable(() -> CBORObject.FromJSONString(data, JSON_OPTIONS))
                 .flatMap(ResponseBuilder::adjustCborObject)
-                .map(transformedObject -> transformedObject.EncodeToBytes(ENCODE_OPTIONS)))
+                .map(transformedObject -> transformedObject.EncodeToBytes(ENCODE_OPTIONS))
                 .onErrorResumeNext(throwable -> Single.error(new AndroidAuthLibException(throwable)));
     }
 
     @NonNull
     private static Single<CBORObject> adjustCborObject(CBORObject cborDecodedResponse) {
-        return Single.defer(() -> {
-            CBORObject transformedCBORObject = transformCBORMap(cborDecodedResponse, true);
-            return Single.just(transformedCBORObject);
-        });
+        return Single.fromCallable(() -> transformCBORMap(cborDecodedResponse, true));
     }
 
     // very hacky, might not be final
@@ -102,13 +99,13 @@ final class ResponseBuilder {
 
     @NonNull
     private static Single<byte[]> prependSuccessStatus(byte[] encodedData) {
-        return Single.defer(() -> {
+        return Single.fromCallable(() -> {
 
             byte[] completeResponse = new byte[CTAP1_ERR_SUCCESS.length + encodedData.length];
             System.arraycopy(CTAP1_ERR_SUCCESS, 0, completeResponse, 0, CTAP1_ERR_SUCCESS.length);
             System.arraycopy(encodedData, 0, completeResponse, CTAP1_ERR_SUCCESS.length, encodedData.length);
 
-            return Single.just(completeResponse);
+            return completeResponse;
         });
     }
 }

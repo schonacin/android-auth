@@ -8,7 +8,7 @@ import com.blue_unicorn.android_auth_lib.fido.ResponseObject;
 import io.reactivex.rxjava3.core.Single;
 
 /**
- * Handles the Decoding (and later ENCODING) of CBOR encoded Byte Arrays
+ * Handles the Decoding and Encoding of CBOR encoded Byte Arrays
  */
 public interface CborHandler {
 
