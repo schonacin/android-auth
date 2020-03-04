@@ -30,15 +30,6 @@ public class BaseDefragmentationProviderTest {
     @Before
     public void setUp() {
         defragmentationProvider = new BaseDefragmentationProvider();
-
-
-        // TODO: can this be implemented in a way that non-last fragment not filled completely work?
-        // TODO: can a changing maxLen work?
-
-        // test what happens if first fragment is continuation fragment
-        // TODO: can we make it work?
-
-        // test if defragmentation of fragmented frame (created by FragmentationProvider) results in original frame (assuming same maxLen)
     }
 
     // no fragmentation, mtu greater than header + data

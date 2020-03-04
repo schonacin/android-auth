@@ -27,7 +27,7 @@ public class BaseInitializationFragment extends BaseFragment implements Initiali
 
         if (!Command.commands.contains(getCMD()) && !Keepalive.status.contains(getCMD()))
             throw new InvalidCommandException("Invalid command error: initialization fragment command " + getCMD() + " is not specified");
-        if (getDATA().length > (((getHLEN() & 0xff) << 8) + (getLLEN() & 0xff)))
+        if (getDATA().length != (((getHLEN() & 0xff) << 8) + (getLLEN() & 0xff)))
             throw new InvalidLengthException("Invalid length error: initialization fragment DATA length " + getDATA().length + " is greater than length specified in command parameters " + (((getHLEN() & 0xff) << 8) + (getLLEN() & 0xff)));
     }
 

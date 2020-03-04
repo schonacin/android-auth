@@ -27,7 +27,7 @@ class BaseFrameAccumulator implements FrameAccumulator {
 
     BaseFrameAccumulator(int maxLen) throws OtherException {
         if (maxLen < 3)
-            throw new OtherException("Defragmentation error: maxLen (" + maxLen + ") is smaller than minimum allowed maxLen (3)");
+            throw new OtherException("Defragmentation error: maxLen (" + maxLen + ") is smaller than minimum required maxLen (3)");
 
         setSequenceNumberCount(new int[0x80]);
         setInitializationFragmentAccumulated(false);

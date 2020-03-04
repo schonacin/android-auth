@@ -52,7 +52,7 @@ class BaseFrameSplitter implements FrameSplitter {
                 System.arraycopy(frame.getDATA(), i, continuationFragmentData, 0, continuationFragmentDataSize);
             else
                 System.arraycopy(frame.getDATA(), i, continuationFragmentData, 0, frame.getDATA().length - i);
-            extractedContinuationFragments.add(new BaseContinuationFragment((byte) (i / continuationFragmentDataSize), continuationFragmentData));
+            extractedContinuationFragments.add(new BaseContinuationFragment((byte) ((i / continuationFragmentDataSize) % 0x80), continuationFragmentData));
         }
         return extractedContinuationFragments;
     }
