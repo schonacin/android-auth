@@ -8,11 +8,11 @@ import java.util.List;
  */
 public abstract class Command {
 
-    private static byte PING = (byte) 0x81;
-    private static byte KEEPALIVE = (byte) 0x82;
-    private static byte MSG = (byte) 0x83;
-    private static byte CANCEL = (byte) 0xbe;
-    private static byte ERROR = (byte) 0xbf;
+    private static final byte PING = (byte) 0x81;
+    private static final byte KEEPALIVE = (byte) 0x82;
+    private static final byte MSG = (byte) 0x83;
+    private static final byte CANCEL = (byte) 0xbe;
+    private static final byte ERROR = (byte) 0xbf;
 
-    public static List<Byte> commands = Arrays.asList(PING, KEEPALIVE, MSG, CANCEL, ERROR);
+    public static final List<Byte> commands = Arrays.asList(PING, KEEPALIVE, MSG, CANCEL, ERROR);
 }

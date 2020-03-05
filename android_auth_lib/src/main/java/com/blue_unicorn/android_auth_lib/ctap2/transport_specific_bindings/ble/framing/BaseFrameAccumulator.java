@@ -52,8 +52,7 @@ class BaseFrameAccumulator implements FrameAccumulator {
 
     @Override
     public boolean isComplete() {
-        boolean result = initializationFragmentComplete() && continuationFragmentsComplete() && dataComplete();
-        return result;
+        return initializationFragmentComplete() && continuationFragmentsComplete() && dataComplete();
     }
 
     private boolean initializationFragmentComplete() {

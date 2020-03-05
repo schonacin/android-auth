@@ -8,8 +8,8 @@ import java.util.List;
  */
 public abstract class Keepalive {
 
-    private static byte PROCESSING = (byte) 0x01;
-    private static byte UP_NEEDED = (byte) 0x02;
+    private static final byte PROCESSING = (byte) 0x01;
+    private static final byte UP_NEEDED = (byte) 0x02;
 
-    public static List<Byte> status = Arrays.asList(PROCESSING, UP_NEEDED);
+    public static final List<Byte> status = Arrays.asList(PROCESSING, UP_NEEDED);
 }
