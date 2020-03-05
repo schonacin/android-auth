@@ -5,6 +5,9 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.c
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.InvalidCommandException;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.InvalidLengthException;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public class BaseInitializationFragment extends BaseFragment implements InitializationFragment {
 
     private byte CMD;
@@ -27,7 +30,7 @@ public class BaseInitializationFragment extends BaseFragment implements Initiali
 
         if (!Command.commands.contains(getCMD()) && !Keepalive.status.contains(getCMD()))
             throw new InvalidCommandException("Invalid command error: initialization fragment command " + getCMD() + " is not specified");
-        if (getDATA().length != (((getHLEN() & 0xff) << 8) + (getLLEN() & 0xff)))
+        if (getDATA().length > (((getHLEN() & 0xff) << 8) + (getLLEN() & 0xff)))
             throw new InvalidLengthException("Invalid length error: initialization fragment DATA length " + getDATA().length + " is greater than length specified in command parameters " + (((getHLEN() & 0xff) << 8) + (getLLEN() & 0xff)));
     }
 
@@ -59,5 +62,26 @@ public class BaseInitializationFragment extends BaseFragment implements Initiali
     @Override
     public void setLLEN(byte LLEN) {
         this.LLEN = LLEN;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BaseInitializationFragment that = (BaseInitializationFragment) o;
+        return getCMD() == that.getCMD() &&
+                getHLEN() == that.getHLEN() &&
+                getLLEN() == that.getLLEN() &&
+                Arrays.equals(getDATA(), that.getDATA());
+    }
+
+    @Override
+    public String toString() {
+        return "BaseInitializationFragment{" +
+                "CMD=" + getCMD() +
+                ", HLEN=" + getHLEN() +
+                ", LLEN=" + getLLEN() +
+                ", DATA=" + Arrays.toString(getDATA()) +
+                '}';
     }
 }

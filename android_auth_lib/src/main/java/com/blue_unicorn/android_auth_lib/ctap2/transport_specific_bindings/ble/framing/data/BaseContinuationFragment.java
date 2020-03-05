@@ -2,6 +2,9 @@ package com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.
 
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.InvalidSequenceNumberException;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public class BaseContinuationFragment extends BaseFragment implements ContinuationFragment {
 
     private byte SEQ;
@@ -30,5 +33,22 @@ public class BaseContinuationFragment extends BaseFragment implements Continuati
     @Override
     public void setSEQ(byte SEQ) {
         this.SEQ = SEQ;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BaseContinuationFragment that = (BaseContinuationFragment) o;
+        return getSEQ() == that.getSEQ() &&
+                Arrays.equals(getDATA(), that.getDATA());
+    }
+
+    @Override
+    public String toString() {
+        return "BaseContinuationFragment{" +
+                "SEQ=" + SEQ +
+                ", DATA=" + Arrays.toString(getDATA()) +
+                '}';
     }
 }

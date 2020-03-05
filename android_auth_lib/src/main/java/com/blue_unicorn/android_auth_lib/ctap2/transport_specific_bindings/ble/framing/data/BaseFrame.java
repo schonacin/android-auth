@@ -78,4 +78,14 @@ public class BaseFrame implements Frame {
                 getLLEN() == baseFrame.getLLEN() &&
                 Arrays.equals(getDATA(), baseFrame.getDATA());
     }
+
+    @Override
+    public String toString() {
+        return "BaseFrame{" +
+                "CMDSTAT=" + CMDSTAT +
+                ", HLEN=" + HLEN +
+                ", LLEN=" + LLEN +
+                ", DATA=" + Arrays.toString(DATA) +
+                '}';
+    }
 }

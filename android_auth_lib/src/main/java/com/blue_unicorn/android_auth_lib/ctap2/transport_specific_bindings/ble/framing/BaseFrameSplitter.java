@@ -3,6 +3,7 @@ package com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.InvalidCommandException;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.InvalidLengthException;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.InvalidSequenceNumberException;
+import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.OtherException;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.BaseContinuationFragment;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.BaseInitializationFragment;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.ContinuationFragment;
@@ -15,10 +16,18 @@ import java.util.List;
 
 class BaseFrameSplitter implements FrameSplitter {
 
-    private int maxLen;
+    private int initializationFragmentDataSize;
+    private int continuationFragmentDataSize;
 
-    BaseFrameSplitter(int maxLen) {
-        setMaxLen(maxLen);
+    BaseFrameSplitter(int maxLen) throws OtherException {
+        if (maxLen < 3)
+            throw new OtherException("Fragmentation error: maxLen (" + maxLen + ") is smaller than minimum required maxLen (3)");
+        setFragmentDataSizes(maxLen);
+    }
+
+    private void setFragmentDataSizes(int maxLen) {
+        setInitializationFragmentDataSize(maxLen - 3);
+        setContinuationFragmentDataSize(maxLen - 1);
     }
 
     @Override
@@ -34,35 +43,43 @@ class BaseFrameSplitter implements FrameSplitter {
     }
 
     private InitializationFragment extractInitializationFragment(Frame frame) throws InvalidCommandException, InvalidLengthException {
-        int initializationFragmentDataSize = getMaxLen() - 3;
-        byte[] initializationFragmentData = new byte[initializationFragmentDataSize];
+        byte[] initializationFragmentData = new byte[Math.min(frame.getDATA().length, getInitializationFragmentDataSize())];
 
-        System.arraycopy(frame.getDATA(), 0, initializationFragmentData, 0, initializationFragmentDataSize);
+        System.arraycopy(frame.getDATA(), 0, initializationFragmentData, 0, Math.min(frame.getDATA().length, getInitializationFragmentDataSize()));
         return new BaseInitializationFragment(frame.getCMDSTAT(), frame.getHLEN(), frame.getLLEN(), initializationFragmentData);
     }
 
     private List<ContinuationFragment> extractContinuationFragments(Frame frame) throws InvalidSequenceNumberException {
-        int initializationFragmentDataSize = getMaxLen() - 3;
-        int continuationFragmentDataSize = getMaxLen() - 1;
         List<ContinuationFragment> extractedContinuationFragments = new ArrayList<>(frame.getHLEN() << 8 + frame.getLLEN());
-        byte[] continuationFragmentData = new byte[continuationFragmentDataSize];
+        byte[] continuationFragmentData = new byte[getContinuationFragmentDataSize()];
 
-        for (int i = initializationFragmentDataSize; i < frame.getDATA().length; i += continuationFragmentDataSize) {
-            if (i < frame.getDATA().length)
-                System.arraycopy(frame.getDATA(), i, continuationFragmentData, 0, continuationFragmentDataSize);
-            else
-                System.arraycopy(frame.getDATA(), i, continuationFragmentData, 0, frame.getDATA().length - i);
-            extractedContinuationFragments.add(new BaseContinuationFragment((byte) ((i / continuationFragmentDataSize) % 0x80), continuationFragmentData));
+        for (int i = getInitializationFragmentDataSize(); i < frame.getDATA().length; i += getContinuationFragmentDataSize()) {
+            if (i < frame.getDATA().length - getContinuationFragmentDataSize()) {
+                System.arraycopy(frame.getDATA(), i, continuationFragmentData, 0, getContinuationFragmentDataSize());
+                extractedContinuationFragments.add(new BaseContinuationFragment((byte) (i / getContinuationFragmentDataSize() % 0x80), continuationFragmentData));
+            }
+            else {
+                byte[] lastContinuationFragmentData = new byte[frame.getDATA().length - i];
+                System.arraycopy(frame.getDATA(), i, lastContinuationFragmentData, 0, frame.getDATA().length - i);
+                extractedContinuationFragments.add(new BaseContinuationFragment((byte) (i / getContinuationFragmentDataSize() % 0x80), lastContinuationFragmentData));
+            }
         }
         return extractedContinuationFragments;
     }
 
-    private int getMaxLen() {
-        return maxLen;
+    private int getInitializationFragmentDataSize() {
+        return initializationFragmentDataSize;
     }
 
-    private void setMaxLen(int maxLen) {
-        this.maxLen = maxLen;
+    private void setInitializationFragmentDataSize(int initializationFragmentDataSize) {
+        this.initializationFragmentDataSize = initializationFragmentDataSize;
     }
 
+    private int getContinuationFragmentDataSize() {
+        return continuationFragmentDataSize;
+    }
+
+    private void setContinuationFragmentDataSize(int continuationFragmentDataSize) {
+        this.continuationFragmentDataSize = continuationFragmentDataSize;
+    }
 }
