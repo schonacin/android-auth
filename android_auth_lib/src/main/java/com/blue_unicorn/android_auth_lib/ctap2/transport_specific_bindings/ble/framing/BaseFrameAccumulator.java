@@ -9,11 +9,15 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Frame;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.InitializationFragment;
 
-// TODO: add description with reference to ctap2 spec
-// assumptions made:
-// - if there is sequence number wraparound, continuation fragments with same sequence number are in correct order
-// - except for the last fragment, all available space (= maxLen) for data is used
-// - maxLen is at least 3 (to be able to transmit an initialization fragment)
+/*
+ * Assumptions made:
+ * - if there is sequence number wraparound, continuation fragments with same sequence number are in correct order (else there would not be enough information to restore the frame)
+ * - maxLen is at least 3 (to be able to transmit an initialization fragment)
+ * - first transmitted fragment is always the initialization fragment
+ * - except for the last fragment, all available space (= maxLen) for data is used
+ * - maxLen does not change
+ * (last 3 assumptions are not strictly implicated by the specification, support for them could be added in the future)
+ */
 class BaseFrameAccumulator implements FrameAccumulator {
 
     private int initializationFragmentDataSize;
@@ -46,7 +50,6 @@ class BaseFrameAccumulator implements FrameAccumulator {
         setContinuationFragmentDataSize(maxLen - 1);
     }
 
-    // TODO: called very often, optimize performance and only call where it's really necessary
     @Override
     public boolean isComplete() {
         boolean result = initializationFragmentComplete() && continuationFragmentsComplete() && dataComplete();
@@ -63,15 +66,15 @@ class BaseFrameAccumulator implements FrameAccumulator {
         for (int sequenceNumberCount : getSequenceNumberCount())
             continuationFragmentsCount += sequenceNumberCount;
 
-        if(continuationFragmentsCount == 0)
+        if (continuationFragmentsCount == 0)
             return totalDataSize <= initializationFragmentDataSize;
 
         int frameDataSize = getAssembledLength(getFrame().getHLEN(), getFrame().getLLEN());
         int totalContinuationFragmentsDataSize = (frameDataSize - getInitializationFragmentDataSize());
         int expectedNumberOfContinuationFragments = 0;
-        if(totalContinuationFragmentsDataSize != 0)
+        if (totalContinuationFragmentsDataSize != 0)
             expectedNumberOfContinuationFragments = totalContinuationFragmentsDataSize / getContinuationFragmentDataSize();
-        if(totalContinuationFragmentsDataSize % getContinuationFragmentDataSize() != 0)
+        if (totalContinuationFragmentsDataSize % getContinuationFragmentDataSize() != 0)
             expectedNumberOfContinuationFragments++;
 
         return continuationFragmentsCount == expectedNumberOfContinuationFragments;

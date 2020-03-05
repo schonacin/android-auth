@@ -142,7 +142,6 @@ public class BaseFragmentationProviderTest {
         fragmentationProvider.fragment(Single.just(TEST_FRAME_WITH_SMALLEST_MAXLEN_FRAME), TEST_FRAME_WITH_SMALLEST_MAXLEN_MAXLEN).test().assertValues(TEST_FRAME_WITH_SMALLEST_MAXLEN_RESULT_INIT_FRAG, TEST_FRAME_WITH_SMALLEST_MAXLEN_RESULT_CONT_FRAG);
     }
 
-    // TODO: add operator (flatMap?) so multiple frames are fragmented
     @Test
     public void transformsMultipleFramesWithCorrectResult() throws BleException {
         int TEST_MULTIPLE_FRAMES_MAXLEN = 109;

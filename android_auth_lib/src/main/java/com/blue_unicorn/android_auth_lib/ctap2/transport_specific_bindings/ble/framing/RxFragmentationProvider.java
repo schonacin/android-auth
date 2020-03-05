@@ -6,6 +6,9 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
+/*
+ * Reactive wrapper for FrameSplitter.
+ */
 public interface RxFragmentationProvider {
 
     Flowable<Fragment> fragment(Single<Frame> frame, int maxLen);

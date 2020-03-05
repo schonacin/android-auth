@@ -4,11 +4,10 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.c
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.InvalidCommandException;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.InvalidLengthException;
 
-import java.util.Arrays;
-import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 
-// implements concept of frames as described in https://fidoalliance.org/specs/fido-v2.0-ps-20190130/fido-client-to-authenticator-protocol-v2.0-ps-20190130.html#ble-framing
-// represents request frames as well as response frames, as the only difference in the CTAP2 specs is the mnemonic of the CMD/STAT field
+import java.util.Arrays;
+
 public class BaseFrame implements Frame {
 
     private byte CMDSTAT;
@@ -79,6 +78,7 @@ public class BaseFrame implements Frame {
                 Arrays.equals(getDATA(), baseFrame.getDATA());
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "BaseFrame{" +

@@ -7,9 +7,6 @@ import io.reactivex.rxjava3.core.Flowable;
 
 public class BaseDefragmentationProvider implements RxDefragmentationProvider {
 
-    // accepts Flowable that emits all incoming Fragments, with a fixed maxLen
-    // constructs Frames from Fragments while receiving them and emits each Frame when completed
-    // TODO: could be maybe done more elegantly with windowUntil.collect ?
     @Override
     public Flowable<Frame> defragment(Flowable<Fragment> fragments, int maxLen) {
 

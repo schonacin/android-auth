@@ -14,6 +14,13 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * Assumptions made:
+ * - maxLen is at least 3 (to be able to transmit an initialization fragment)
+ * - except for the last fragment, all available space (= maxLen) for data is used
+ * - maxLen does not change during transmission of fragments of a frame
+ * (last assumption are not strictly implicated by the specification, support for them could be added in the future)
+ */
 class BaseFrameSplitter implements FrameSplitter {
 
     private int initializationFragmentDataSize;
@@ -57,8 +64,7 @@ class BaseFrameSplitter implements FrameSplitter {
             if (i < frame.getDATA().length - getContinuationFragmentDataSize()) {
                 System.arraycopy(frame.getDATA(), i, continuationFragmentData, 0, getContinuationFragmentDataSize());
                 extractedContinuationFragments.add(new BaseContinuationFragment((byte) (i / getContinuationFragmentDataSize() % 0x80), continuationFragmentData));
-            }
-            else {
+            } else {
                 byte[] lastContinuationFragmentData = new byte[frame.getDATA().length - i];
                 System.arraycopy(frame.getDATA(), i, lastContinuationFragmentData, 0, frame.getDATA().length - i);
                 extractedContinuationFragments.add(new BaseContinuationFragment((byte) (i / getContinuationFragmentDataSize() % 0x80), lastContinuationFragmentData));

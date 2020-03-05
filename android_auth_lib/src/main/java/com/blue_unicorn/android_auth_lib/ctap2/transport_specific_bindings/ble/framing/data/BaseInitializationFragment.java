@@ -5,8 +5,9 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.c
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.InvalidCommandException;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.InvalidLengthException;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
-import java.util.Objects;
 
 public class BaseInitializationFragment extends BaseFragment implements InitializationFragment {
 
@@ -75,6 +76,7 @@ public class BaseInitializationFragment extends BaseFragment implements Initiali
                 Arrays.equals(getDATA(), that.getDATA());
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "BaseInitializationFragment{" +

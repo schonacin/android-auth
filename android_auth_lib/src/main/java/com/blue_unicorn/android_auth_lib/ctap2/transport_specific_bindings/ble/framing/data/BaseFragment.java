@@ -19,7 +19,7 @@ public abstract class BaseFragment implements Fragment {
     }
 
     @Override
-    public void setDATA(byte[] DATA){
+    public void setDATA(byte[] DATA) {
         this.DATA = DATA;
     }
 }

@@ -3,6 +3,9 @@ package com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.
 import java.util.Arrays;
 import java.util.List;
 
+/*
+ * Represents command constants as described in <a href="https://fidoalliance.org/specs/fido-v2.0-ps-20190130/fido-client-to-authenticator-protocol-v2.0-ps-20190130.html#ble-constants">.
+ */
 public abstract class Command {
 
     private static byte PING = (byte) 0x81;

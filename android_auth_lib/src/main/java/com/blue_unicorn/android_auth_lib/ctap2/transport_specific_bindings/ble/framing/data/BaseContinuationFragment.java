@@ -2,8 +2,9 @@ package com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.
 
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.InvalidSequenceNumberException;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
-import java.util.Objects;
 
 public class BaseContinuationFragment extends BaseFragment implements ContinuationFragment {
 
@@ -44,6 +45,7 @@ public class BaseContinuationFragment extends BaseFragment implements Continuati
                 Arrays.equals(getDATA(), that.getDATA());
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "BaseContinuationFragment{" +
