@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /*
- * Represents command constants as described in <a href="https://fidoalliance.org/specs/fido-v2.0-ps-20190130/fido-client-to-authenticator-protocol-v2.0-ps-20190130.html#ble-constants">.
+ * Represents command constants as described in <a href="https://fidoalliance.org/specs/fido-v2.0-ps-20190130/fido-client-to-authenticator-protocol-v2.0-ps-20190130.html#ble-constants">corresponding section of the CTAP2 specification</>.
  */
 public abstract class Command {
 
