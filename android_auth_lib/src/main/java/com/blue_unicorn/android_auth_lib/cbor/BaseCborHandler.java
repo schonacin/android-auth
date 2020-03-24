@@ -17,8 +17,7 @@ public final class BaseCborHandler implements CborHandler {
 
     @NonNull
     public Single<byte[]> encode(ResponseObject input) {
-        return ResponseMapper.mapRespectiveMethod(input)
-                .flatMap(ResponseBuilder::buildResponse);
+        return ResponseBuilder.buildResponse(input);
     }
 
 }

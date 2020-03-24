@@ -1,6 +1,9 @@
 package com.blue_unicorn.android_auth_lib.fido;
 
-import com.google.gson.annotations.SerializedName;
+import com.blue_unicorn.android_auth_lib.cbor.CborSerializer;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * These serialized names correlate to the specification.
@@ -8,13 +11,10 @@ import com.google.gson.annotations.SerializedName;
  */
 public class BaseMakeCredentialResponse implements MakeCredentialResponse {
 
-    @SerializedName("1")
     private String fmt;
 
-    @SerializedName("2")
     private byte[] authData;
 
-    @SerializedName("3")
     private AttestationStatement attStmt;
 
     public void setFmt(String fmt) {
@@ -27,5 +27,13 @@ public class BaseMakeCredentialResponse implements MakeCredentialResponse {
 
     public void setAttStmt(AttestationStatement attStmt) {
         this.attStmt = attStmt;
+    }
+
+    public byte[] serializeToCbor() {
+        Map<Integer, Object> map = new HashMap<Integer, Object>();
+        map.put(1, this.fmt);
+        map.put(2, this.authData);
+        map.put(3, this.attStmt);
+        return CborSerializer.serialize(map);
     }
 }

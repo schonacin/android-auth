@@ -16,6 +16,19 @@ public class PackedAttestationStatement implements AttestationStatement {
     @SerializedName("x5c")
     private byte[][] x5c;
 
+    // getter can't be removed as they're needed for cbor serialization
+    public int getAlg() {
+        return alg;
+    }
+
+    public byte[] getSig() {
+        return sig;
+    }
+
+    public byte[][] getX5c() {
+        return x5c;
+    }
+
     public void setAlg(int alg) {
         this.alg = alg;
     }

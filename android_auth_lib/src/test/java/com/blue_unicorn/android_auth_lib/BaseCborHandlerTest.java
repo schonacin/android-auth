@@ -216,6 +216,8 @@ public class BaseCborHandlerTest {
                 .values()
                 .get(0);
 
+        String encoded = Base64.encodeToString(encodedResponse, Base64.DEFAULT);
+
         final byte[] ENCODED_MAKE_CREDENTIAL_RESPONSE = Base64.decode("AKMBZnBhY2tlZAJYjRI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4qwOiY2FsZyZjc2lnVBoaGhoaGhoaGhoaGhoaKysrKysr", Base64.DEFAULT);
 
         assertThat(encodedResponse, is(ENCODED_MAKE_CREDENTIAL_RESPONSE));
