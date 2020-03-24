@@ -3,13 +3,13 @@ package com.blue_unicorn.android_auth_lib.cbor;
 import androidx.annotation.NonNull;
 
 import com.blue_unicorn.android_auth_lib.exception.InvalidCommandException;
-import com.blue_unicorn.android_auth_lib.fido.BaseGetAssertionRequest;
-import com.blue_unicorn.android_auth_lib.fido.BaseGetInfoRequest;
-import com.blue_unicorn.android_auth_lib.fido.BaseMakeCredentialRequest;
-import com.blue_unicorn.android_auth_lib.fido.GetAssertionRequest;
-import com.blue_unicorn.android_auth_lib.fido.GetInfoRequest;
-import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
-import com.blue_unicorn.android_auth_lib.fido.RequestObject;
+import com.blue_unicorn.android_auth_lib.fido.request.BaseGetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.fido.request.BaseGetInfoRequest;
+import com.blue_unicorn.android_auth_lib.fido.request.BaseMakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.fido.request.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.fido.request.GetInfoRequest;
+import com.blue_unicorn.android_auth_lib.fido.request.MakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.fido.request.RequestObject;
 import com.blue_unicorn.android_auth_lib.gson.GsonHelper;
 import com.google.gson.Gson;
 

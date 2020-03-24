@@ -16,9 +16,9 @@ android:
     - android-$EMULATOR_API_LEVEL
     - sys-img-armeabi-v7a-android-$EMULATOR_API_LEVEL
   licenses:
-        - 'android-sdk-preview-license-.+'
-        - 'android-sdk-license-.+'
-        - 'google-gdk-license-.+'
+    - 'android-sdk-preview-license-.+'
+    - 'android-sdk-license-.+'
+    - 'google-gdk-license-.+'
 
 before_script:
   - yes | sdkmanager "patcher;v4"

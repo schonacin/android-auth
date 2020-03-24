@@ -7,12 +7,12 @@ import com.blue_unicorn.android_auth_lib.cbor.CborHandler;
 import com.blue_unicorn.android_auth_lib.exception.InvalidCommandException;
 import com.blue_unicorn.android_auth_lib.exception.InvalidLengthException;
 import com.blue_unicorn.android_auth_lib.exception.InvalidParameterException;
-import com.blue_unicorn.android_auth_lib.fido.GetAssertionRequest;
-import com.blue_unicorn.android_auth_lib.fido.GetInfoRequest;
-import com.blue_unicorn.android_auth_lib.fido.MakeCredentialRequest;
-import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialRpEntity;
-import com.blue_unicorn.android_auth_lib.fido.PublicKeyCredentialUserEntity;
-import com.blue_unicorn.android_auth_lib.fido.RequestObject;
+import com.blue_unicorn.android_auth_lib.fido.request.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.fido.request.GetInfoRequest;
+import com.blue_unicorn.android_auth_lib.fido.request.MakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.fido.webauthn.PublicKeyCredentialRpEntity;
+import com.blue_unicorn.android_auth_lib.fido.webauthn.PublicKeyCredentialUserEntity;
+import com.blue_unicorn.android_auth_lib.fido.request.RequestObject;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
