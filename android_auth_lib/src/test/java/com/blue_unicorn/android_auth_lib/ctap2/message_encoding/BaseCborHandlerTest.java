@@ -2,20 +2,15 @@ package com.blue_unicorn.android_auth_lib.ctap2.message_encoding;
 
 import android.util.Base64;
 
-import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.BaseCborHandler;
-import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.CborHandler;
+import com.blue_unicorn.android_auth_lib.ctap2.data.request.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.data.request.GetInfoRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.data.request.MakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.data.request.RequestObject;
+import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PublicKeyCredentialRpEntity;
+import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PublicKeyCredentialUserEntity;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.InvalidCommandException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.InvalidLengthException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.InvalidParameterException;
-import com.blue_unicorn.android_auth_lib.ctap2.data.GetAssertionRequest;
-import com.blue_unicorn.android_auth_lib.ctap2.data.GetInfoRequest;
-import com.blue_unicorn.android_auth_lib.ctap2.data.MakeCredentialRequest;
-import com.blue_unicorn.android_auth_lib.ctap2.data.PublicKeyCredentialRpEntity;
-import com.blue_unicorn.android_auth_lib.ctap2.data.PublicKeyCredentialUserEntity;
-import com.blue_unicorn.android_auth_lib.ctap2.data.RequestObject;
-
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +18,10 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 import io.reactivex.rxjava3.observers.TestObserver;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
 public class BaseCborHandlerTest {

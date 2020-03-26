@@ -1,4 +1,4 @@
-package com.blue_unicorn.android_auth_lib.ctap2.data;
+package com.blue_unicorn.android_auth_lib.ctap2.data.webauthn;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -16,5 +16,9 @@ public class BasePublicKeyCredentialRpEntity implements PublicKeyCredentialRpEnt
 
     public String getName() {
         return name;
+    }
+
+    public boolean isValid() {
+        return (id != null);
     }
 }

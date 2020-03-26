@@ -1,4 +1,4 @@
-package com.blue_unicorn.android_auth_lib.ctap2.data;
+package com.blue_unicorn.android_auth_lib.ctap2.data.webauthn;
 
 import java.util.List;
 
