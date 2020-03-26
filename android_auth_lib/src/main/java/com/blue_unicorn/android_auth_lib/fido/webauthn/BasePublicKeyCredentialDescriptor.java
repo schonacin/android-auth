@@ -1,4 +1,4 @@
-package com.blue_unicorn.android_auth_lib.fido;
+package com.blue_unicorn.android_auth_lib.fido.webauthn;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -15,9 +15,12 @@ public class BasePublicKeyCredentialDescriptor implements PublicKeyCredentialDes
     @SerializedName("transports")
     private List<String> transports;
 
+    public BasePublicKeyCredentialDescriptor(byte[] id) {
+        this("public-key", id);
+    }
+
     public BasePublicKeyCredentialDescriptor(String type, byte[] id) {
-        this.type = type;
-        this.id = id;
+        this(type, id, null);
     }
 
     public BasePublicKeyCredentialDescriptor(String type, byte[] id, List<String> transports) {

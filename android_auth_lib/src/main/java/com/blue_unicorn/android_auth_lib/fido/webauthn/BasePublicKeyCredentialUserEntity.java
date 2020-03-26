@@ -1,4 +1,4 @@
-package com.blue_unicorn.android_auth_lib.fido;
+package com.blue_unicorn.android_auth_lib.fido.webauthn;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -14,12 +14,11 @@ public class BasePublicKeyCredentialUserEntity implements PublicKeyCredentialUse
     private String displayName;
 
     public BasePublicKeyCredentialUserEntity(byte[] id) {
-        this.id = id;
+        this(id, null);
     }
 
     public BasePublicKeyCredentialUserEntity(byte[] id, String name) {
-        this.id = id;
-        this.name = name;
+        this(id, name, null);
     }
 
     public BasePublicKeyCredentialUserEntity(byte[] id, String name, String displayName) {
@@ -38,6 +37,10 @@ public class BasePublicKeyCredentialUserEntity implements PublicKeyCredentialUse
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    public boolean isValid() {
+        return (id != null && name != null);
     }
 
 }

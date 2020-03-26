@@ -1,4 +1,4 @@
-package com.blue_unicorn.android_auth_lib.fido;
+package com.blue_unicorn.android_auth_lib.fido.webauthn;
 
 import java.util.List;
 

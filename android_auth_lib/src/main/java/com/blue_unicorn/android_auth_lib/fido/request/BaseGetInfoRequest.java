@@ -1,5 +1,4 @@
-package com.blue_unicorn.android_auth_lib.fido;
+package com.blue_unicorn.android_auth_lib.fido.request;
 
 public class BaseGetInfoRequest implements GetInfoRequest {
-
 }
