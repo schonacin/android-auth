@@ -7,9 +7,20 @@ import com.blue_unicorn.android_auth_lib.cbor.CborHandler;
 import com.blue_unicorn.android_auth_lib.exception.InvalidCommandException;
 import com.blue_unicorn.android_auth_lib.exception.InvalidLengthException;
 import com.blue_unicorn.android_auth_lib.exception.InvalidParameterException;
+import com.blue_unicorn.android_auth_lib.fido.reponse.BaseGetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.fido.reponse.BaseGetInfoResponse;
+import com.blue_unicorn.android_auth_lib.fido.reponse.BaseMakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.fido.reponse.GetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.fido.reponse.GetInfoResponse;
+import com.blue_unicorn.android_auth_lib.fido.reponse.MakeCredentialResponse;
 import com.blue_unicorn.android_auth_lib.fido.request.GetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.fido.request.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.fido.request.MakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.fido.webauthn.AttestationStatement;
+import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialDescriptor;
+import com.blue_unicorn.android_auth_lib.fido.webauthn.BasePublicKeyCredentialUserEntity;
+import com.blue_unicorn.android_auth_lib.fido.webauthn.PackedAttestationStatement;
+import com.blue_unicorn.android_auth_lib.fido.webauthn.PublicKeyCredentialDescriptor;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.PublicKeyCredentialRpEntity;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.PublicKeyCredentialUserEntity;
 import com.blue_unicorn.android_auth_lib.fido.request.RequestObject;
@@ -156,17 +167,14 @@ public class BaseCborHandlerTest {
 
     @Test
     public void getInfoResponse_transformsCorrectly() {
-        GetInfoResponse response = new BaseGetInfoResponse();
-
         Map<String, Boolean> options = new HashMap<>();
         options.putIfAbsent("rk", true);
-        response.setOptions(options);
 
         byte[] aaguid = Base64.decode("8dCxjhABSoFDQRyhBADx0A==", Base64.DEFAULT);
-        response.setAaguid(aaguid);
+        int maxMsgSize = 1024;
+        String[] versions = new String[]{"FIDO_2_0"};
 
-        response.setMaxMsgSize(1024);
-        response.setVersions(new String[]{"FIDO_2_0"});
+        GetInfoResponse response = new BaseGetInfoResponse(versions, aaguid, options, maxMsgSize);
 
         byte[] encodedResponse =
         cborHandler.encode(response)
@@ -184,17 +192,11 @@ public class BaseCborHandlerTest {
 
     @Test
     public void makeCredentialResponse_transformsCorrectly() {
-        MakeCredentialResponse response = new BaseMakeCredentialResponse();
-        response.setFmt("packed");
-
         byte[] authData = Base64.decode("EjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnir", Base64.DEFAULT); //141 bytes
-        response.setAuthData(authData);
-
-        AttestationStatement attStmt = new PackedAttestationStatement();
-        attStmt.setAlg(-7);
         byte[] sig = Base64.decode("GhoaGhoaGhoaGhoaGhorKysrKys=", Base64.DEFAULT);
-        attStmt.setSig(sig);
-        response.setAttStmt(attStmt);
+        AttestationStatement attStmt = new PackedAttestationStatement(sig);
+
+        MakeCredentialResponse response = new BaseMakeCredentialResponse(authData, attStmt);
 
         byte[] encodedResponse =
         cborHandler.encode(response)
@@ -214,16 +216,11 @@ public class BaseCborHandlerTest {
 
     @Test
     public void getAssertionResponse_transformsCorrectly() {
-        GetAssertionResponse response = new BaseGetAssertionResponse();
-
         PublicKeyCredentialDescriptor credential = new BasePublicKeyCredentialDescriptor("public-key", Base64.decode("EjRWeJCrze8=", Base64.DEFAULT));
-        response.setCredential(credential);
-
         byte[] authData = Base64.decode("EjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnir", Base64.DEFAULT); //141 bytes
-        response.setAuthData(authData);
-
         byte[] sig = Base64.decode("GhoaGhoaGhoaGhoaGhorKysrKys=", Base64.DEFAULT);
-        response.setSignature(sig);
+
+        GetAssertionResponse response = new BaseGetAssertionResponse(credential, authData, sig);
 
         PublicKeyCredentialUserEntity publicKeyCredentialUserEntity = new BasePublicKeyCredentialUserEntity(Base64.decode("EjRWeJCrze8SNFZ4kKvN7w==", Base64.DEFAULT));
         response.setPublicKeyCredentialUserEntity(publicKeyCredentialUserEntity);
@@ -238,6 +235,8 @@ public class BaseCborHandlerTest {
                         .get(0);
 
         final byte[] ENCODED_GET_ASSERTION_RESPONSE = Base64.decode("AKQBomJpZEgSNFZ4kKvN72R0eXBlanB1YmxpYy1rZXkCWI0SNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKsDVBoaGhoaGhoaGhoaGhoaKysrKysrBKFiaWRQEjRWeJCrze8SNFZ4kKvN7w==", Base64.DEFAULT);
+
+        String answer = Base64.encodeToString(encodedResponse, Base64.DEFAULT);
 
         assertThat(encodedResponse, is(ENCODED_GET_ASSERTION_RESPONSE));
     }

@@ -39,6 +39,7 @@ public class BasePublicKeyCredentialUserEntity implements PublicKeyCredentialUse
         return displayName;
     }
 
+    // TODO: in serialization, this is used as a field -> remove
     public boolean isValid() {
         return (id != null && name != null);
     }

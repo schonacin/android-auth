@@ -174,6 +174,7 @@ public class GetAssertion {
     }
 
     private Single<GetAssertionResponse> constructResponse() {
+        // TODO: add UserEntity??
         return Single.zip(constructCredentialDescriptor(), getAuthenticatorData(), generateSignature(), BaseGetAssertionResponse::new);
     }
 

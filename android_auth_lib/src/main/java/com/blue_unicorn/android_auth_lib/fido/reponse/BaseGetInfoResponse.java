@@ -1,7 +1,8 @@
 package com.blue_unicorn.android_auth_lib.fido.reponse;
 
-import com.google.gson.annotations.SerializedName;
+import com.blue_unicorn.android_auth_lib.cbor.CborSerializer;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -10,16 +11,12 @@ import java.util.Map;
  */
 public class BaseGetInfoResponse implements GetInfoResponse {
 
-    @SerializedName("1")
     private String[] versions;
 
-    @SerializedName("3")
     private byte[] aaguid;
 
-    @SerializedName("4")
     private Map<String, Boolean> options;
 
-    @SerializedName("5")
     private Integer maxMsgSize;
 
     public BaseGetInfoResponse(String[] versions, byte[] aaguid) {
@@ -47,6 +44,15 @@ public class BaseGetInfoResponse implements GetInfoResponse {
 
     public void setMaxMsgSize(int maxMsgSize) {
         this.maxMsgSize = maxMsgSize;
+    }
+
+    public byte[] serializeToCbor() {
+        Map<Integer, Object> map = new HashMap<Integer, Object>();
+        map.put(1, this.versions);
+        map.put(3, this.aaguid);
+        map.put(4, this.options);
+        map.put(5, this.maxMsgSize);
+        return CborSerializer.serialize(map);
     }
 
 }

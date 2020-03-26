@@ -3,10 +3,10 @@ package com.blue_unicorn.android_auth_lib.cbor;
 import androidx.annotation.NonNull;
 
 import com.blue_unicorn.android_auth_lib.exception.AndroidAuthLibException;
-import com.blue_unicorn.android_auth_lib.fido.GetAssertionResponse;
-import com.blue_unicorn.android_auth_lib.fido.GetInfoResponse;
-import com.blue_unicorn.android_auth_lib.fido.MakeCredentialResponse;
-import com.blue_unicorn.android_auth_lib.fido.ResponseObject;
+import com.blue_unicorn.android_auth_lib.fido.reponse.GetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.fido.reponse.GetInfoResponse;
+import com.blue_unicorn.android_auth_lib.fido.reponse.MakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.fido.reponse.ResponseObject;
 
 import io.reactivex.rxjava3.core.Single;
 
