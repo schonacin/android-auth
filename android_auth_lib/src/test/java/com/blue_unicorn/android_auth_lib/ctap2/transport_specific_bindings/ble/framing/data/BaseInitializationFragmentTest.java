@@ -34,4 +34,10 @@ public class BaseInitializationFragmentTest {
         Assert.assertEquals(initializationFragment.getLLEN(), (byte) 0x6a);
         Assert.assertArrayEquals(initializationFragment.getDATA(), Base64.decode(DATA, Base64.DEFAULT));
     }
+
+    @Test
+    public void testToString() throws BleException {
+        InitializationFragment initializationFragment = new BaseInitializationFragment((byte) 0x83, (byte) 0x00, (byte) 0x6a, Base64.decode(DATA, Base64.DEFAULT));
+        Assert.assertNotNull(initializationFragment.toString());
+    }
 }

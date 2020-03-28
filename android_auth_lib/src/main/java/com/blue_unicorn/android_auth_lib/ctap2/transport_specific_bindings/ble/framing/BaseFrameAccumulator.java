@@ -90,8 +90,6 @@ class BaseFrameAccumulator implements FrameAccumulator {
                 addContinuationFragment(((ContinuationFragment) fragment));
             else if (fragment instanceof InitializationFragment)
                 addInitializationFragment(((InitializationFragment) fragment));
-            else
-                throw new OtherException("Defragmentation error: could not add fragment of type " + fragment.getClass().getName() + "to frame buffer");
         }
     }
 
@@ -103,8 +101,10 @@ class BaseFrameAccumulator implements FrameAccumulator {
         setTotalDataSize(getAssembledLength(fragment.getHLEN(), fragment.getLLEN()));
         setAccumulatedDataSize(getAccumulatedDataSize() + fragment.getDATA().length);
 
-        if (getAccumulatedDataSize() > getTotalDataSize())
-            throw new InvalidLengthException("Invalid length error: accumulated data length " + getAccumulatedDataSize() + " is greater than length declared in HLEN and LLEN " + getTotalDataSize());
+        // impossible to reach as we assume the first fragment to be an initialization fragment
+        // add this again once that assumption is not valid anymore
+        //if (getAccumulatedDataSize() > getTotalDataSize())
+        //    throw new InvalidLengthException("Invalid length error: accumulated data length " + getAccumulatedDataSize() + " is greater than length declared in HLEN and LLEN " + getTotalDataSize());
 
         byte[] dataArray = new byte[getTotalDataSize()];
         System.arraycopy(fragment.getDATA(), 0, dataArray, 0, fragment.getDATA().length);
@@ -132,7 +132,7 @@ class BaseFrameAccumulator implements FrameAccumulator {
     @Override
     public Frame getAssembledFrame() throws OtherException {
         if (!isComplete())
-            throw new OtherException("Defragmentation error: frame is still incomplete");
+            throw new OtherException("Defragmentation error: cannot return assembled frame because it is still incomplete");
         return getFrame();
     }
 

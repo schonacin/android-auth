@@ -236,11 +236,20 @@ public class BaseDefragmentationProviderTest {
     }
 
     @Test
-    public void transformsMoreDataThanSpecifiedInHeaderWithErrors() throws BleException {
+    public void transformsMoreDataInThanSpecifiedInHeaderWithErrors() throws BleException {
         int TEST_MORE_DATA_THAN_SPECIFIED_MAXLEN = 32;
         Fragment TEST_MORE_DATA_THAN_SPECIFIED_INIT_FRAG = new BaseInitializationFragment((byte) 0x83, (byte) 0x00, (byte) 0x22, Base64.decode("AqMBa3dlYmF1dGhuLmlvAlggKHoBf5KQFW9lYY8=", Base64.DEFAULT));
         Fragment TEST_MORE_DATA_THAN_SPECIFIED_CONT_FRAG = new BaseContinuationFragment((byte) 0, Base64.decode("E0LrllMuV2p4hgolzDsJy7CVk/e5A4GiYmlkWCB84A==", Base64.DEFAULT));
 
         defragmentationProvider.defragment(Flowable.just(TEST_MORE_DATA_THAN_SPECIFIED_INIT_FRAG, TEST_MORE_DATA_THAN_SPECIFIED_CONT_FRAG), TEST_MORE_DATA_THAN_SPECIFIED_MAXLEN).test().assertError(InvalidLengthException.class);
+    }
+
+    @Test
+    public void transformsMultipleInitializationFragmentsWithErrors() throws BleException {
+        int TEST_MORE_DATA_THAN_SPECIFIED_MAXLEN = 32;
+        Fragment TEST_MULTIPLE_INIT_FRAGS_INIT_FRAG_0 = new BaseInitializationFragment((byte) 0x81, (byte) 0x00, (byte) 0x8c, Base64.decode(DATA, Base64.DEFAULT));
+        Fragment TEST_MULTIPLE_INIT_FRAGS_INIT_FRAG_1 = new BaseInitializationFragment((byte) 0x81, (byte) 0x00, (byte) 0x6a, Base64.decode(DATA, Base64.DEFAULT));
+
+        defragmentationProvider.defragment(Flowable.just(TEST_MULTIPLE_INIT_FRAGS_INIT_FRAG_0, TEST_MULTIPLE_INIT_FRAGS_INIT_FRAG_1), TEST_MORE_DATA_THAN_SPECIFIED_MAXLEN).test().assertError(OtherException.class);
     }
 }

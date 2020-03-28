@@ -26,4 +26,10 @@ public class BaseContinuationFragmentTest {
         Assert.assertEquals(continuationFragment.getSEQ(), (byte) 0x00);
         Assert.assertArrayEquals(continuationFragment.getDATA(), Base64.decode(DATA, Base64.DEFAULT));
     }
+
+    @Test
+    public void testToString() throws BleException {
+        ContinuationFragment continuationFragment = new BaseContinuationFragment((byte) 0x00, Base64.decode(DATA, Base64.DEFAULT));
+        Assert.assertNotNull(continuationFragment.toString());
+    }
 }
