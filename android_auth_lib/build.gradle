@@ -3,7 +3,7 @@ apply plugin: 'jacoco-android'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion '29.0.0'
+    buildToolsVersion '29.0.2'
 
 
     defaultConfig {
@@ -25,10 +25,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    externalNativeBuild {
-        cmake {
-            path file('CMakeLists.txt')
-        }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
     }
     compileOptions {
         sourceCompatibility = 1.8
@@ -44,7 +43,6 @@ android {
             }
         }
     }
-
 }
 
 dependencies {
@@ -54,7 +52,7 @@ dependencies {
     implementation 'com.upokecenter:cbor:4.1.0'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.github.schonacin:RxKeyStore:RxJava3_update-SNAPSHOT'
-    implementation "io.reactivex.rxjava3:rxjava:3.0.0-RC6"
+    implementation "io.reactivex.rxjava3:rxjava:3.0.1"
 
     implementation "android.arch.lifecycle:extensions:1.1.1"
     implementation "android.arch.persistence.room:runtime:1.1.1"
@@ -62,7 +60,8 @@ dependencies {
 
     testImplementation "android.arch.persistence.room:testing:1.1.1"
     testImplementation 'junit:junit:4.12'
-    testImplementation 'org.robolectric:robolectric:4.3'
+    testImplementation 'org.robolectric:robolectric:4.3.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'org.jetbrains:annotations:16.0.1'
 }
