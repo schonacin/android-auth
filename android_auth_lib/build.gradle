@@ -52,6 +52,7 @@ dependencies {
     implementation 'com.upokecenter:cbor:4.1.0'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.github.schonacin:RxKeyStore:RxJava3_update-SNAPSHOT'
+    implementation 'com.github.neXenio:RxKeyStore:0.1.0'
     implementation "io.reactivex.rxjava3:rxjava:3.0.1"
 
     implementation "android.arch.lifecycle:extensions:1.1.1"
