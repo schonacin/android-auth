@@ -2,14 +2,14 @@ package com.blue_unicorn.android_auth_lib.ctap2.message_encoding;
 
 import androidx.annotation.NonNull;
 
-import com.blue_unicorn.android_auth_lib.ctap2.data.request.BaseGetAssertionRequest;
-import com.blue_unicorn.android_auth_lib.ctap2.data.request.BaseGetInfoRequest;
-import com.blue_unicorn.android_auth_lib.ctap2.data.request.BaseMakeCredentialRequest;
-import com.blue_unicorn.android_auth_lib.ctap2.data.request.GetAssertionRequest;
-import com.blue_unicorn.android_auth_lib.ctap2.data.request.GetInfoRequest;
-import com.blue_unicorn.android_auth_lib.ctap2.data.request.MakeCredentialRequest;
-import com.blue_unicorn.android_auth_lib.ctap2.data.request.RequestObject;
-import com.blue_unicorn.android_auth_lib.ctap2.exceptions.InvalidCommandException;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.BaseGetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.BaseGetInfoRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.BaseMakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.GetInfoRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.MakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.RequestObject;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.InvalidCommandException;
 import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.data.Command;
 import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.gson.GsonHelper;
 import com.google.gson.Gson;

@@ -1,18 +1,18 @@
 package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator;
 
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.database.PublicKeyCredentialSource;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.reponse.BaseMakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.reponse.MakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.MakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.AttestationStatement;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PackedAttestationStatement;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialDescriptor;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialParameter;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.CredentialExcludedException;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.InvalidOptionException;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.OperationDeniedException;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.OtherException;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.UnsupportedAlgorithmException;
-import com.blue_unicorn.android_auth_lib.ctap2.data.reponse.BaseMakeCredentialResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.data.reponse.MakeCredentialResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.data.request.MakeCredentialRequest;
-import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.AttestationStatement;
-import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PackedAttestationStatement;
-import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PublicKeyCredentialDescriptor;
-import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PublicKeyCredentialParameter;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
 
