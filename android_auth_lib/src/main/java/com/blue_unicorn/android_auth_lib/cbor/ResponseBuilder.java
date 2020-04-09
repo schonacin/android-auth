@@ -28,7 +28,7 @@ final class ResponseBuilder {
             if(responseObject instanceof GetInfoResponse ||
                     responseObject instanceof MakeCredentialResponse ||
                     responseObject instanceof GetAssertionResponse) {
-                return Single.just(responseObject.serializeToCbor());
+                return Single.fromCallable(() -> CborSerializer.serialize(responseObject));
             } else {
                 return Single.error(new AndroidAuthLibException());
             }
@@ -38,7 +38,6 @@ final class ResponseBuilder {
     @NonNull
     private static Single<byte[]> prependSuccessStatus(byte[] encodedData) {
         return Single.fromCallable(() -> {
-
             byte[] completeResponse = new byte[CTAP1_ERR_SUCCESS.length + encodedData.length];
             System.arraycopy(CTAP1_ERR_SUCCESS, 0, completeResponse, 0, CTAP1_ERR_SUCCESS.length);
             System.arraycopy(encodedData, 0, completeResponse, CTAP1_ERR_SUCCESS.length, encodedData.length);

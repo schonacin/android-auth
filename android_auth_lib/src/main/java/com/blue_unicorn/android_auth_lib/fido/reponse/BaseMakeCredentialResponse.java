@@ -1,10 +1,7 @@
 package com.blue_unicorn.android_auth_lib.fido.reponse;
 
-import com.blue_unicorn.android_auth_lib.cbor.CborSerializer;
+import com.blue_unicorn.android_auth_lib.cbor.SerializedIndex;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.AttestationStatement;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * These serialized names correlate to the specification.
@@ -12,10 +9,13 @@ import java.util.Map;
  */
 public class BaseMakeCredentialResponse implements MakeCredentialResponse {
 
+    @SerializedIndex(1)
     private String fmt;
 
+    @SerializedIndex(2)
     private byte[] authData;
 
+    @SerializedIndex(3)
     private AttestationStatement attStmt;
 
     public BaseMakeCredentialResponse(byte[] authData, AttestationStatement attStmt) {
@@ -40,11 +40,4 @@ public class BaseMakeCredentialResponse implements MakeCredentialResponse {
         this.attStmt = attStmt;
     }
 
-    public byte[] serializeToCbor() {
-        Map<Integer, Object> map = new HashMap<Integer, Object>();
-        map.put(1, this.fmt);
-        map.put(2, this.authData);
-        map.put(3, this.attStmt);
-        return CborSerializer.serialize(map);
-    }
 }

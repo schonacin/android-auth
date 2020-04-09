@@ -1,11 +1,8 @@
 package com.blue_unicorn.android_auth_lib.fido.reponse;
 
-import com.blue_unicorn.android_auth_lib.cbor.CborSerializer;
+import com.blue_unicorn.android_auth_lib.cbor.SerializedIndex;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.PublicKeyCredentialDescriptor;
 import com.blue_unicorn.android_auth_lib.fido.webauthn.PublicKeyCredentialUserEntity;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * These serialized names correlate to the specification.
@@ -14,14 +11,19 @@ import java.util.Map;
 
 public class BaseGetAssertionResponse implements GetAssertionResponse {
 
+    @SerializedIndex(1)
     private PublicKeyCredentialDescriptor credential;
 
+    @SerializedIndex(2)
     private byte[] authData;
 
+    @SerializedIndex(3)
     private byte[] signature;
 
+    @SerializedIndex(4)
     private PublicKeyCredentialUserEntity publicKeyCredentialUserEntity;
 
+    @SerializedIndex(5)
     private Integer numberOfCredentials;
 
     public BaseGetAssertionResponse(PublicKeyCredentialDescriptor credential, byte[] authData, byte[] signature) {
@@ -48,16 +50,6 @@ public class BaseGetAssertionResponse implements GetAssertionResponse {
 
     public void setNumberOfCredentials(int numberOfCredentials) {
         this.numberOfCredentials = numberOfCredentials;
-    }
-
-    public byte[] serializeToCbor() {
-        Map<Integer, Object> map = new HashMap<Integer, Object>();
-        map.put(1, this.credential);
-        map.put(2, this.authData);
-        map.put(3, this.signature);
-        map.put(4, this.publicKeyCredentialUserEntity);
-        map.put(5, this.numberOfCredentials);
-        return CborSerializer.serialize(map);
     }
 
 }

@@ -1,8 +1,7 @@
 package com.blue_unicorn.android_auth_lib.fido.reponse;
 
-import com.blue_unicorn.android_auth_lib.cbor.CborSerializer;
+import com.blue_unicorn.android_auth_lib.cbor.SerializedIndex;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -11,12 +10,16 @@ import java.util.Map;
  */
 public class BaseGetInfoResponse implements GetInfoResponse {
 
+    @SerializedIndex(1)
     private String[] versions;
 
+    @SerializedIndex(3)
     private byte[] aaguid;
 
+    @SerializedIndex(4)
     private Map<String, Boolean> options;
 
+    @SerializedIndex(5)
     private Integer maxMsgSize;
 
     public BaseGetInfoResponse(String[] versions, byte[] aaguid) {
@@ -44,15 +47,6 @@ public class BaseGetInfoResponse implements GetInfoResponse {
 
     public void setMaxMsgSize(int maxMsgSize) {
         this.maxMsgSize = maxMsgSize;
-    }
-
-    public byte[] serializeToCbor() {
-        Map<Integer, Object> map = new HashMap<Integer, Object>();
-        map.put(1, this.versions);
-        map.put(3, this.aaguid);
-        map.put(4, this.options);
-        map.put(5, this.maxMsgSize);
-        return CborSerializer.serialize(map);
     }
 
 }

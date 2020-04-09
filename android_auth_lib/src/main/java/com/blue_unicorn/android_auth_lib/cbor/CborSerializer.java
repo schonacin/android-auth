@@ -1,55 +1,69 @@
 package com.blue_unicorn.android_auth_lib.cbor;
 
+import com.google.gson.annotations.SerializedName;
 import com.upokecenter.cbor.CBOREncodeOptions;
 import com.upokecenter.cbor.CBORObject;
-import com.upokecenter.cbor.CBORType;
 
-import java.util.HashSet;
+import java.lang.reflect.Field;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class CborSerializer {
 
     private static final CBOREncodeOptions ENCODE_OPTIONS = CBOREncodeOptions.DefaultCtap2Canonical;
 
-    // kind of hacky but the best way to remove the null values as of yet
-    private static CBORObject serializeInnerMap(CBORObject cborObject) {
-        if (!cborObject.isNull() && cborObject.getType() == CBORType.Map) {
-            Set<CBORObject> keysToDelete = new HashSet<>();
-            for (CBORObject key: cborObject.getKeys()) {
-
-                if(!cborObject.get(key).isNull() && cborObject.get(key).getType() == CBORType.Map) {
-                    cborObject.Set(key, serializeInnerMap(cborObject.get(key)));
-                }
-                if (cborObject.get(key).isNull()) {
-                    keysToDelete.add(key);
-                }
-            }
-            for(CBORObject key: keysToDelete) {
-                cborObject.Remove(key);
-            }
-        }
-        if(cborObject.size() == 0) {
-            return null;
-        }
-        return cborObject;
+    private static boolean isFinal(Object o) {
+        return o.getClass().isPrimitive() || o.getClass().isArray() || o.getClass() == Integer.class || o.getClass() == String.class || o instanceof Map;
     }
 
-    public static byte[] serialize(Map<Integer, Object> map) {
-        CBORObject cborObject = CBORObject.NewMap();
-        for (int key: map.keySet()) {
-            Object innerObject = map.get(key);
-            if (innerObject != null) {
-                CBORObject innerCborObject = CBORObject.FromObject(innerObject);
-                if (innerCborObject.getType() == CBORType.Map) {
-                    innerCborObject = serializeInnerMap(innerCborObject);
+    private static Map<String, Object> serializeInnerObject(Object o) {
+        Map<String, Object> result = new LinkedHashMap<String, Object>();
+        Field[] fields = o.getClass().getDeclaredFields();
+        for (Field field: fields) {
+            field.setAccessible(true);
+            SerializedName annotation = field.getAnnotation(SerializedName.class);
+            if (annotation == null) {
+                continue;
+            }
+            try {
+                Object value = field.get(o);
+                if (value == null) {
+                    continue;
                 }
-                if (innerCborObject != null) {
-                    cborObject.Add(key, innerCborObject);
+                if (!isFinal(value)) {
+                    value = serializeInnerObject(value);
                 }
+                result.put(annotation.value(), value);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
             }
         }
-        return cborObject.EncodeToBytes(ENCODE_OPTIONS);
+        return result;
+    }
+
+    public static byte[] serialize(Object o) {
+        Map<Integer, Object> result = new LinkedHashMap<Integer, Object>();
+        Field[] fields = o.getClass().getDeclaredFields();
+        for (Field field: fields) {
+            field.setAccessible(true);
+            SerializedIndex annotation = field.getAnnotation(SerializedIndex.class);
+            if (annotation == null) {
+                continue;
+            }
+            try {
+                Object value = field.get(o);
+                if (value == null) {
+                    continue;
+                }
+                if (!isFinal(value)) {
+                    value = serializeInnerObject(value);
+                }
+                result.put(annotation.value(), value);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return CBORObject.FromObject(result).EncodeToBytes(ENCODE_OPTIONS);
     }
 
 }
