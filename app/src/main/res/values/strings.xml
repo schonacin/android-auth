@@ -1,5 +1,3 @@
 <resources>
     <string name="app_name">android-auth</string>
-    <string name="fido_auth_service_connected">Connection to FidoAuthService established!</string>
-    <string name="fido_auth_service_disconnected">Disconnected from FidoAuthService!</string>
 </resources>
