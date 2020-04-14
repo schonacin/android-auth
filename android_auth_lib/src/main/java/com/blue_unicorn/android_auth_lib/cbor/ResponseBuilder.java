@@ -28,7 +28,7 @@ final class ResponseBuilder {
             if(responseObject instanceof GetInfoResponse ||
                     responseObject instanceof MakeCredentialResponse ||
                     responseObject instanceof GetAssertionResponse) {
-                return Single.fromCallable(() -> CborSerializer.serialize(responseObject));
+                return CborSerializer.serialize(responseObject);
             } else {
                 return Single.error(new AndroidAuthLibException());
             }
