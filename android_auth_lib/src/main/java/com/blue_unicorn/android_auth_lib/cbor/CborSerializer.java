@@ -7,6 +7,7 @@ import com.google.gson.annotations.SerializedName;
 import com.upokecenter.cbor.CBOREncodeOptions;
 import com.upokecenter.cbor.CBORObject;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
 import io.reactivex.rxjava3.core.Flowable;
@@ -21,59 +22,65 @@ class CborSerializer {
         return o.getClass().isPrimitive() || o.getClass().isArray() || o.getClass() == Integer.class || o.getClass() == String.class || o instanceof Map;
     }
 
-    private static Single<Map<String, Object>> serializeInnerObject(Object o) {
-        return Single.defer(() -> Single.just(o.getClass().getDeclaredFields())
-                .flatMapPublisher(Flowable::fromArray)
-                .concatMapMaybe(field -> {
-                    field.setAccessible(true);
-                    SerializedName annotation = field.getAnnotation(SerializedName.class);
+    private static Maybe<Object> getMapValue(Field field, Object o) {
+        return Maybe.defer(() -> {
+            field.setAccessible(true);
+            Object fieldValue = field.get(o);
+            if (fieldValue == null) {
+                return Maybe.empty();
+            }
+            return Single.just(fieldValue)
+                    .flatMap(value -> {
+                        if (isFinal(value)) {
+                            return Single.just(value);
+                        } else {
+                            return serializeInnerObject(value);
+                        }
+                    })
+                    .toMaybe();
+        });
+    }
+
+    private static Maybe<String> getMapKeyAsString(Field field) {
+        return Maybe.fromCallable(() -> field.getAnnotation(SerializedName.class))
+                .flatMap(annotation -> {
                     if (annotation == null) {
                         return Maybe.empty();
+                    } else {
+                        return Maybe.just(annotation.value());
                     }
-                    Object value = field.get(o);
-                    if (value == null) {
+                });
+    }
+
+    private static Maybe<Integer> getMapKeyAsInteger(Field field) {
+        return Maybe.fromCallable(() -> field.getAnnotation(SerializedIndex.class))
+                .flatMap(annotation -> {
+                    if (annotation == null) {
                         return Maybe.empty();
+                    } else {
+                        return Maybe.just(annotation.value());
                     }
-                    return Single.just(value)
-                            .flatMap(val -> {
-                                if (isFinal(val)) {
-                                    return Single.just(val);
-                                } else {
-                                    return serializeInnerObject(val);
-                                }
-                            })
-                            .map(val -> Pair.create(annotation.value(), val))
-                            .toMaybe();
-                })
-                .toMap(x -> x.first, x -> x.second)).onErrorResumeNext(throwable -> Single.error(new AuthLibException("Could not serialize object!", throwable)));
+                });
+    }
+
+    private static Flowable<Field> getObjectFields(Object o) {
+        return Single.fromCallable(() -> o.getClass().getDeclaredFields())
+                .flatMapPublisher(Flowable::fromArray);
+    }
+
+    private static Single<Map<String, Object>> serializeInnerObject(Object o) {
+        return getObjectFields(o)
+                .concatMapMaybe(field -> Maybe.zip(getMapKeyAsString(field), getMapValue(field, o), Pair::create))
+                .toMap(x -> x.first, x -> x.second)
+                .onErrorResumeNext(throwable -> Single.error(new AuthLibException("Could not serialize object!", throwable)));
     }
 
     static Single<byte[]> serialize(Object o) {
-        return Single.defer(() -> Single.just(o.getClass().getDeclaredFields())
-                .flatMapPublisher(Flowable::fromArray)
-                .concatMapMaybe(field -> {
-                    field.setAccessible(true);
-                    SerializedIndex annotation = field.getAnnotation(SerializedIndex.class);
-                    if (annotation == null) {
-                        return Maybe.empty();
-                    }
-                    Object value = field.get(o);
-                    if (value == null) {
-                        return Maybe.empty();
-                    }
-                    return Single.just(value)
-                            .flatMap(val -> {
-                                if (isFinal(val)) {
-                                    return Single.just(val);
-                                } else {
-                                    return serializeInnerObject(val);
-                                }
-                            })
-                            .map(val -> Pair.create(annotation.value(), val))
-                            .toMaybe();
-                })
+        return getObjectFields(o)
+                .concatMapMaybe(field -> Maybe.zip(getMapKeyAsInteger(field), getMapValue(field, o), Pair::create))
                 .toMap(x -> x.first, x -> x.second)
-                .map(result -> CBORObject.FromObject(result).EncodeToBytes(ENCODE_OPTIONS))).onErrorResumeNext(throwable -> Single.error(new AuthLibException("Could not serialize object!", throwable)));
+                .map(result -> CBORObject.FromObject(result).EncodeToBytes(ENCODE_OPTIONS))
+                .onErrorResumeNext(throwable -> Single.error(new AuthLibException("Could not serialize object!", throwable)));
     }
 
 }
