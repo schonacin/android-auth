@@ -23,6 +23,7 @@ final class ResponseBuilder {
                 .flatMap(ResponseBuilder::prependSuccessStatus);
     }
 
+    @NonNull
     private static Single<byte[]> mapRespectiveMethodToCBOR(ResponseObject responseObject) {
         return Single.defer(() -> {
             if(responseObject instanceof GetInfoResponse ||
@@ -30,7 +31,7 @@ final class ResponseBuilder {
                     responseObject instanceof GetAssertionResponse) {
                 return CborSerializer.serialize(responseObject);
             } else {
-                return Single.error(new AndroidAuthLibException());
+                return Single.error(new AndroidAuthLibException("Unknown Response Object!"));
             }
         });
     }

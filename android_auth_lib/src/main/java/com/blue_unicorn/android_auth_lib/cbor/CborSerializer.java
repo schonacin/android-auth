@@ -2,6 +2,8 @@ package com.blue_unicorn.android_auth_lib.cbor;
 
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
+
 import com.blue_unicorn.android_auth_lib.AuthLibException;
 import com.google.gson.annotations.SerializedName;
 import com.upokecenter.cbor.CBOREncodeOptions;
@@ -14,12 +16,43 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Single;
 
-class CborSerializer {
+final class CborSerializer {
 
     private static final CBOREncodeOptions ENCODE_OPTIONS = CBOREncodeOptions.DefaultCtap2Canonical;
 
+    /*
+     * Serializes Response Objects.
+     * Transformes Objects to Maps (nested objects are transformed as well)
+     * which get encoded to a CBOR Canonical Byte Array based on the CTAP2 specification
+     *
+     * */
+
+    private CborSerializer() {
+    }
+
+    @NonNull
+    static Single<byte[]> serialize(Object o) {
+        return getObjectFields(o)
+                .concatMapMaybe(field -> Maybe.zip(getMapKeyAsInteger(field), getMapValue(field, o), Pair::create))
+                .toMap(x -> x.first, x -> x.second)
+                .map(result -> CBORObject.FromObject(result).EncodeToBytes(ENCODE_OPTIONS))
+                .onErrorResumeNext(throwable -> Single.error(new AuthLibException("Could not serialize object!", throwable)));
+    }
+
+    private static Single<Map<String, Object>> serializeInnerObject(Object o) {
+        return getObjectFields(o)
+                .concatMapMaybe(field -> Maybe.zip(getMapKeyAsString(field), getMapValue(field, o), Pair::create))
+                .toMap(x -> x.first, x -> x.second)
+                .onErrorResumeNext(throwable -> Single.error(new AuthLibException("Could not serialize object!", throwable)));
+    }
+
     private static boolean isFinal(Object o) {
         return o.getClass().isPrimitive() || o.getClass().isArray() || o.getClass() == Integer.class || o.getClass() == String.class || o instanceof Map;
+    }
+
+    private static Flowable<Field> getObjectFields(Object o) {
+        return Single.fromCallable(() -> o.getClass().getDeclaredFields())
+                .flatMapPublisher(Flowable::fromArray);
     }
 
     private static Maybe<Object> getMapValue(Field field, Object o) {
@@ -29,15 +62,14 @@ class CborSerializer {
             if (fieldValue == null) {
                 return Maybe.empty();
             }
-            return Single.just(fieldValue)
-                    .flatMap(value -> {
+            return Maybe.just(fieldValue)
+                    .flatMapSingle(value -> {
                         if (isFinal(value)) {
                             return Single.just(value);
                         } else {
                             return serializeInnerObject(value);
                         }
-                    })
-                    .toMaybe();
+                    });
         });
     }
 
@@ -61,26 +93,6 @@ class CborSerializer {
                         return Maybe.just(annotation.value());
                     }
                 });
-    }
-
-    private static Flowable<Field> getObjectFields(Object o) {
-        return Single.fromCallable(() -> o.getClass().getDeclaredFields())
-                .flatMapPublisher(Flowable::fromArray);
-    }
-
-    private static Single<Map<String, Object>> serializeInnerObject(Object o) {
-        return getObjectFields(o)
-                .concatMapMaybe(field -> Maybe.zip(getMapKeyAsString(field), getMapValue(field, o), Pair::create))
-                .toMap(x -> x.first, x -> x.second)
-                .onErrorResumeNext(throwable -> Single.error(new AuthLibException("Could not serialize object!", throwable)));
-    }
-
-    static Single<byte[]> serialize(Object o) {
-        return getObjectFields(o)
-                .concatMapMaybe(field -> Maybe.zip(getMapKeyAsInteger(field), getMapValue(field, o), Pair::create))
-                .toMap(x -> x.first, x -> x.second)
-                .map(result -> CBORObject.FromObject(result).EncodeToBytes(ENCODE_OPTIONS))
-                .onErrorResumeNext(throwable -> Single.error(new AuthLibException("Could not serialize object!", throwable)));
     }
 
 }
