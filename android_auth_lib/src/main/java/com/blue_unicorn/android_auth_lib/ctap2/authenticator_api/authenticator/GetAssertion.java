@@ -1,16 +1,16 @@
 package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator;
 
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.database.PublicKeyCredentialSource;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.reponse.BaseGetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.reponse.GetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.BasePublicKeyCredentialDescriptor;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialDescriptor;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.AuthLibException;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.InvalidOptionException;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.NoCredentialsException;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.OperationDeniedException;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.OtherException;
-import com.blue_unicorn.android_auth_lib.ctap2.data.reponse.BaseGetAssertionResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.data.reponse.GetAssertionResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.data.request.GetAssertionRequest;
-import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.BasePublicKeyCredentialDescriptor;
-import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PublicKeyCredentialDescriptor;
-import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
 

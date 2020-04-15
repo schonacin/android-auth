@@ -1,7 +1,7 @@
 package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator;
 
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.database.PublicKeyCredentialSource;
-import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.AuthLibException;
 
 import java.nio.ByteBuffer;
 import java.security.KeyPair;
