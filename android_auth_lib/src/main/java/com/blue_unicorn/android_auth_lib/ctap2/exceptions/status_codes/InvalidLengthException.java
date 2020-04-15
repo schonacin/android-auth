@@ -1,6 +1,8 @@
-package com.blue_unicorn.android_auth_lib.ctap2.message_encoding.exceptions;
+package com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes;
 
-public class InvalidLengthException extends AndroidAuthLibException {
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.StatusCodeException;
+
+public class InvalidLengthException extends StatusCodeException {
 
     public InvalidLengthException() {
     }

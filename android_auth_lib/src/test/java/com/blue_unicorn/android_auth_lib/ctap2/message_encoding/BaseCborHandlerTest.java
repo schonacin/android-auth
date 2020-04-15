@@ -19,9 +19,9 @@ import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PackedAttestationSt
 import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PublicKeyCredentialDescriptor;
 import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PublicKeyCredentialRpEntity;
 import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PublicKeyCredentialUserEntity;
-import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.exceptions.InvalidCommandException;
-import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.exceptions.InvalidLengthException;
-import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.exceptions.InvalidParameterException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidCommandException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidLengthException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidParameterException;
 
 import org.junit.Before;
 import org.junit.Test;

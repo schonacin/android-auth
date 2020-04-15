@@ -6,7 +6,9 @@ import com.blue_unicorn.android_auth_lib.ctap2.data.response.GetAssertionRespons
 import com.blue_unicorn.android_auth_lib.ctap2.data.response.GetInfoResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.data.response.MakeCredentialResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.data.response.ResponseObject;
-import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.exceptions.AndroidAuthLibException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.StatusCodeException;
+import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 
 import io.reactivex.rxjava3.core.Single;
 
@@ -31,19 +33,13 @@ final class ResponseBuilder {
                     responseObject instanceof GetAssertionResponse) {
                 return CborSerializer.serialize(responseObject);
             } else {
-                return Single.error(new AndroidAuthLibException("Unknown Response Object!"));
+                return Single.error(new AuthLibException("Unknown Response Object!"));
             }
         });
     }
 
     @NonNull
     private static Single<byte[]> prependSuccessStatus(byte[] encodedData) {
-        return Single.fromCallable(() -> {
-            byte[] completeResponse = new byte[CTAP1_ERR_SUCCESS.length + encodedData.length];
-            System.arraycopy(CTAP1_ERR_SUCCESS, 0, completeResponse, 0, CTAP1_ERR_SUCCESS.length);
-            System.arraycopy(encodedData, 0, completeResponse, CTAP1_ERR_SUCCESS.length, encodedData.length);
-
-            return completeResponse;
-        });
+        return Single.fromCallable(() -> ArrayUtil.concatBytes(CTAP1_ERR_SUCCESS, encodedData));
     }
 }
