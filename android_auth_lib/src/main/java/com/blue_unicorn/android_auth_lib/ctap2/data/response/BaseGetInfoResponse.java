@@ -1,6 +1,6 @@
 package com.blue_unicorn.android_auth_lib.ctap2.data.response;
 
-import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.annotation.SerializedIndex;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.annotations.SerializedIndex;
 
 import java.util.Map;
 

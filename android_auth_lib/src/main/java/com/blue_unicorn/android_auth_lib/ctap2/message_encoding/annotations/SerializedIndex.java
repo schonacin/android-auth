@@ -1,4 +1,4 @@
-package com.blue_unicorn.android_auth_lib.ctap2.message_encoding.annotation;
+package com.blue_unicorn.android_auth_lib.ctap2.message_encoding.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

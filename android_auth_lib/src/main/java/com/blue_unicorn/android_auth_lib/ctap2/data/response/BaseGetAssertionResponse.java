@@ -2,7 +2,7 @@ package com.blue_unicorn.android_auth_lib.ctap2.data.response;
 
 import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PublicKeyCredentialDescriptor;
 import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PublicKeyCredentialUserEntity;
-import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.annotation.SerializedIndex;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.annotations.SerializedIndex;
 
 /**
  * These serialized names correlate to the specification.

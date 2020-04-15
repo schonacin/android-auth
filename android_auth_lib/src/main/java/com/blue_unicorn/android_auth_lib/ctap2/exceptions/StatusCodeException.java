@@ -6,6 +6,10 @@ package com.blue_unicorn.android_auth_lib.ctap2.exceptions;
  */
 public abstract class StatusCodeException extends Exception {
 
+    //TODO: add status codes + create respective constant classes
+    // also think about best location (in the specification it's under Message Encoding
+    // but the API Methods need to have access to them as well
+
     public StatusCodeException() {
     }
 

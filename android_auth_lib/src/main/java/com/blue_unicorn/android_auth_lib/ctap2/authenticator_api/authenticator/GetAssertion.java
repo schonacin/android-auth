@@ -65,6 +65,7 @@ public class GetAssertion {
             if (request.isValid()) {
                 return Completable.complete();
             } else {
+                // TODO: change to respective error
                 return Completable.error(OtherException::new);
             }
         });
