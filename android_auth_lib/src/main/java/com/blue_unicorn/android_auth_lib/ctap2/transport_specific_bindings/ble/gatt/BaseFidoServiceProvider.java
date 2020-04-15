@@ -13,7 +13,7 @@ import java.util.UUID;
 public class BaseFidoServiceProvider implements FidoServiceProvider {
 
     @Override
-    public RxBleService getDeviceInformationService() {
+    public RxBleService getFidoService() {
         return new ServiceBuilder(UUID.fromString("0000FFFD-0000-1000-8000-00805F9B34FB"))
                 .withCharacteristic(getFidoControlPointCharacteristic())
                 .withCharacteristic(getFidoStatusCharacteristic())
