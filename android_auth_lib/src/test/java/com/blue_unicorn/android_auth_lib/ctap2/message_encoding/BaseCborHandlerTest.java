@@ -2,15 +2,26 @@ package com.blue_unicorn.android_auth_lib.ctap2.message_encoding;
 
 import android.util.Base64;
 
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.BaseGetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.BaseGetInfoResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.BaseMakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.GetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.GetInfoResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.MakeCredentialResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.data.request.GetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.data.request.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.data.request.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.data.request.RequestObject;
+import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.AttestationStatement;
+import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.BasePublicKeyCredentialDescriptor;
+import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.BasePublicKeyCredentialUserEntity;
+import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PackedAttestationStatement;
+import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PublicKeyCredentialDescriptor;
 import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PublicKeyCredentialRpEntity;
 import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PublicKeyCredentialUserEntity;
-import com.blue_unicorn.android_auth_lib.ctap2.exceptions.InvalidCommandException;
-import com.blue_unicorn.android_auth_lib.ctap2.exceptions.InvalidLengthException;
-import com.blue_unicorn.android_auth_lib.ctap2.exceptions.InvalidParameterException;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.exceptions.InvalidCommandException;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.exceptions.InvalidLengthException;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.exceptions.InvalidParameterException;
 
 import org.junit.Before;
 import org.junit.Test;

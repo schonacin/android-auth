@@ -1,4 +1,4 @@
-package com.blue_unicorn.android_auth_lib.ctap2.exceptions;
+package com.blue_unicorn.android_auth_lib.ctap2.message_encoding.exceptions;
 
 public class InvalidCommandException extends AndroidAuthLibException {
 

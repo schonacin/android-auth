@@ -1,7 +1,5 @@
 package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions;
 
-import android.accounts.AuthenticatorException;
-
 public class CredentialExcludedException extends AuthenticatorException {
 
     public CredentialExcludedException() {

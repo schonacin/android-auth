@@ -1,12 +1,12 @@
-package com.blue_unicorn.android_auth_lib.cbor;
+package com.blue_unicorn.android_auth_lib.ctap2.message_encoding;
 
 import androidx.annotation.NonNull;
 
-import com.blue_unicorn.android_auth_lib.exception.AndroidAuthLibException;
-import com.blue_unicorn.android_auth_lib.fido.reponse.GetAssertionResponse;
-import com.blue_unicorn.android_auth_lib.fido.reponse.GetInfoResponse;
-import com.blue_unicorn.android_auth_lib.fido.reponse.MakeCredentialResponse;
-import com.blue_unicorn.android_auth_lib.fido.reponse.ResponseObject;
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.GetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.GetInfoResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.MakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.ResponseObject;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.exceptions.AndroidAuthLibException;
 
 import io.reactivex.rxjava3.core.Single;
 
@@ -26,7 +26,7 @@ final class ResponseBuilder {
     @NonNull
     private static Single<byte[]> mapRespectiveMethodToCBOR(ResponseObject responseObject) {
         return Single.defer(() -> {
-            if(responseObject instanceof GetInfoResponse ||
+            if (responseObject instanceof GetInfoResponse ||
                     responseObject instanceof MakeCredentialResponse ||
                     responseObject instanceof GetAssertionResponse) {
                 return CborSerializer.serialize(responseObject);

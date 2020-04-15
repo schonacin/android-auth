@@ -6,8 +6,8 @@ import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.Inva
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.OperationDeniedException;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.OtherException;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.UnsupportedAlgorithmException;
-import com.blue_unicorn.android_auth_lib.ctap2.data.reponse.BaseMakeCredentialResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.data.reponse.MakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.BaseMakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.MakeCredentialResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.data.request.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.AttestationStatement;
 import com.blue_unicorn.android_auth_lib.ctap2.data.webauthn.PackedAttestationStatement;

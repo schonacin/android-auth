@@ -3,7 +3,7 @@ package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api;
 import android.content.Context;
 
 import com.blue_unicorn.android_auth_lib.ctap2.data.FidoObject;
-import com.blue_unicorn.android_auth_lib.ctap2.data.reponse.ResponseObject;
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.ResponseObject;
 import com.blue_unicorn.android_auth_lib.ctap2.data.request.GetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.data.request.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.data.request.MakeCredentialRequest;

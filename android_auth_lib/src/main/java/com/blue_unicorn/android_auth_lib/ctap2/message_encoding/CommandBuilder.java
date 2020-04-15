@@ -2,10 +2,10 @@ package com.blue_unicorn.android_auth_lib.ctap2.message_encoding;
 
 import androidx.annotation.NonNull;
 
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.exceptions.InvalidLengthException;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.exceptions.InvalidParameterException;
 import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.data.BaseCommand;
 import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.data.Command;
-import com.blue_unicorn.android_auth_lib.ctap2.exceptions.InvalidLengthException;
-import com.blue_unicorn.android_auth_lib.ctap2.exceptions.InvalidParameterException;
 import com.upokecenter.cbor.CBOREncodeOptions;
 import com.upokecenter.cbor.CBORObject;
 

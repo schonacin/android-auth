@@ -6,9 +6,9 @@ import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.C
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.GetAssertion;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.GetInfo;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.MakeCredential;
-import com.blue_unicorn.android_auth_lib.ctap2.data.reponse.GetAssertionResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.data.reponse.GetInfoResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.data.reponse.MakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.GetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.GetInfoResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.response.MakeCredentialResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.data.request.GetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.data.request.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.data.request.MakeCredentialRequest;

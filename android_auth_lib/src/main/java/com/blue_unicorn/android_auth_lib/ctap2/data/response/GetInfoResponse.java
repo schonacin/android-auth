@@ -1,4 +1,4 @@
-package com.blue_unicorn.android_auth_lib.ctap2.data.reponse;
+package com.blue_unicorn.android_auth_lib.ctap2.data.response;
 
 import java.util.Map;
 

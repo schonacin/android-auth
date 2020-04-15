@@ -1,5 +1,7 @@
 package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions;
 
+// TODO: explain + merge with encoding exceptions
+
 public class AuthenticatorException extends Exception {
 
     public AuthenticatorException() {
