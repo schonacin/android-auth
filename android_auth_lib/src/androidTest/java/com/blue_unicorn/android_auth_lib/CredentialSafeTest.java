@@ -4,8 +4,8 @@ import android.content.Context;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.blue_unicorn.android_auth_lib.api.authenticator.CredentialSafe;
-import com.blue_unicorn.android_auth_lib.api.authenticator.database.PublicKeyCredentialSource;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.CredentialSafe;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.database.PublicKeyCredentialSource;
 
 import org.junit.After;
 import org.junit.Before;

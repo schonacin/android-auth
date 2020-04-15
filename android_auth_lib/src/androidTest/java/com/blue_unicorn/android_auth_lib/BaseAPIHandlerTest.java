@@ -5,22 +5,22 @@ import android.util.Base64;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.blue_unicorn.android_auth_lib.api.APIHandler;
-import com.blue_unicorn.android_auth_lib.api.BaseAPIHandler;
-import com.blue_unicorn.android_auth_lib.api.authenticator.CredentialSafe;
-import com.blue_unicorn.android_auth_lib.api.exceptions.InvalidOptionException;
-import com.blue_unicorn.android_auth_lib.api.exceptions.NoCredentialsException;
-import com.blue_unicorn.android_auth_lib.api.exceptions.OperationDeniedException;
-import com.blue_unicorn.android_auth_lib.api.exceptions.UnsupportedAlgorithmException;
-import com.blue_unicorn.android_auth_lib.cbor.BaseCborHandler;
-import com.blue_unicorn.android_auth_lib.cbor.CborHandler;
-import com.blue_unicorn.android_auth_lib.fido.reponse.GetAssertionResponse;
-import com.blue_unicorn.android_auth_lib.fido.reponse.GetInfoResponse;
-import com.blue_unicorn.android_auth_lib.fido.reponse.MakeCredentialResponse;
-import com.blue_unicorn.android_auth_lib.fido.request.BaseGetInfoRequest;
-import com.blue_unicorn.android_auth_lib.fido.request.GetAssertionRequest;
-import com.blue_unicorn.android_auth_lib.fido.request.GetInfoRequest;
-import com.blue_unicorn.android_auth_lib.fido.request.MakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.APIHandler;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.BaseAPIHandler;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.CredentialSafe;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.InvalidOptionException;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.NoCredentialsException;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.OperationDeniedException;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.UnsupportedAlgorithmException;
+import com.blue_unicorn.android_auth_lib.ctap2.data.reponse.GetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.reponse.GetInfoResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.reponse.MakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.data.request.BaseGetInfoRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.data.request.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.data.request.GetInfoRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.data.request.MakeCredentialRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.BaseCborHandler;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.CborHandler;
 
 import org.junit.After;
 import org.junit.Before;
