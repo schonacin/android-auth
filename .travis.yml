@@ -5,7 +5,7 @@ env:
   global:
     - ANDROID_BUILD_TOOLS=29.0.0
     - ANDROID_API_LEVEL=29
-    - EMULATOR_API_LEVEL=24
+    - EMULATOR_API_LEVEL=23
 
 android:
   components:
