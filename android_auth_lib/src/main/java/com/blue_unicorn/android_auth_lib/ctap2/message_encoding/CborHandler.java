@@ -2,8 +2,8 @@ package com.blue_unicorn.android_auth_lib.ctap2.message_encoding;
 
 import androidx.annotation.NonNull;
 
-import com.blue_unicorn.android_auth_lib.ctap2.data.request.RequestObject;
-import com.blue_unicorn.android_auth_lib.ctap2.data.response.ResponseObject;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.RequestObject;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.ResponseObject;
 
 import io.reactivex.rxjava3.core.Single;
 

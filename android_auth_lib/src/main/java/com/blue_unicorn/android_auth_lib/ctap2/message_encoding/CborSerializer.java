@@ -4,8 +4,8 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 
-import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.annotations.SerializedIndex;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.annotations.SerializedIndex;
 import com.google.gson.annotations.SerializedName;
 import com.upokecenter.cbor.CBOREncodeOptions;
 import com.upokecenter.cbor.CBORObject;

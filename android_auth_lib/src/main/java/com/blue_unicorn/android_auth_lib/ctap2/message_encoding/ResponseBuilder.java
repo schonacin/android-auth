@@ -2,12 +2,11 @@ package com.blue_unicorn.android_auth_lib.ctap2.message_encoding;
 
 import androidx.annotation.NonNull;
 
-import com.blue_unicorn.android_auth_lib.ctap2.data.response.GetAssertionResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.data.response.GetInfoResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.data.response.MakeCredentialResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.data.response.ResponseObject;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.GetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.GetInfoResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.MakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.ResponseObject;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
-import com.blue_unicorn.android_auth_lib.ctap2.exceptions.StatusCodeException;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 
 import io.reactivex.rxjava3.core.Single;
