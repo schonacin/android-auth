@@ -6,6 +6,12 @@ import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.Ge
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.RequestObject;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseGetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseGetInfoResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseMakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.GetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.GetInfoResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.MakeCredentialResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.AttestationStatement;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.BasePublicKeyCredentialDescriptor;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.BasePublicKeyCredentialUserEntity;
@@ -13,12 +19,6 @@ import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.P
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialDescriptor;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialRpEntity;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialUserEntity;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseGetAssertionResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseGetInfoResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseMakeCredentialResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.GetAssertionResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.GetInfoResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.MakeCredentialResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidCommandException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidLengthException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidParameterException;
@@ -176,13 +176,13 @@ public class BaseCborHandlerTest {
         GetInfoResponse response = new BaseGetInfoResponse(versions, aaguid, options, maxMsgSize);
 
         byte[] encodedResponse =
-        cborHandler.encode(response)
-                .test()
-                .assertNoErrors()
-                .assertComplete()
-                .assertValueCount(1)
-                .values()
-                .get(0);
+                cborHandler.encode(response)
+                        .test()
+                        .assertNoErrors()
+                        .assertComplete()
+                        .assertValueCount(1)
+                        .values()
+                        .get(0);
 
         byte[] ENCODED_GET_INFO_RESPONSE = Base64.decode("AKQBgWhGSURPXzJfMANQ8dCxjhABSoFDQRyhBADx0AShYnJr9QUZBAA=", Base64.DEFAULT);
 
@@ -200,13 +200,13 @@ public class BaseCborHandlerTest {
         MakeCredentialResponse response = new BaseMakeCredentialResponse(authData, attStmt);
 
         byte[] encodedResponse =
-        cborHandler.encode(response)
-                .test()
-                .assertNoErrors()
-                .assertComplete()
-                .assertValueCount(1)
-                .values()
-                .get(0);
+                cborHandler.encode(response)
+                        .test()
+                        .assertNoErrors()
+                        .assertComplete()
+                        .assertValueCount(1)
+                        .values()
+                        .get(0);
 
         final byte[] ENCODED_MAKE_CREDENTIAL_RESPONSE = Base64.decode("AKMBZnBhY2tlZAJYjRI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4qwOiY2FsZyZjc2lnVBoaGhoaGhoaGhoaGhoaKysrKysr", Base64.DEFAULT);
 
