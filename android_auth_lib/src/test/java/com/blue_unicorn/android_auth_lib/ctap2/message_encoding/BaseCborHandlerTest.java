@@ -63,7 +63,6 @@ public class BaseCborHandlerTest {
     public void makeCredentialRequest_transformsWithNoErrors() {
         cborHandler.decode(RAW_MAKE_CREDENTIAL_REQUEST)
                 .test()
-                .assertNoErrors()
                 .assertComplete();
     }
 
@@ -100,7 +99,6 @@ public class BaseCborHandlerTest {
     public void getAssertionRequest_transformsWithNoErrors() {
         cborHandler.decode(RAW_GET_ASSERTION_REQUEST)
                 .test()
-                .assertNoErrors()
                 .assertComplete();
     }
 
@@ -129,7 +127,6 @@ public class BaseCborHandlerTest {
     public void getInfoRequest_transformsWithNoErrors() {
         cborHandler.decode(RAW_GET_INFO_REQUEST)
                 .test()
-                .assertNoErrors()
                 .assertComplete();
     }
 
@@ -174,21 +171,14 @@ public class BaseCborHandlerTest {
         String[] versions = new String[]{"FIDO_2_0"};
 
         GetInfoResponse response = new BaseGetInfoResponse(versions, aaguid, options, maxMsgSize);
-
-        byte[] encodedResponse =
-                cborHandler.encode(response)
-                        .test()
-                        .assertNoErrors()
-                        .assertComplete()
-                        .assertValueCount(1)
-                        .values()
-                        .get(0);
-
         byte[] ENCODED_GET_INFO_RESPONSE = Base64.decode("AKQBgWhGSURPXzJfMANQ8dCxjhABSoFDQRyhBADx0AShYnJr9QUZBAA=", Base64.DEFAULT);
 
-        String answer = Base64.encodeToString(encodedResponse, Base64.DEFAULT);
-
-        assertThat(encodedResponse, is(ENCODED_GET_INFO_RESPONSE));
+        cborHandler.encode(response)
+                .map(input -> Base64.encodeToString(input, Base64.DEFAULT))
+                .test()
+                .assertComplete()
+                .assertValueCount(1)
+                .assertValue(Base64.encodeToString(ENCODED_GET_INFO_RESPONSE, Base64.DEFAULT));
     }
 
     @Test
@@ -198,21 +188,14 @@ public class BaseCborHandlerTest {
         AttestationStatement attStmt = new PackedAttestationStatement(sig);
 
         MakeCredentialResponse response = new BaseMakeCredentialResponse(authData, attStmt);
-
-        byte[] encodedResponse =
-                cborHandler.encode(response)
-                        .test()
-                        .assertNoErrors()
-                        .assertComplete()
-                        .assertValueCount(1)
-                        .values()
-                        .get(0);
-
         final byte[] ENCODED_MAKE_CREDENTIAL_RESPONSE = Base64.decode("AKMBZnBhY2tlZAJYjRI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4qwOiY2FsZyZjc2lnVBoaGhoaGhoaGhoaGhoaKysrKysr", Base64.DEFAULT);
 
-        String answer = Base64.encodeToString(encodedResponse, Base64.DEFAULT);
-
-        assertThat(encodedResponse, is(ENCODED_MAKE_CREDENTIAL_RESPONSE));
+        cborHandler.encode(response)
+                .map(input -> Base64.encodeToString(input, Base64.DEFAULT))
+                .test()
+                .assertComplete()
+                .assertValueCount(1)
+                .assertValue(Base64.encodeToString(ENCODED_MAKE_CREDENTIAL_RESPONSE, Base64.DEFAULT));
     }
 
     @Test
@@ -226,20 +209,14 @@ public class BaseCborHandlerTest {
         PublicKeyCredentialUserEntity publicKeyCredentialUserEntity = new BasePublicKeyCredentialUserEntity(Base64.decode("EjRWeJCrze8SNFZ4kKvN7w==", Base64.DEFAULT));
         response.setPublicKeyCredentialUserEntity(publicKeyCredentialUserEntity);
 
-        byte[] encodedResponse =
-                cborHandler.encode(response)
-                        .test()
-                        .assertNoErrors()
-                        .assertComplete()
-                        .assertValueCount(1)
-                        .values()
-                        .get(0);
-
         final byte[] ENCODED_GET_ASSERTION_RESPONSE = Base64.decode("AKQBomJpZEgSNFZ4kKvN72R0eXBlanB1YmxpYy1rZXkCWI0SNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKsDVBoaGhoaGhoaGhoaGhoaKysrKysrBKFiaWRQEjRWeJCrze8SNFZ4kKvN7w==", Base64.DEFAULT);
 
-        String answer = Base64.encodeToString(encodedResponse, Base64.DEFAULT);
-
-        assertThat(encodedResponse, is(ENCODED_GET_ASSERTION_RESPONSE));
+        cborHandler.encode(response)
+                .map(input -> Base64.encodeToString(input, Base64.DEFAULT))
+                .test()
+                .assertComplete()
+                .assertValueCount(1)
+                .assertValue(Base64.encodeToString(ENCODED_GET_ASSERTION_RESPONSE, Base64.DEFAULT));
     }
 
 }

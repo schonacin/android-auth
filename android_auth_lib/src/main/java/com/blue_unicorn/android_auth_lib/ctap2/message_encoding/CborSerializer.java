@@ -17,6 +17,7 @@ import java.util.Map;
 
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 
 final class CborSerializer {
@@ -95,43 +96,27 @@ final class CborSerializer {
         return o instanceof List<?>;
     }
 
-    private static Flowable<Field> getObjectFields(Object o) {
+    private static Observable<Field> getObjectFields(Object o) {
         return Single.fromCallable(() -> o.getClass().getDeclaredFields())
-                .flatMapPublisher(Flowable::fromArray);
+                .flatMapObservable(Observable::fromArray);
     }
 
     private static Maybe<Object> getMapValue(Field field, Object o) {
         return Maybe.defer(() -> {
             field.setAccessible(true);
             Object fieldValue = field.get(o);
-            if (fieldValue == null) {
-                return Maybe.empty();
-            } else {
-                return processObject(fieldValue);
-            }
+            return processObject(fieldValue);
         });
     }
 
     private static Maybe<String> getMapKeyAsString(Field field) {
         return Maybe.fromCallable(() -> field.getAnnotation(SerializedName.class))
-                .flatMap(annotation -> {
-                    if (annotation == null) {
-                        return Maybe.empty();
-                    } else {
-                        return Maybe.just(annotation.value());
-                    }
-                });
+                .map(SerializedName::value);
     }
 
     private static Maybe<Integer> getMapKeyAsInteger(Field field) {
         return Maybe.fromCallable(() -> field.getAnnotation(SerializedIndex.class))
-                .flatMap(annotation -> {
-                    if (annotation == null) {
-                        return Maybe.empty();
-                    } else {
-                        return Maybe.just(annotation.value());
-                    }
-                });
+                .map(SerializedIndex::value);
     }
 
 }

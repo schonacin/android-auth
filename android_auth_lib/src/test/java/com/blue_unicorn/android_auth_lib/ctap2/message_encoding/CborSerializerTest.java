@@ -29,20 +29,14 @@ public class CborSerializerTest {
         allowList.add(descriptor3);
         allowList.add(descriptor2);
 
-        byte[] encodedResponse =
-            CborSerializer.serializeOther(allowList)
-                    .test()
-                    .assertNoErrors()
-                    .assertComplete()
-                    .assertValueCount(1)
-                    .values()
-                    .get(0);
-
         final byte[] ENCODED_GET_ASSERTION_RESPONSE = Base64.decode("g6JiaWREAAAAAWR0eXBlanB1YmxpYy1rZXmiYmlkRAAAAANkdHlwZWpwdWJsaWMta2V5omJpZEQAAAACZHR5cGVqcHVibGljLWtleQ==", Base64.DEFAULT);
 
-        String answer = Base64.encodeToString(encodedResponse, Base64.DEFAULT);
-
-        assertThat(encodedResponse, is(ENCODED_GET_ASSERTION_RESPONSE));
+        CborSerializer.serializeOther(allowList)
+                .map(input -> Base64.encodeToString(input, Base64.DEFAULT))
+                .test()
+                .assertComplete()
+                .assertValueCount(1)
+                .assertValue(Base64.encodeToString(ENCODED_GET_ASSERTION_RESPONSE, Base64.DEFAULT));
     }
 
 }
