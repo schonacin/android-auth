@@ -176,9 +176,8 @@ public class BaseCborHandlerTest {
         cborHandler.encode(response)
                 .map(input -> Base64.encodeToString(input, Base64.DEFAULT))
                 .test()
-                .assertComplete()
-                .assertValueCount(1)
-                .assertValue(Base64.encodeToString(ENCODED_GET_INFO_RESPONSE, Base64.DEFAULT));
+                .assertValue(Base64.encodeToString(ENCODED_GET_INFO_RESPONSE, Base64.DEFAULT))
+                .assertComplete();
     }
 
     @Test
@@ -193,9 +192,8 @@ public class BaseCborHandlerTest {
         cborHandler.encode(response)
                 .map(input -> Base64.encodeToString(input, Base64.DEFAULT))
                 .test()
-                .assertComplete()
-                .assertValueCount(1)
-                .assertValue(Base64.encodeToString(ENCODED_MAKE_CREDENTIAL_RESPONSE, Base64.DEFAULT));
+                .assertValue(Base64.encodeToString(ENCODED_MAKE_CREDENTIAL_RESPONSE, Base64.DEFAULT))
+                .assertComplete();
     }
 
     @Test
@@ -214,9 +212,8 @@ public class BaseCborHandlerTest {
         cborHandler.encode(response)
                 .map(input -> Base64.encodeToString(input, Base64.DEFAULT))
                 .test()
-                .assertComplete()
-                .assertValueCount(1)
-                .assertValue(Base64.encodeToString(ENCODED_GET_ASSERTION_RESPONSE, Base64.DEFAULT));
+                .assertValue(Base64.encodeToString(ENCODED_GET_ASSERTION_RESPONSE, Base64.DEFAULT))
+                .assertComplete();
     }
 
 }

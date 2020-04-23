@@ -12,15 +12,12 @@ import org.robolectric.RobolectricTestRunner;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 @RunWith(RobolectricTestRunner.class)
 public class CborSerializerTest {
 
-    private static PublicKeyCredentialDescriptor descriptor1 = new BasePublicKeyCredentialDescriptor(new byte[]{0,0,0,1});
-    private static PublicKeyCredentialDescriptor descriptor2 = new BasePublicKeyCredentialDescriptor(new byte[]{0,0,0,2});
-    private static PublicKeyCredentialDescriptor descriptor3 = new BasePublicKeyCredentialDescriptor(new byte[]{0,0,0,3});
+    private static PublicKeyCredentialDescriptor descriptor1 = new BasePublicKeyCredentialDescriptor(new byte[]{0, 0, 0, 1});
+    private static PublicKeyCredentialDescriptor descriptor2 = new BasePublicKeyCredentialDescriptor(new byte[]{0, 0, 0, 2});
+    private static PublicKeyCredentialDescriptor descriptor3 = new BasePublicKeyCredentialDescriptor(new byte[]{0, 0, 0, 3});
 
     @Test
     public void list_serializesCorrectly() {
@@ -34,9 +31,8 @@ public class CborSerializerTest {
         CborSerializer.serializeOther(allowList)
                 .map(input -> Base64.encodeToString(input, Base64.DEFAULT))
                 .test()
-                .assertComplete()
-                .assertValueCount(1)
-                .assertValue(Base64.encodeToString(ENCODED_GET_ASSERTION_RESPONSE, Base64.DEFAULT));
+                .assertValue(Base64.encodeToString(ENCODED_GET_ASSERTION_RESPONSE, Base64.DEFAULT))
+                .assertComplete();
     }
 
 }

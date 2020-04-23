@@ -97,7 +97,7 @@ final class CborSerializer {
     }
 
     private static Observable<Field> getObjectFields(Object o) {
-        return Single.fromCallable(() -> o.getClass().getDeclaredFields())
+        return Single.just(o.getClass().getDeclaredFields())
                 .flatMapObservable(Observable::fromArray);
     }
 
