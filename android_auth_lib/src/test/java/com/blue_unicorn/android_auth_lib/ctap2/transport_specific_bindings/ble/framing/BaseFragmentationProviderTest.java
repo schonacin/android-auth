@@ -24,9 +24,8 @@ import io.reactivex.rxjava3.core.Single;
 @RunWith(RobolectricTestRunner.class)
 public class BaseFragmentationProviderTest {
 
-    private BaseFragmentationProvider fragmentationProvider;
-
     private static final String DATA = "AqMBa3dlYmF1dGhuLmlvAlggKHoBf5KQFW9lYY8TQuuWUy5XaniGCiXMOwnLsJWT97kDgaJiaWRYIHzgvvInjhDEdHX93htNxyBN+XPVqKiu0U8yJ0QkqOVCZHR5cGVqcHVibGljLWtleQ==";
+    private BaseFragmentationProvider fragmentationProvider;
 
     @Before
     public void setUp() {
@@ -74,7 +73,7 @@ public class BaseFragmentationProviderTest {
         byte[] TEST_FRAME_TO_ONE_WRAPAROUND_FRAME_DATA = new byte[0xc64];
         System.arraycopy(Base64.decode(DATA, Base64.DEFAULT), 0, TEST_FRAME_TO_ONE_WRAPAROUND_FRAME_DATA, 0, 21);
         // same continuation fragment is used multiple times
-        for(int i = 1; i < 0x8A; i++)
+        for (int i = 1; i < 0x8A; i++)
             System.arraycopy(Base64.decode(DATA, Base64.DEFAULT), 0, TEST_FRAME_TO_ONE_WRAPAROUND_FRAME_DATA, 21 + 23 * (i - 1), 23);
         Frame TEST_FRAME_TO_ONE_WRAPAROUND_FRAME = new BaseFrame((byte) 0x83, (byte) 0x0c, (byte) 0x64, TEST_FRAME_TO_ONE_WRAPAROUND_FRAME_DATA);
         fragmentationProvider.fragment(Single.just(TEST_FRAME_TO_ONE_WRAPAROUND_FRAME), TEST_FRAME_TO_ONE_WRAPAROUND_MAXLEN).test().assertNoErrors();
@@ -86,7 +85,7 @@ public class BaseFragmentationProviderTest {
         byte[] TEST_FRAME_TO_ONE_WRAPAROUND_FRAME_DATA = new byte[0xc64];
         System.arraycopy(Base64.decode("AqMBa3dlYmF1dGhuLmlvAlggKHoB", Base64.DEFAULT), 0, TEST_FRAME_TO_ONE_WRAPAROUND_FRAME_DATA, 0, 21);
         // same continuation fragment is used multiple times
-        for(int i = 1; i < 0x8A; i++)
+        for (int i = 1; i < 0x8A; i++)
             System.arraycopy(Base64.decode("f5KQFW9lYY8TQuuWUy5XaniGCiXMOwk=", Base64.DEFAULT), 0, TEST_FRAME_TO_ONE_WRAPAROUND_FRAME_DATA, 21 + 23 * (i - 1), 23);
         Frame TEST_FRAME_TO_ONE_WRAPAROUND_FRAME = new BaseFrame((byte) 0x83, (byte) 0x0c, (byte) 0x64, TEST_FRAME_TO_ONE_WRAPAROUND_FRAME_DATA);
 
@@ -94,7 +93,7 @@ public class BaseFragmentationProviderTest {
         byte[] TEST_FRAME_TO_ONE_WRAPAROUND_RESULT_CONT_FRAG_DATA = Base64.decode("f5KQFW9lYY8TQuuWUy5XaniGCiXMOwk=", Base64.DEFAULT);
         List<Fragment> TEST_FRAME_TO_ONE_WRAPAROUND_FRAGMENTS = new ArrayList<>();
         TEST_FRAME_TO_ONE_WRAPAROUND_FRAGMENTS.add(TEST_FRAME_TO_ONE_WRAPAROUND_RESULT_INIT_FRAG);
-        for(int i = 0; i < 0x89; i++)
+        for (int i = 0; i < 0x89; i++)
             TEST_FRAME_TO_ONE_WRAPAROUND_FRAGMENTS.add(new BaseContinuationFragment((byte) (i % 0x80), TEST_FRAME_TO_ONE_WRAPAROUND_RESULT_CONT_FRAG_DATA));
         fragmentationProvider.fragment(Single.just(TEST_FRAME_TO_ONE_WRAPAROUND_FRAME), TEST_FRAME_TO_ONE_WRAPAROUND_MAXLEN).test().assertValueSequence(TEST_FRAME_TO_ONE_WRAPAROUND_FRAGMENTS);
     }
@@ -104,7 +103,7 @@ public class BaseFragmentationProviderTest {
         int TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_MAXLEN = 64;
         byte[] TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_FRAME_DATA = new byte[0x3efe];
         System.arraycopy(Base64.decode(DATA, Base64.DEFAULT), 0, TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_FRAME_DATA, 0, 61);
-        for(int i = 1; i < 0x100; i++)
+        for (int i = 1; i < 0x100; i++)
             System.arraycopy(Base64.decode(DATA, Base64.DEFAULT), 0, TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_FRAME_DATA, 61 + 63 * (i - 1), 63);
         Frame TEST_FRAME_TO_ONE_WRAPAROUND_FRAME = new BaseFrame((byte) 0x83, (byte) 0x3e, (byte) 0xfe, TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_FRAME_DATA);
         fragmentationProvider.fragment(Single.just(TEST_FRAME_TO_ONE_WRAPAROUND_FRAME), TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_MAXLEN).test().assertNoErrors();
@@ -115,7 +114,7 @@ public class BaseFragmentationProviderTest {
         int TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_MAXLEN = 64;
         byte[] TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_FRAME_DATA = new byte[0x3efe];
         System.arraycopy(Base64.decode("AqMBa3dlYmF1dGhuLmlvAlggKHoBf5KQFW9lYY8TQuuWUy5XaniGCiXMOwnLsJWT97kDgaJiaWRYIHzgvg==", Base64.DEFAULT), 0, TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_FRAME_DATA, 0, 61);
-        for(int i = 1; i < 0x100; i++)
+        for (int i = 1; i < 0x100; i++)
             System.arraycopy(Base64.decode("E0LrllMuV2p4hgolzDsJy7CVk/e5A4GiYmlkWCB84AG+8ieOEMR0df3eG03HIE35c9WoqK7RTzInRCSo5UJk", Base64.DEFAULT), 0, TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_FRAME_DATA, 61 + 63 * (i - 1), 63);
         Frame TEST_FRAME_TO_ONE_WRAPAROUND_FRAME = new BaseFrame((byte) 0x83, (byte) 0x3e, (byte) 0xfe, TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_FRAME_DATA);
 
@@ -124,8 +123,8 @@ public class BaseFragmentationProviderTest {
         List<Fragment> TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_FRAGMENTS = new ArrayList<>();
         TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_FRAGMENTS.add(TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_RESULT_INIT_FRAG);
         // same continuation fragment is used multiple times
-        for(int i = 0; i < 0xff; i++)
-            TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_FRAGMENTS.add(new BaseContinuationFragment((byte) (i % 0x80), TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_RESULT_CONT_FRAG_DATA ));
+        for (int i = 0; i < 0xff; i++)
+            TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_FRAGMENTS.add(new BaseContinuationFragment((byte) (i % 0x80), TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_RESULT_CONT_FRAG_DATA));
         fragmentationProvider.fragment(Single.just(TEST_FRAME_TO_ONE_WRAPAROUND_FRAME), TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_MAXLEN).test().assertValueSequence(TEST_FRAME_TO_MULTIPLE_WRAPAROUNDS_FRAGMENTS);
     }
 
@@ -153,7 +152,7 @@ public class BaseFragmentationProviderTest {
         Frame TEST_MULTIPLE_FRAMES_FRAME_1 = new BaseFrame((byte) 0x83, (byte) 0x01, (byte) 0x42, Base64.decode("AaMBa3dlYmF1dGhuLmlvAlggKHoBf5KQFW9lYY8TQuuWUy5XaniGCiXMOwnLsJWT97kDgaJiaWRYIHzgvvInjhDEdHX93htNxyBN+XPVqKiu0U8yJ0QkqOVCZHR5cGVqcHVibGljLWtleSIqJaMBD1LiGmF1dGhuLmlvAlggKHoBf5KQFW9lYY8TQuuWUy5XaniGCiXMOwnLsJWT97kDgaJiaWRYIHzgvvInjhDEdHX93htNxyBN+XPVqKiu0U8yJ0QkqOVCZHR5cGVqcHVibGljLWtleSNqAqMBa3dlYmF1dGhuLmlvAlggKHoBf5KQFW9lYY8TQuuWUy5XaniGCiXMOwnLsJWT97kDgaJiaWRYIHzgvvInjhDEdHX93htNxyBN+XPVqKiu0U8yJ0QkqOVCZHR5cGVqcHVibGljLWtleQ==", Base64.DEFAULT));
         byte[] TEST_MULTIPLE_FRAMES_FRAME_2_DATA = new byte[0x366a];
         System.arraycopy(Base64.decode("AqMBa3dlYmF1dGhuLmlvAlggKHoBf5KQFW9lYY8TQuuWUy5XaniGCiXMOwnLsJWT97kDgaJiaWRYIHzgvvInjhDEdHX93htNxyBN+XPVqKiu0U8yJ0QkqOVCZHR5cGVqcHVibGljLWtleQ==", Base64.DEFAULT), 0, TEST_MULTIPLE_FRAMES_FRAME_2_DATA, 0, 106);
-        for(int i = 0; i < 0x80; i++)
+        for (int i = 0; i < 0x80; i++)
             System.arraycopy(Base64.decode("IiolowEPUuIaYXV0aG4uaW8CWCAoegF/kpAVb2VhjxNC65ZTLldqeIYKJcw7CcuwlZP3uQOBomJpZFggfOC+8ieOEMR0df3eG03HIE35c9WoqK7RTzInRCSo5UJkdHlwZWpwdWJsaWMta2V5", Base64.DEFAULT), 0, TEST_MULTIPLE_FRAMES_FRAME_2_DATA, 106 + i * 108, 108);
         Frame TEST_MULTIPLE_FRAMES_FRAME_2 = new BaseFrame((byte) 0x83, (byte) 0x36, (byte) 0x6a, TEST_MULTIPLE_FRAMES_FRAME_2_DATA);
 
@@ -174,12 +173,13 @@ public class BaseFragmentationProviderTest {
         Fragment TEST_MULTIPLE_FRAMES_FRAME_2_RESULT_INIT_FRAG = new BaseInitializationFragment((byte) 0x83, (byte) 0x36, (byte) 0x6a, Base64.decode("AqMBa3dlYmF1dGhuLmlvAlggKHoBf5KQFW9lYY8TQuuWUy5XaniGCiXMOwnLsJWT97kDgaJiaWRYIHzgvvInjhDEdHX93htNxyBN+XPVqKiu0U8yJ0QkqOVCZHR5cGVqcHVibGljLWtleQ==", Base64.DEFAULT));
         TEST_MULTIPLE_FRAMES_FRAME_2_FRAGMENTS.add(TEST_MULTIPLE_FRAMES_FRAME_2_RESULT_INIT_FRAG);
         byte[] TEST_MULTIPLE_FRAMES_FRAME_2_RESULT_CONT_FRAG_DATA = Base64.decode("IiolowEPUuIaYXV0aG4uaW8CWCAoegF/kpAVb2VhjxNC65ZTLldqeIYKJcw7CcuwlZP3uQOBomJpZFggfOC+8ieOEMR0df3eG03HIE35c9WoqK7RTzInRCSo5UJkdHlwZWpwdWJsaWMta2V5", Base64.DEFAULT);
-        for(int i = 0; i < 0x80; i++)
+        for (int i = 0; i < 0x80; i++)
             TEST_MULTIPLE_FRAMES_FRAME_2_FRAGMENTS.add(new BaseContinuationFragment((byte) i, TEST_MULTIPLE_FRAMES_FRAME_2_RESULT_CONT_FRAG_DATA));
         TEST_MULTIPLE_FRAMES_FRAME_FRAGMENTS.add(TEST_MULTIPLE_FRAMES_FRAME_2_FRAGMENTS);
 
         Flowable.just(TEST_MULTIPLE_FRAMES_FRAME_0, TEST_MULTIPLE_FRAMES_FRAME_1, TEST_MULTIPLE_FRAMES_FRAME_2).zipWith(Flowable.fromIterable(TEST_MULTIPLE_FRAMES_FRAME_FRAGMENTS), (frame, fragments) -> {
-            fragmentationProvider.fragment(Single.just(frame), TEST_MULTIPLE_FRAMES_MAXLEN).test().assertValueSequence(fragments); return new Object(); // zipWith requires some return type
+            fragmentationProvider.fragment(Single.just(frame), TEST_MULTIPLE_FRAMES_MAXLEN).test().assertValueSequence(fragments);
+            return new Object(); // zipWith requires some return type
         }).test().assertValueCount(TEST_MULTIPLE_FRAMES_FRAME_FRAGMENTS.size());
     }
 
@@ -187,7 +187,7 @@ public class BaseFragmentationProviderTest {
     public void transformsFrameWithTooSmallMaxLenWithErrors() throws BleException {
         int TEST_TOO_SMALL_MAXLEN_MAXLEN = 2;
         Frame TEST_TOO_SMALL_MAXLEN_FRAME = new BaseFrame((byte) 0x81, (byte) 0x00, (byte) 0x6a, Base64.decode(DATA, Base64.DEFAULT));
-        
+
         fragmentationProvider.fragment(Single.just(TEST_TOO_SMALL_MAXLEN_FRAME), TEST_TOO_SMALL_MAXLEN_MAXLEN).test().assertError(OtherException.class);
     }
 }

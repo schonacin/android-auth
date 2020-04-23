@@ -1,6 +1,6 @@
-package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.reponse;
+package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response;
 
-import com.google.gson.annotations.SerializedName;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.annotations.SerializedIndex;
 
 import java.util.Map;
 
@@ -10,16 +10,16 @@ import java.util.Map;
  */
 public class BaseGetInfoResponse implements GetInfoResponse {
 
-    @SerializedName("1")
+    @SerializedIndex(1)
     private String[] versions;
 
-    @SerializedName("3")
+    @SerializedIndex(3)
     private byte[] aaguid;
 
-    @SerializedName("4")
+    @SerializedIndex(4)
     private Map<String, Boolean> options;
 
-    @SerializedName("5")
+    @SerializedIndex(5)
     private Integer maxMsgSize;
 
     public BaseGetInfoResponse(String[] versions, byte[] aaguid) {

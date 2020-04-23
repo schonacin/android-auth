@@ -1,6 +1,8 @@
-package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions;
+package com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes;
 
-public class InvalidOptionException extends AuthenticatorException {
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.StatusCodeException;
+
+public class InvalidOptionException extends StatusCodeException {
 
     public InvalidOptionException() {
     }

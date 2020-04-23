@@ -1,16 +1,16 @@
 package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator;
 
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.database.PublicKeyCredentialSource;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.reponse.BaseGetAssertionResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.reponse.GetAssertionResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseGetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.GetAssertionResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.BasePublicKeyCredentialDescriptor;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialDescriptor;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.AuthLibException;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.InvalidOptionException;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.NoCredentialsException;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.OperationDeniedException;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.OtherException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidOptionException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.NoCredentialsException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.OperationDeniedException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.OtherException;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
 
@@ -65,6 +65,7 @@ public class GetAssertion {
             if (request.isValid()) {
                 return Completable.complete();
             } else {
+                // TODO: change to respective error
                 return Completable.error(OtherException::new);
             }
         });
@@ -174,6 +175,7 @@ public class GetAssertion {
     }
 
     private Single<GetAssertionResponse> constructResponse() {
+        // TODO: add UserEntity??
         return Single.zip(constructCredentialDescriptor(), getAuthenticatorData(), generateSignature(), BaseGetAssertionResponse::new);
     }
 

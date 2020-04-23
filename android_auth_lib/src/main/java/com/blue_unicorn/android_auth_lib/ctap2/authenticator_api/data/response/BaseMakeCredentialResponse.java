@@ -1,7 +1,7 @@
-package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.reponse;
+package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response;
 
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.AttestationStatement;
-import com.google.gson.annotations.SerializedName;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.annotations.SerializedIndex;
 
 /**
  * These serialized names correlate to the specification.
@@ -9,13 +9,13 @@ import com.google.gson.annotations.SerializedName;
  */
 public class BaseMakeCredentialResponse implements MakeCredentialResponse {
 
-    @SerializedName("1")
+    @SerializedIndex(1)
     private String fmt;
 
-    @SerializedName("2")
+    @SerializedIndex(2)
     private byte[] authData;
 
-    @SerializedName("3")
+    @SerializedIndex(3)
     private AttestationStatement attStmt;
 
     public BaseMakeCredentialResponse(byte[] authData, AttestationStatement attStmt) {

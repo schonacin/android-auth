@@ -24,9 +24,8 @@ import io.reactivex.rxjava3.core.Flowable;
 @RunWith(RobolectricTestRunner.class)
 public class BaseDefragmentationProviderTest {
 
-    private BaseDefragmentationProvider defragmentationProvider;
-
     private static final String DATA = "AqMBa3dlYmF1dGhuLmlvAlggKHoBf5KQFW9lYY8TQuuWUy5XaniGCiXMOwnLsJWT97kDgaJiaWRYIHzgvvInjhDEdHX93htNxyBN+XPVqKiu0U8yJ0QkqOVCZHR5cGVqcHVibGljLWtleQ==";
+    private BaseDefragmentationProvider defragmentationProvider;
 
     @Before
     public void setUp() {
@@ -86,7 +85,7 @@ public class BaseDefragmentationProviderTest {
         List<Fragment> TEST_ONE_WRAPAROUND_FRAGMENTS = new ArrayList<>();
         TEST_ONE_WRAPAROUND_FRAGMENTS.add(TEST_ONE_WRAPAROUND_INIT_FRAG);
         // same continuation fragment is used multiple times
-        for(int i = 0; i < 0x89; i++)
+        for (int i = 0; i < 0x89; i++)
             TEST_ONE_WRAPAROUND_FRAGMENTS.add(new BaseContinuationFragment((byte) (i % 0x80), TEST_ONE_WRAPAROUND_CONT_FRAG_DATA));
 
         defragmentationProvider.defragment(Flowable.fromIterable(TEST_ONE_WRAPAROUND_FRAGMENTS), TEST_ONE_WRAPAROUND_MAXLEN).test().assertNoErrors();
@@ -100,13 +99,13 @@ public class BaseDefragmentationProviderTest {
         List<Fragment> TEST_ONE_WRAPAROUND_FRAGMENTS = new ArrayList<>();
         TEST_ONE_WRAPAROUND_FRAGMENTS.add(TEST_ONE_WRAPAROUND_INIT_FRAG);
         // same continuation fragment is used multiple times
-        for(int i = 0; i < 0x89; i++)
+        for (int i = 0; i < 0x89; i++)
             TEST_ONE_WRAPAROUND_FRAGMENTS.add(new BaseContinuationFragment((byte) (i % 0x80), TEST_ONE_WRAPAROUND_CONT_FRAG_DATA));
 
         byte[] TEST_ONE_WRAPAROUND_RESULT_FRAME_DATA = new byte[0xc64];
         System.arraycopy(TEST_ONE_WRAPAROUND_INIT_FRAG.getDATA(), 0, TEST_ONE_WRAPAROUND_RESULT_FRAME_DATA, 0, 21);
-        for(int i = 1; i < TEST_ONE_WRAPAROUND_FRAGMENTS.size(); i++)
-            System.arraycopy(TEST_ONE_WRAPAROUND_FRAGMENTS.get(i).getDATA(), 0, TEST_ONE_WRAPAROUND_RESULT_FRAME_DATA, 21+23*(i-1), 23);
+        for (int i = 1; i < TEST_ONE_WRAPAROUND_FRAGMENTS.size(); i++)
+            System.arraycopy(TEST_ONE_WRAPAROUND_FRAGMENTS.get(i).getDATA(), 0, TEST_ONE_WRAPAROUND_RESULT_FRAME_DATA, 21 + 23 * (i - 1), 23);
         Frame TEST_ONE_WRAPAROUND_RESULT_FRAME = new BaseFrame(((BaseInitializationFragment) TEST_ONE_WRAPAROUND_INIT_FRAG).getCMD(), ((BaseInitializationFragment) TEST_ONE_WRAPAROUND_INIT_FRAG).getHLEN(), ((BaseInitializationFragment) TEST_ONE_WRAPAROUND_INIT_FRAG).getLLEN(), TEST_ONE_WRAPAROUND_RESULT_FRAME_DATA);
         defragmentationProvider.defragment(Flowable.fromIterable(TEST_ONE_WRAPAROUND_FRAGMENTS), TEST_ONE_WRAPAROUND_MAXLEN).test().assertValue(TEST_ONE_WRAPAROUND_RESULT_FRAME);
     }
@@ -120,8 +119,8 @@ public class BaseDefragmentationProviderTest {
         List<Fragment> TEST_MULTIPLE_WRAPAROUNDS_FRAGMENTS = new ArrayList<>();
         TEST_MULTIPLE_WRAPAROUNDS_FRAGMENTS.add(TEST_MULTIPLE_WRAPAROUNDS_INIT_FRAG);
         // same continuation fragment is used multiple times
-        for(int i = 0; i < 0xff; i++)
-            TEST_MULTIPLE_WRAPAROUNDS_FRAGMENTS.add(new BaseContinuationFragment((byte) (i % 0x80), TEST_MULTIPLE_WRAPAROUNDS_CONT_FRAG_DATA ));
+        for (int i = 0; i < 0xff; i++)
+            TEST_MULTIPLE_WRAPAROUNDS_FRAGMENTS.add(new BaseContinuationFragment((byte) (i % 0x80), TEST_MULTIPLE_WRAPAROUNDS_CONT_FRAG_DATA));
 
         defragmentationProvider.defragment(Flowable.fromIterable(TEST_MULTIPLE_WRAPAROUNDS_FRAGMENTS), TEST_MULTIPLE_WRAPAROUNDS_MAXLEN).test().assertNoErrors();
     }
@@ -134,13 +133,13 @@ public class BaseDefragmentationProviderTest {
         List<Fragment> TEST_MULTIPLE_WRAPAROUNDS_FRAGMENTS = new ArrayList<>();
         TEST_MULTIPLE_WRAPAROUNDS_FRAGMENTS.add(TEST_MULTIPLE_WRAPAROUNDS_INIT_FRAG);
         // same continuation fragment is used multiple times
-        for(int i = 0; i < 0xff; i++)
-            TEST_MULTIPLE_WRAPAROUNDS_FRAGMENTS.add(new BaseContinuationFragment((byte) (i % 0x80), TEST_MULTIPLE_WRAPAROUNDS_CONT_FRAG_DATA ));
+        for (int i = 0; i < 0xff; i++)
+            TEST_MULTIPLE_WRAPAROUNDS_FRAGMENTS.add(new BaseContinuationFragment((byte) (i % 0x80), TEST_MULTIPLE_WRAPAROUNDS_CONT_FRAG_DATA));
 
         byte[] TEST_MULTIPLE_WRAPAROUNDS_RESULT_FRAME_DATA = new byte[0x3efe];
         System.arraycopy(TEST_MULTIPLE_WRAPAROUNDS_INIT_FRAG.getDATA(), 0, TEST_MULTIPLE_WRAPAROUNDS_RESULT_FRAME_DATA, 0, 61);
-        for(int i = 1; i < TEST_MULTIPLE_WRAPAROUNDS_FRAGMENTS.size(); i++)
-            System.arraycopy(TEST_MULTIPLE_WRAPAROUNDS_FRAGMENTS.get(i).getDATA(), 0, TEST_MULTIPLE_WRAPAROUNDS_RESULT_FRAME_DATA, 61+63*(i-1), 63);
+        for (int i = 1; i < TEST_MULTIPLE_WRAPAROUNDS_FRAGMENTS.size(); i++)
+            System.arraycopy(TEST_MULTIPLE_WRAPAROUNDS_FRAGMENTS.get(i).getDATA(), 0, TEST_MULTIPLE_WRAPAROUNDS_RESULT_FRAME_DATA, 61 + 63 * (i - 1), 63);
         Frame TEST_ONE_WRAPAROUND_RESULT_FRAME = new BaseFrame(((BaseInitializationFragment) TEST_MULTIPLE_WRAPAROUNDS_INIT_FRAG).getCMD(), ((BaseInitializationFragment) TEST_MULTIPLE_WRAPAROUNDS_INIT_FRAG).getHLEN(), ((BaseInitializationFragment) TEST_MULTIPLE_WRAPAROUNDS_INIT_FRAG).getLLEN(), TEST_MULTIPLE_WRAPAROUNDS_RESULT_FRAME_DATA);
         defragmentationProvider.defragment(Flowable.fromIterable(TEST_MULTIPLE_WRAPAROUNDS_FRAGMENTS), TEST_MULTIPLE_WRAPAROUNDS_MAXLEN).test().assertValue(TEST_ONE_WRAPAROUND_RESULT_FRAME);
     }
@@ -179,7 +178,7 @@ public class BaseDefragmentationProviderTest {
         TEST_MULTIPLE_FRAMES_FRAGMENTS.add(TEST_MULTIPLE_FRAMES_FRAME_1_CONT_FRAG_0);
         TEST_MULTIPLE_FRAMES_FRAGMENTS.add(TEST_MULTIPLE_FRAMES_FRAME_1_CONT_FRAG_1);
         TEST_MULTIPLE_FRAMES_FRAGMENTS.add(TEST_MULTIPLE_FRAMES_FRAME_2_INIT_FRAG);
-        for(int i = 0; i < 0x80; i++)
+        for (int i = 0; i < 0x80; i++)
             TEST_MULTIPLE_FRAMES_FRAGMENTS.add(new BaseContinuationFragment((byte) i, TEST_MULTIPLE_FRAMES_FRAME_2_CONT_FRAG_DATA));
 
         defragmentationProvider.defragment(Flowable.fromIterable(TEST_MULTIPLE_FRAMES_FRAGMENTS), TEST_MULTIPLE_FRAMES_MAXLEN).test().assertNoErrors();
@@ -200,7 +199,7 @@ public class BaseDefragmentationProviderTest {
         TEST_MULTIPLE_FRAMES_FRAGMENTS.add(TEST_MULTIPLE_FRAMES_FRAME_1_CONT_FRAG_0);
         TEST_MULTIPLE_FRAMES_FRAGMENTS.add(TEST_MULTIPLE_FRAMES_FRAME_1_CONT_FRAG_1);
         TEST_MULTIPLE_FRAMES_FRAGMENTS.add(TEST_MULTIPLE_FRAMES_FRAME_2_INIT_FRAG);
-        for(int i = 0; i < 0x80; i++)
+        for (int i = 0; i < 0x80; i++)
             TEST_MULTIPLE_FRAMES_FRAGMENTS.add(new BaseContinuationFragment((byte) i, TEST_MULTIPLE_FRAMES_FRAME_2_CONT_FRAG_DATA));
 
         Frame TEST_MULTIPLE_FRAMES_RESULT_FRAME_0 = new BaseFrame(((BaseInitializationFragment) TEST_MULTIPLE_FRAMES_FRAME_0_INIT_FRAG).getCMD(), ((BaseInitializationFragment) TEST_MULTIPLE_FRAMES_FRAME_0_INIT_FRAG).getHLEN(), ((BaseInitializationFragment) TEST_MULTIPLE_FRAMES_FRAME_0_INIT_FRAG).getLLEN(), TEST_MULTIPLE_FRAMES_FRAME_0_INIT_FRAG.getDATA());
@@ -211,8 +210,8 @@ public class BaseDefragmentationProviderTest {
         Frame TEST_MULTIPLE_FRAMES_RESULT_FRAME_1 = new BaseFrame(((BaseInitializationFragment) TEST_MULTIPLE_FRAMES_FRAME_1_INIT_FRAG).getCMD(), ((BaseInitializationFragment) TEST_MULTIPLE_FRAMES_FRAME_1_INIT_FRAG).getHLEN(), ((BaseInitializationFragment) TEST_MULTIPLE_FRAMES_FRAME_1_INIT_FRAG).getLLEN(), TEST_MULTIPLE_FRAMES_RESULT_FRAME_1_DATA);
         byte[] TEST_MULTIPLE_FRAMES_RESULT_FRAME_2_DATA = new byte[0x366a];
         System.arraycopy(TEST_MULTIPLE_FRAMES_FRAME_2_INIT_FRAG.getDATA(), 0, TEST_MULTIPLE_FRAMES_RESULT_FRAME_2_DATA, 0, 106);
-        for(int i = 0; i < 0x80; i++)
-            System.arraycopy(TEST_MULTIPLE_FRAMES_FRAME_2_CONT_FRAG_DATA, 0, TEST_MULTIPLE_FRAMES_RESULT_FRAME_2_DATA, 106+i*108, 108);
+        for (int i = 0; i < 0x80; i++)
+            System.arraycopy(TEST_MULTIPLE_FRAMES_FRAME_2_CONT_FRAG_DATA, 0, TEST_MULTIPLE_FRAMES_RESULT_FRAME_2_DATA, 106 + i * 108, 108);
         Frame TEST_MULTIPLE_FRAMES_RESULT_FRAME_2 = new BaseFrame(((BaseInitializationFragment) TEST_MULTIPLE_FRAMES_FRAME_2_INIT_FRAG).getCMD(), ((BaseInitializationFragment) TEST_MULTIPLE_FRAMES_FRAME_2_INIT_FRAG).getHLEN(), ((BaseInitializationFragment) TEST_MULTIPLE_FRAMES_FRAME_2_INIT_FRAG).getLLEN(), TEST_MULTIPLE_FRAMES_RESULT_FRAME_2_DATA);
         defragmentationProvider.defragment(Flowable.fromIterable(TEST_MULTIPLE_FRAMES_FRAGMENTS), TEST_MULTIPLE_FRAMES_MAXLEN).test().assertValues(TEST_MULTIPLE_FRAMES_RESULT_FRAME_0, TEST_MULTIPLE_FRAMES_RESULT_FRAME_1, TEST_MULTIPLE_FRAMES_RESULT_FRAME_2);
     }

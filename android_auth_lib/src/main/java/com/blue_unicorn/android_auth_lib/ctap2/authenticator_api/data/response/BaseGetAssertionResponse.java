@@ -1,8 +1,8 @@
-package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.reponse;
+package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response;
 
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialDescriptor;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialUserEntity;
-import com.google.gson.annotations.SerializedName;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.annotations.SerializedIndex;
 
 /**
  * These serialized names correlate to the specification.
@@ -10,19 +10,19 @@ import com.google.gson.annotations.SerializedName;
  */
 public class BaseGetAssertionResponse implements GetAssertionResponse {
 
-    @SerializedName("1")
+    @SerializedIndex(1)
     private PublicKeyCredentialDescriptor credential;
 
-    @SerializedName("2")
+    @SerializedIndex(2)
     private byte[] authData;
 
-    @SerializedName("3")
+    @SerializedIndex(3)
     private byte[] signature;
 
-    @SerializedName("4")
+    @SerializedIndex(4)
     private PublicKeyCredentialUserEntity publicKeyCredentialUserEntity;
 
-    @SerializedName("5")
+    @SerializedIndex(5)
     private Integer numberOfCredentials;
 
     public BaseGetAssertionResponse(PublicKeyCredentialDescriptor credential, byte[] authData, byte[] signature) {
