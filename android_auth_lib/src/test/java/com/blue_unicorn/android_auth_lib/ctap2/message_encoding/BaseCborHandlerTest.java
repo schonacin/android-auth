@@ -6,16 +6,30 @@ import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.Ge
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.RequestObject;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseGetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseGetInfoResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseMakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.GetAssertionResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.GetInfoResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.MakeCredentialResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.AttestationStatement;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.BasePublicKeyCredentialDescriptor;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.BasePublicKeyCredentialUserEntity;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PackedAttestationStatement;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialDescriptor;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialRpEntity;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialUserEntity;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.InvalidCommandException;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.InvalidLengthException;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.InvalidParameterException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidCommandException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidLengthException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidParameterException;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import io.reactivex.rxjava3.observers.TestObserver;
 
@@ -49,7 +63,6 @@ public class BaseCborHandlerTest {
     public void makeCredentialRequest_transformsWithNoErrors() {
         cborHandler.decode(RAW_MAKE_CREDENTIAL_REQUEST)
                 .test()
-                .assertNoErrors()
                 .assertComplete();
     }
 
@@ -86,7 +99,6 @@ public class BaseCborHandlerTest {
     public void getAssertionRequest_transformsWithNoErrors() {
         cborHandler.decode(RAW_GET_ASSERTION_REQUEST)
                 .test()
-                .assertNoErrors()
                 .assertComplete();
     }
 
@@ -115,7 +127,6 @@ public class BaseCborHandlerTest {
     public void getInfoRequest_transformsWithNoErrors() {
         cborHandler.decode(RAW_GET_INFO_REQUEST)
                 .test()
-                .assertNoErrors()
                 .assertComplete();
     }
 
@@ -148,6 +159,61 @@ public class BaseCborHandlerTest {
         cborHandler.decode(RAW_INVALID_PARAMETER_REQUEST)
                 .test()
                 .assertError(InvalidParameterException.class);
+    }
+
+    @Test
+    public void getInfoResponse_transformsCorrectly() {
+        Map<String, Boolean> options = new HashMap<>();
+        options.putIfAbsent("rk", true);
+
+        byte[] aaguid = Base64.decode("8dCxjhABSoFDQRyhBADx0A==", Base64.DEFAULT);
+        int maxMsgSize = 1024;
+        String[] versions = new String[]{"FIDO_2_0"};
+
+        GetInfoResponse response = new BaseGetInfoResponse(versions, aaguid, options, maxMsgSize);
+        byte[] ENCODED_GET_INFO_RESPONSE = Base64.decode("AKQBgWhGSURPXzJfMANQ8dCxjhABSoFDQRyhBADx0AShYnJr9QUZBAA=", Base64.DEFAULT);
+
+        cborHandler.encode(response)
+                .map(input -> Base64.encodeToString(input, Base64.DEFAULT))
+                .test()
+                .assertValue(Base64.encodeToString(ENCODED_GET_INFO_RESPONSE, Base64.DEFAULT))
+                .assertComplete();
+    }
+
+    @Test
+    public void makeCredentialResponse_transformsCorrectly() {
+        byte[] authData = Base64.decode("EjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnir", Base64.DEFAULT); //141 bytes
+        byte[] sig = Base64.decode("GhoaGhoaGhoaGhoaGhorKysrKys=", Base64.DEFAULT);
+        AttestationStatement attStmt = new PackedAttestationStatement(sig);
+
+        MakeCredentialResponse response = new BaseMakeCredentialResponse(authData, attStmt);
+        final byte[] ENCODED_MAKE_CREDENTIAL_RESPONSE = Base64.decode("AKMBZnBhY2tlZAJYjRI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4qwOiY2FsZyZjc2lnVBoaGhoaGhoaGhoaGhoaKysrKysr", Base64.DEFAULT);
+
+        cborHandler.encode(response)
+                .map(input -> Base64.encodeToString(input, Base64.DEFAULT))
+                .test()
+                .assertValue(Base64.encodeToString(ENCODED_MAKE_CREDENTIAL_RESPONSE, Base64.DEFAULT))
+                .assertComplete();
+    }
+
+    @Test
+    public void getAssertionResponse_transformsCorrectly() {
+        PublicKeyCredentialDescriptor credential = new BasePublicKeyCredentialDescriptor("public-key", Base64.decode("EjRWeJCrze8=", Base64.DEFAULT));
+        byte[] authData = Base64.decode("EjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnir", Base64.DEFAULT); //141 bytes
+        byte[] sig = Base64.decode("GhoaGhoaGhoaGhoaGhorKysrKys=", Base64.DEFAULT);
+
+        GetAssertionResponse response = new BaseGetAssertionResponse(credential, authData, sig);
+
+        PublicKeyCredentialUserEntity publicKeyCredentialUserEntity = new BasePublicKeyCredentialUserEntity(Base64.decode("EjRWeJCrze8SNFZ4kKvN7w==", Base64.DEFAULT));
+        response.setPublicKeyCredentialUserEntity(publicKeyCredentialUserEntity);
+
+        final byte[] ENCODED_GET_ASSERTION_RESPONSE = Base64.decode("AKQBomJpZEgSNFZ4kKvN72R0eXBlanB1YmxpYy1rZXkCWI0SNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKsDVBoaGhoaGhoaGhoaGhoaKysrKysrBKFiaWRQEjRWeJCrze8SNFZ4kKvN7w==", Base64.DEFAULT);
+
+        cborHandler.encode(response)
+                .map(input -> Base64.encodeToString(input, Base64.DEFAULT))
+                .test()
+                .assertValue(Base64.encodeToString(ENCODED_GET_ASSERTION_RESPONSE, Base64.DEFAULT))
+                .assertComplete();
     }
 
 }

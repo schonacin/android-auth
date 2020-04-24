@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.database.CredentialDatabase;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.database.PublicKeyCredentialSource;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.AuthLibException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
 import com.nexenio.rxkeystore.RxKeyStore;
 import com.nexenio.rxkeystore.provider.asymmetric.ec.RxECCryptoProvider;
 import com.upokecenter.cbor.CBORObject;

@@ -7,10 +7,6 @@ public abstract class BleException extends Exception {
 
     private final byte errorCode;
 
-    public byte getErrorCode() {
-        return errorCode;
-    }
-
     BleException(byte errorCode, String message) {
         super(message);
         this.errorCode = errorCode;
@@ -19,5 +15,9 @@ public abstract class BleException extends Exception {
     BleException(byte errorCode, String message, Throwable cause) {
         super(message, cause);
         this.errorCode = errorCode;
+    }
+
+    public byte getErrorCode() {
+        return errorCode;
     }
 }

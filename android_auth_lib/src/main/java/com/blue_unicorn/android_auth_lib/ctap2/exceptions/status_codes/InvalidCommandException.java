@@ -1,6 +1,8 @@
-package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions;
+package com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes;
 
-public class InvalidCommandException extends AndroidAuthLibException {
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.StatusCodeException;
+
+public class InvalidCommandException extends StatusCodeException {
 
     public InvalidCommandException() {
     }

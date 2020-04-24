@@ -1,4 +1,4 @@
-package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions;
+package com.blue_unicorn.android_auth_lib.ctap2.exceptions;
 
 /**
  * AuthLibException is the generic exception class for this library and not associated with any error codes related to WebAuthn and CTAP2

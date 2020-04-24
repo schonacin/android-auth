@@ -1,7 +1,7 @@
 package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator;
 
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.reponse.BaseGetInfoResponse;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.reponse.GetInfoResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseGetInfoResponse;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.GetInfoResponse;
 
 import java.util.HashMap;
 import java.util.Map;

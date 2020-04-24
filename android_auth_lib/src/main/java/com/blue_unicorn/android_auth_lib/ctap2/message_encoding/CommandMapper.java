@@ -9,7 +9,7 @@ import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.Ge
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.RequestObject;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.exceptions.InvalidCommandException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidCommandException;
 import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.data.Command;
 import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.gson.GsonHelper;
 import com.google.gson.Gson;

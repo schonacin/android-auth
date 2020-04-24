@@ -13,6 +13,9 @@ import java.util.Map;
  */
 public class BaseGetAssertionRequest implements GetAssertionRequest {
 
+    //TODO: add @NonNull annotation to mandatory fields and handle respectively instead of isValid() method
+    // (in all data classes)
+
     @SerializedName("1")
     private String rpId;
 
@@ -64,4 +67,5 @@ public class BaseGetAssertionRequest implements GetAssertionRequest {
     public boolean isValid() {
         return (rpId != null && clientDataHash != null);
     }
+
 }

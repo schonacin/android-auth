@@ -145,10 +145,6 @@ class BaseFrameAccumulator implements FrameAccumulator {
         this.frame = frame;
     }
 
-    private void setInitializationFragmentAccumulated(boolean initializationFragmentAccumulated) {
-        this.initializationFragmentAccumulated = initializationFragmentAccumulated;
-    }
-
     private int[] getSequenceNumberCount() {
         return sequenceNumberCount;
     }
@@ -191,5 +187,9 @@ class BaseFrameAccumulator implements FrameAccumulator {
 
     private boolean isInitializationFragmentAccumulated() {
         return initializationFragmentAccumulated;
+    }
+
+    private void setInitializationFragmentAccumulated(boolean initializationFragmentAccumulated) {
+        this.initializationFragmentAccumulated = initializationFragmentAccumulated;
     }
 }
