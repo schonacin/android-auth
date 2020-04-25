@@ -31,6 +31,7 @@ public class FidoAuthService extends Service {
          * setForeground?
          */
 
+
         return mBinder;
     }
 

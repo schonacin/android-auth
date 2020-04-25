@@ -11,14 +11,14 @@ import com.nexenio.rxandroidbleserver.service.ServiceBuilder;
 import com.nexenio.rxandroidbleserver.service.characteristic.CharacteristicBuilder;
 import com.nexenio.rxandroidbleserver.service.characteristic.RxBleCharacteristic;
 import com.nexenio.rxandroidbleserver.service.value.BaseValue;
-import com.nexenio.rxandroidbleserver.service.value.RxBleValue;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.UUID;
 
 public final class FidoGattProfile {
 
-    private static final UUID FIDO_SERVICE_UUID =
+    public static final UUID FIDO_SERVICE_UUID =
             UUID.fromString("0000FFFD-0000-1000-8000-00805F9B34FB");
     private static final UUID FIDO_CONTROL_POINT_CHARACTERISTIC_UUID =
             UUID.fromString("F1D0FFF1-DEAA-ECEE-B42F-C9BA7ED623BB");
@@ -63,11 +63,10 @@ public final class FidoGattProfile {
                         .andThen(exampleCharacteristic.sendNotifications()));
     }*/
 
-    private RxBleServer createFidoGattServer(@NonNull Context context) {
+    private void createFidoGattServer(@NonNull Context context) {
         gattServer = RxBleServerProvider.createServer(context);
         gattServer.addService(createFidoService()).blockingAwait();
         gattServer.addService(createDeviceInformationService()).blockingAwait();
-        return gattServer;
     }
 
     private RxBleService createFidoService() {
@@ -102,7 +101,7 @@ public final class FidoGattProfile {
     // TODO: set and update FidoControlPointLength depending on att_mtu
     private RxBleCharacteristic createFidoControlPointLengthCharacteristic() {
         fidoControlPointLengthCharacteristic = new CharacteristicBuilder(FIDO_CONTROL_POINT_LENGTH_CHARACTERISTIC_UUID)
-                .withInitialValue(createValueWithLength(512, 2))
+                .withInitialValue(new BaseValue(ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(512).array()))
                 .allowMitmProtectedEncryptedRead()
                 .supportReads()
                 .build();
@@ -112,7 +111,7 @@ public final class FidoGattProfile {
 
     private RxBleCharacteristic createFidoServiceRevisionBitfieldCharacteristic() {
         fidoServiceRevisionBitfieldCharacteristic = new CharacteristicBuilder(FIDO_SERVICE_REVISION_BITFIELD_CHARACTERISTIC_UUID)
-                .withInitialValue(createValueWithLength(0x20, 1))
+                .withInitialValue(new BaseValue(new byte[]{0x20}))
                 .allowMitmProtectedEncryptedRead()
                 .allowMitmProtectedEncryptedWrite()
                 .supportReads()
@@ -120,12 +119,6 @@ public final class FidoGattProfile {
                 .build();
 
         return fidoServiceRevisionBitfieldCharacteristic;
-    }
-
-    private RxBleValue createValueWithLength(int number, int length) {
-        ByteBuffer buffer = ByteBuffer.allocate(length);
-        buffer.putInt(number);
-        return new BaseValue(buffer.array());
     }
 
     private RxBleService createDeviceInformationService() {
