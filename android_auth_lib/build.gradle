@@ -54,6 +54,8 @@ dependencies {
     implementation 'com.github.schonacin:RxKeyStore:RxJava3_update-SNAPSHOT'
     implementation 'com.github.neXenio:RxAndroidBleServer:146e218bc1de0b1dc1fb162fd17d118e289f9d42'
     implementation "io.reactivex.rxjava3:rxjava:3.0.1"
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 
     implementation "android.arch.lifecycle:extensions:1.1.1"
     implementation "android.arch.persistence.room:runtime:1.1.1"
