@@ -20,15 +20,25 @@ public class BaseGetAssertionResponse implements GetAssertionResponse {
     private byte[] signature;
 
     @SerializedIndex(4)
-    private PublicKeyCredentialUserEntity publicKeyCredentialUserEntity;
+    private PublicKeyCredentialUserEntity user;
 
     @SerializedIndex(5)
     private Integer numberOfCredentials;
 
     public BaseGetAssertionResponse(PublicKeyCredentialDescriptor credential, byte[] authData, byte[] signature) {
+        this(credential, authData, signature, null);
+    }
+
+    public BaseGetAssertionResponse(PublicKeyCredentialDescriptor credential, byte[] authData, byte[] signature, PublicKeyCredentialUserEntity user) {
+        this(credential, authData, signature, user, null);
+    }
+
+    public BaseGetAssertionResponse(PublicKeyCredentialDescriptor credential, byte[] authData, byte[] signature, PublicKeyCredentialUserEntity user, Integer numberOfCredentials) {
         this.credential = credential;
         this.authData = authData;
         this.signature = signature;
+        this.user = user;
+        this.numberOfCredentials = numberOfCredentials;
     }
 
     public void setCredential(PublicKeyCredentialDescriptor credential) {
@@ -43,8 +53,8 @@ public class BaseGetAssertionResponse implements GetAssertionResponse {
         this.signature = signature;
     }
 
-    public void setPublicKeyCredentialUserEntity(PublicKeyCredentialUserEntity publicKeyCredentialUserEntity) {
-        this.publicKeyCredentialUserEntity = publicKeyCredentialUserEntity;
+    public void setPublicKeyCredentialUserEntity(PublicKeyCredentialUserEntity user) {
+        this.user = user;
     }
 
     public void setNumberOfCredentials(int numberOfCredentials) {

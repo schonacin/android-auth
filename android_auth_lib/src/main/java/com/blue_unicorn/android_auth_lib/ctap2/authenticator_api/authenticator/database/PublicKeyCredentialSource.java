@@ -68,4 +68,7 @@ public class PublicKeyCredentialSource {
         return userDisplayName;
     }
 
+    public byte[] getUserHandle() {
+        return userHandle;
+    }
 }

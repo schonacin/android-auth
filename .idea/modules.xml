@@ -6,6 +6,9 @@
       <module fileurl="file://$PROJECT_DIR$/android-auth.iml" filepath="$PROJECT_DIR$/android-auth.iml" />
       <module fileurl="file://$PROJECT_DIR$/android_auth_lib/android-auth-android_auth_lib.iml" filepath="$PROJECT_DIR$/android_auth_lib/android-auth-android_auth_lib.iml" group="android-auth/android_auth_lib" />
       <module fileurl="file://$PROJECT_DIR$/app/android-auth-app.iml" filepath="$PROJECT_DIR$/app/android-auth-app.iml" group="android-auth/app" />
+      <module fileurl="file://$PROJECT_DIR$/android-projects-android-auth.iml" filepath="$PROJECT_DIR$/android-projects-android-auth.iml" group="android-auth" />
+      <module fileurl="file://$PROJECT_DIR$/android_auth_lib/android-projects-android-auth-android_auth_lib.iml" filepath="$PROJECT_DIR$/android_auth_lib/android-projects-android-auth-android_auth_lib.iml" group="android-auth/android_auth_lib" />
+      <module fileurl="file://$PROJECT_DIR$/app/android-projects-android-auth-app.iml" filepath="$PROJECT_DIR$/app/android-projects-android-auth-app.iml" group="android-auth/app" />
       <module fileurl="file://$PROJECT_DIR$/android_auth_lib/android_auth_lib.iml" filepath="$PROJECT_DIR$/android_auth_lib/android_auth_lib.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
