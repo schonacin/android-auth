@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -36,15 +35,15 @@ public class FidoAuthService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.i("AndroidAuth", "onBind() called!\t" + intent);
+        Timber.i("onBind() called!	%s", intent);
 
         if (!bleCapable()) {
-            Log.e("FidoAuthService", "Device is not BLE capable");
+            Timber.e("Device is not BLE capable");
             return null;
         }
 
         if (!bleEnabled()) {
-            Log.e("FidoAuthService", "BLE is not enabled");
+            Timber.e("BLE is not enabled");
             return null;
         }
 
