@@ -15,8 +15,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.gatt.FidoGattProfile;
 import com.nexenio.rxandroidbleserver.RxBleServer;
 
-import java.util.UUID;
-
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -29,11 +27,9 @@ public class FidoAuthService extends Service {
     private FidoGattProfile fidoGattProfile;
     private RxBleServer bleServer;
     private Disposable provideAndAdvertiseServicesDisposable;
-    private Disposable advertiseServicesDisposable;
     //private Disposable updateValueDisposable;
 
     private MutableLiveData<Boolean> isProvidingAndAdvertisingServices = new MutableLiveData<>();
-    private MutableLiveData<Boolean> isAdvertisingService = new MutableLiveData<>();
     private MutableLiveData<Throwable> errors = new MutableLiveData<>();
 
     private final IBinder mBinder = new FidoAuthServiceBinder(this);
@@ -56,7 +52,6 @@ public class FidoAuthService extends Service {
         bleServer = fidoGattProfile.getGattServer();
 
         isProvidingAndAdvertisingServices.setValue(false);
-        isAdvertisingService.setValue(false);
 
         /* start advertising & build observable chains
          *
@@ -94,14 +89,14 @@ public class FidoAuthService extends Service {
     }
 
     private void startProvidingAndAdvertisingServices() {
-        Timber.d("Starting to provide services");
-        provideAndAdvertiseServicesDisposable = bleServer.provideServices()
+        Timber.d("Starting to provide and advertise services");
+        provideAndAdvertiseServicesDisposable = bleServer.provideServicesAndAdvertise(FidoGattProfile.FIDO_SERVICE_UUID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(disposable -> isProvidingAndAdvertisingServices.postValue(true))
                 .doFinally(() -> isProvidingAndAdvertisingServices.postValue(false))
                 .subscribe(
-                        () -> Timber.i("Stopped providing services"),
+                        () -> Timber.i("Stopped providing and advertising services"),
                         this::postError
                 );
         /*updateValueDisposable = fidoGattProfile.updateCharacteristicValues()
@@ -110,30 +105,13 @@ public class FidoAuthService extends Service {
                         () -> Timber.d("Done updating characteristic values"),
                         this::postError
                 );*/
-        Timber.d("Starting to advertise services");
-        UUID uuid = FidoGattProfile.FIDO_SERVICE_UUID;
-        advertiseServicesDisposable = bleServer.advertise(uuid)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe(disposable -> isAdvertisingService.postValue(true))
-                .doFinally(() -> isAdvertisingService.postValue(false))
-                .subscribe(
-                        () -> Timber.i("Stopped advertising services"),
-                        this::postError
-                );
-
 
         fidoAuthServiceDisposable.add(provideAndAdvertiseServicesDisposable);
         //viewModelDisposable.add(updateValueDisposable);
-        fidoAuthServiceDisposable.add(advertiseServicesDisposable);
     }
 
     private void stopProvidingAndAdvertisingServices() {
-        Timber.d("Stopping to advertise services");
-        if (advertiseServicesDisposable != null && !advertiseServicesDisposable.isDisposed()) {
-            advertiseServicesDisposable.dispose();
-        }
-        Timber.d("Stopping to provide services");
+        Timber.d("Stopping to provide and advertise services");
         if (provideAndAdvertiseServicesDisposable != null && !provideAndAdvertiseServicesDisposable.isDisposed()) {
             provideAndAdvertiseServicesDisposable.dispose();
         }
