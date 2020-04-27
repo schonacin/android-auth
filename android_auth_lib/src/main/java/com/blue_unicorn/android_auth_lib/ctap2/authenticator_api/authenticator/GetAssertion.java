@@ -54,6 +54,7 @@ public class GetAssertion {
     }
 
     // 2. - 4. & 6. are ignored as pinAuth and extensions are not supported
+    // TODO: or throw respective errors when present: would need changes in data classes however
 
     public Single<GetAssertionResponse> operateInner() {
         // 7. - 8. handle user approval and whether credentials could be found
