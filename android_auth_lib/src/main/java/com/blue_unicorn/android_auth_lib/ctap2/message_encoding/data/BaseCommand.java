@@ -1,16 +1,18 @@
 package com.blue_unicorn.android_auth_lib.ctap2.message_encoding.data;
 
+import com.blue_unicorn.android_auth_lib.ctap2.constants.CommandValue;
+
 public class BaseCommand implements Command {
 
-    private byte value;
+    private int value;
     private String parameters;
 
-    public BaseCommand(byte value, String parameters) {
+    public BaseCommand(@CommandValue int value, String parameters) {
         this.value = value;
         this.parameters = parameters;
     }
 
-    public byte getValue() {
+    public int getValue() {
         return value;
     }
 
