@@ -9,7 +9,7 @@ import com.blue_unicorn.android_auth_lib.ctap2.constants.StatusCode;
 public abstract class StatusCodeException extends Exception {
 
     //TODO: think about best location (in the specification it's under Message Encoding
-    // but the API Methods need to have access to them as well
+    // but the API Methods need to have access to them as well)
 
     private int errorCode;
 
