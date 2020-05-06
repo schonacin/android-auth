@@ -26,7 +26,7 @@ public class FidoAuthService extends Service {
     private FidoGattProfile fidoGattProfile;
     private RxBleServer bleServer;
     private Disposable provideAndAdvertiseServicesDisposable;
-    //private Disposable updateValueDisposable;
+    private Disposable updateFidoStatusDisposable;
 
     private MutableLiveData<Boolean> isProvidingAndAdvertisingServices = new MutableLiveData<>();
     private MutableLiveData<Throwable> errors = new MutableLiveData<>();
@@ -56,6 +56,7 @@ public class FidoAuthService extends Service {
          *
          * setForeground?
          */
+        //fidoGattProfile.getFidoControlPointCharacteristic().getValueChanges();
 
         return mBinder;
     }
@@ -98,15 +99,15 @@ public class FidoAuthService extends Service {
                         () -> Timber.i("Stopped providing and advertising services"),
                         this::postError
                 );
-        /*updateValueDisposable = fidoGattProfile.updateCharacteristicValues()
+        updateFidoStatusDisposable = fidoGattProfile.updateFidoStatusCharacteristicValue()
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         () -> Timber.d("Done updating characteristic values"),
                         this::postError
-                );*/
+                );
 
         fidoAuthServiceDisposable.add(provideAndAdvertiseServicesDisposable);
-        //viewModelDisposable.add(updateValueDisposable);
+        fidoAuthServiceDisposable.add(updateFidoStatusDisposable);
     }
 
     private void stopProvidingAndAdvertisingServices() {
@@ -114,8 +115,8 @@ public class FidoAuthService extends Service {
         if (provideAndAdvertiseServicesDisposable != null && !provideAndAdvertiseServicesDisposable.isDisposed()) {
             provideAndAdvertiseServicesDisposable.dispose();
         }
-        /*if (updateValueDisposable != null && !updateValueDisposable.isDisposed()) {
-            updateValueDisposable.dispose();
+        /*if (updateFidoStatusDisposable != null && !updateFidoStatusDisposable.isDisposed()) {
+            updateFidoStatusDisposable.dispose();
         }*/
     }
 

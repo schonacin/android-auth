@@ -74,14 +74,14 @@ public class MainActivity extends AppCompatActivity {
 
         rxPermissions = new RxPermissions(this);
 
+        Intent intent = new Intent(this, FidoAuthService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
         constraintLayout = findViewById(R.id.coordinatorLayout);
         advertiseServicesToggleButton = findViewById(R.id.advertiseServicesToggleButton);
         advertiseServicesToggleButton.setOnClickListener(v -> fidoAuthService.toggleProvidingAndAdvertisingServices());
 
         errorSnackbar = Snackbar.make(constraintLayout, R.string.error_unknown, Snackbar.LENGTH_SHORT);
-
-        Intent intent = new Intent(this, FidoAuthService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override

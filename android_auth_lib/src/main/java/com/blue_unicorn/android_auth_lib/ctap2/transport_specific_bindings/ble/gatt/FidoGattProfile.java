@@ -15,6 +15,10 @@ import com.nexenio.rxandroidbleserver.service.value.BaseValue;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Observable;
 
 public final class FidoGattProfile {
 
@@ -55,13 +59,14 @@ public final class FidoGattProfile {
         createFidoGattServer(context);
     }
 
-    /*public Completable updateCharacteristicValues() {
+    // Example how to update the fido status characteristic
+    public Completable updateFidoStatusCharacteristicValue() {
         return Observable.interval(1, TimeUnit.SECONDS)
-                .map(count -> (int) (count % 1337))
-                .map(this::createExampleValue)
-                .flatMapCompletable(value -> exampleCharacteristic.setValue(value)
-                        .andThen(exampleCharacteristic.sendNotifications()));
-    }*/
+                .map(count -> (int) (count % 42))
+                .map(number -> new BaseValue(ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(number).array()))
+                .flatMapCompletable(value -> fidoStatusCharacteristic.setValue(value)
+                        .andThen(fidoStatusCharacteristic.sendNotifications()));
+    }
 
     private void createFidoGattServer(@NonNull Context context) {
         gattServer = RxBleServerProvider.createServer(context);
