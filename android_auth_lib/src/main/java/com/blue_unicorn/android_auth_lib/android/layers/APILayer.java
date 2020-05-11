@@ -2,6 +2,8 @@ package com.blue_unicorn.android_auth_lib.android.layers;
 
 import android.content.Context;
 
+import com.blue_unicorn.android_auth_lib.android.AuthHandler;
+import com.blue_unicorn.android_auth_lib.android.AuthSingleObserver;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.APIHandler;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.BaseAPIHandler;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.FidoObject;
@@ -17,7 +19,6 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleObserver;
-import io.reactivex.rxjava3.disposables.Disposable;
 
 public class APILayer {
 
@@ -25,34 +26,23 @@ public class APILayer {
     private APIHandler apiHandler;
     private RxFragmentationProvider fragmentationProvider;
 
-    private ResponseLayer responseLayer;
+    private AuthHandler authHandler;
 
-
-
-    APILayer(Context context) {
+    public APILayer(AuthHandler authHandler, Context context) {
+        this.authHandler = authHandler;
         this.cborHandler = new BaseCborHandler();
         this.apiHandler = new BaseAPIHandler(context);
         this.fragmentationProvider = new BaseFragmentationProvider();
-        this.responseLayer = new ResponseLayer();
     }
 
-    public void buildNewRequestChain(byte[] input) {
-        SingleObserver<FidoObject> apiSubscriber = new SingleObserver<FidoObject>() {
+    void buildNewRequestChain(byte[] input) {
+        SingleObserver<FidoObject> apiSubscriber = new AuthSingleObserver<FidoObject>() {
             @Override
-            public void onSubscribe(Disposable d){
-            }
-
-            @Override
-            public void onSuccess(FidoObject result){
+            public void onSuccess(FidoObject result) {
                 if (result instanceof ResponseObject)
                     buildResponseChainWithoutUserInteraction((ResponseObject) result);
                 else
                     buildNotification((RequestObject) result);
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                ErrorLayer.handleErrors(t);
             }
         };
 
@@ -68,7 +58,7 @@ public class APILayer {
                 .cast(Frame.class)
                 .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), getMaxLength()))
                 .map(Fragment::asBytes)
-                .subscribe(responseLayer.createNewResponseSubscriber());
+                .subscribe(authHandler.getResponseLayer().createNewResponseSubscriber());
     }
 
     private void buildResponseChainAfterUserInteraction(RequestObject request) {
@@ -80,7 +70,7 @@ public class APILayer {
                 .cast(Frame.class)
                 .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), getMaxLength()))
                 .map(Fragment::asBytes)
-                .subscribe(responseLayer.createNewResponseSubscriber());
+                .subscribe(authHandler.getResponseLayer().createNewResponseSubscriber());
     }
 
     private void buildNotification(RequestObject request) {

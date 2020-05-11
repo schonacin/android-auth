@@ -18,12 +18,12 @@ public final class ErrorLayer {
         ResponseLayer responseLayer = new ResponseLayer();
         RxFragmentationProvider fragmentationProvider = new BaseFragmentationProvider();
 
-        if(t instanceof BleException) {
+        if (t instanceof BleException) {
             Flowable.fromCallable(((BleException) t)::getErrorCode)
                     .map(b -> new byte[]{b})
                     .subscribe(responseLayer.createNewResponseSubscriber());
-        } else if(t instanceof StatusCodeException) {
-            Single.just((byte)0x30)
+        } else if (t instanceof StatusCodeException) {
+            Single.just((byte) 0x30)
                     .map(b -> new byte[]{b})
                     .map(BaseFrame::new)
                     .cast(Frame.class)

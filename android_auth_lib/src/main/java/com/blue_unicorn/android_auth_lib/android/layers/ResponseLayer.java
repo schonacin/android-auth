@@ -11,12 +11,9 @@ public class ResponseLayer {
     public Subscriber<byte[]> createNewResponseSubscriber() {
         this.responseSubscriber = new AuthSubscriber<byte[]>() {
             @Override
-            public void onComplete() {
-            }
-
-            @Override
             public void onNext(byte[] response) {
                 // fragments are sent back to bluetooth
+                request(1);
             }
         };
         return responseSubscriber;

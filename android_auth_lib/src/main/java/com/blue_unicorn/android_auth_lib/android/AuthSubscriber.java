@@ -2,13 +2,14 @@ package com.blue_unicorn.android_auth_lib.android;
 
 import com.blue_unicorn.android_auth_lib.android.layers.ErrorLayer;
 
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
+import io.reactivex.rxjava3.subscribers.DefaultSubscriber;
 
-public class AuthSubscriber<T> implements Subscriber<T> {
+
+public abstract class AuthSubscriber<T> extends DefaultSubscriber<T> {
 
     @Override
-    public void onSubscribe(Subscription s) {
+    public void onStart() {
+        request(1);
     }
 
     @Override
@@ -18,10 +19,6 @@ public class AuthSubscriber<T> implements Subscriber<T> {
     @Override
     public void onError(Throwable e) {
         ErrorLayer.handleErrors(e);
-    }
-
-    @Override
-    public void onNext(T item) {
     }
 
 }
