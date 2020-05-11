@@ -4,6 +4,7 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.c
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.constants.Keepalive;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.InvalidCommandException;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.InvalidLengthException;
+import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -33,6 +34,11 @@ public class BaseInitializationFragment extends BaseFragment implements Initiali
             throw new InvalidCommandException("Invalid command error: initialization fragment command " + getCMD() + " is not specified");
         if (getDATA().length > (((getHLEN() & 0xff) << 8) + (getLLEN() & 0xff)))
             throw new InvalidLengthException("Invalid length error: initialization fragment DATA length " + getDATA().length + " is greater than length specified in command parameters " + (((getHLEN() & 0xff) << 8) + (getLLEN() & 0xff)));
+    }
+
+    @Override
+    public byte[] asBytes() {
+        return ArrayUtil.concatBytes(new byte[]{getCMD(), getHLEN(), getLLEN()}, getDATA());
     }
 
     @Override

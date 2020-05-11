@@ -15,6 +15,12 @@ public class BaseFrame implements Frame {
     private byte LLEN;
     private byte[] DATA;
 
+    // TODO: this could be done with the Builder Pattern in order to avoid confusion
+    // This constructor is used to generate a Message BaseFrame, hence the 0x83 bit (change to constant)
+    public BaseFrame(byte[] DATA) throws InvalidCommandException, InvalidLengthException {
+        this((byte)0x83,(byte)(DATA.length >> 8), (byte)(DATA.length & 0xff), DATA);
+    }
+
     public BaseFrame(byte CMDSTAT, byte HLEN, byte LLEN, byte[] DATA) throws InvalidCommandException, InvalidLengthException {
         if (!Command.commands.contains(CMDSTAT))
             throw new InvalidCommandException("Invalid command error: frame command " + CMDSTAT + " is not specified");
