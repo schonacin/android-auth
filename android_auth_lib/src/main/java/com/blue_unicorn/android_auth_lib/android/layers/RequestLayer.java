@@ -10,8 +10,8 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Frame;
 
 import io.reactivex.rxjava3.core.BackpressureStrategy;
-import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.subscribers.DefaultSubscriber;
 
 public class RequestLayer {
@@ -32,11 +32,11 @@ public class RequestLayer {
         return Observable.just(new byte[]{(byte) 0x83, 0x02, 0x03, 0x04});
     }
 
-    void initialize(Observable<byte[]> bluetoothRequest) {
+    public void initialize(Observable<byte[]> bluetoothRequest) {
         // call this method when Bluetooth is activated and advertising starts.
         // this basically starts the observable chain
 
-        frameSubscriber = new AuthSubscriber<byte[]>() {
+        frameSubscriber = new AuthSubscriber<byte[]>(authHandler) {
             @Override
             public void onNext(byte[] frame) {
                 authHandler.getApiLayer().buildNewRequestChain(frame);
@@ -44,13 +44,16 @@ public class RequestLayer {
             }
         };
 
-        defragmentationProvider.defragment(getFragments(bluetoothRequest), getMaxLength())
+        bluetoothRequest
+                .flatMapSingle(this::toFragment)
+                .flatMapMaybe(fragment -> defragmentationProvider.defragment(fragment, getMaxLength()))
                 .map(Frame::getDATA)
+                .toFlowable(BackpressureStrategy.BUFFER)
                 .subscribe(frameSubscriber);
     }
 
-    private Flowable<Fragment> getFragments(Observable<byte[]> incomingBluetoothRequests) {
-        return incomingBluetoothRequests
+    private Single<Fragment> toFragment(byte[] request) {
+        return Single.just(request)
                 .map(bytes -> {
                     if ((bytes[0] & (byte) 0x80) == (byte) 0x80) {
                         return new BaseInitializationFragment(bytes);
@@ -58,12 +61,10 @@ public class RequestLayer {
                         return new BaseContinuationFragment(bytes);
                     }
                 })
-                .cast(Fragment.class)
-                .toFlowable(BackpressureStrategy.BUFFER);
+                .cast(Fragment.class);
     }
 
     private int getMaxLength() {
         return 20;
     }
-
 }

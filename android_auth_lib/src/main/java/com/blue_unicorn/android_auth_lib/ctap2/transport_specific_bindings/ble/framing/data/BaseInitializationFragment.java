@@ -21,7 +21,7 @@ public class BaseInitializationFragment extends BaseFragment implements Initiali
     }
 
     public BaseInitializationFragment(byte[] rawFragment) throws InvalidCommandException, InvalidLengthException {
-        this(rawFragment[0], rawFragment[1], rawFragment[2], rawFragment, 3);
+        this(rawFragment[0], rawFragment[1], rawFragment[2], Arrays.copyOfRange(rawFragment, 3, rawFragment.length), 3);
     }
 
     private BaseInitializationFragment(byte CMD, byte HLEN, byte LLEN, byte[] DATA, int offset) throws InvalidCommandException, InvalidLengthException {

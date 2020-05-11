@@ -36,7 +36,7 @@ public class APILayer {
     }
 
     void buildNewRequestChain(byte[] input) {
-        SingleObserver<FidoObject> apiSubscriber = new AuthSingleObserver<FidoObject>() {
+        SingleObserver<FidoObject> apiSubscriber = new AuthSingleObserver<FidoObject>(authHandler) {
             @Override
             public void onSuccess(FidoObject result) {
                 if (result instanceof ResponseObject)

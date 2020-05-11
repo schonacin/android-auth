@@ -1,5 +1,6 @@
 package com.blue_unicorn.android_auth_lib.android.layers;
 
+import com.blue_unicorn.android_auth_lib.android.AuthHandler;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.StatusCodeException;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.BleException;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.BaseFragmentationProvider;
@@ -13,15 +14,14 @@ import io.reactivex.rxjava3.core.Single;
 
 public final class ErrorLayer {
 
-    public static void handleErrors(Throwable t) {
+    public static void handleErrors(AuthHandler authHandler, Throwable t) {
 
-        ResponseLayer responseLayer = new ResponseLayer();
         RxFragmentationProvider fragmentationProvider = new BaseFragmentationProvider();
 
         if (t instanceof BleException) {
             Flowable.fromCallable(((BleException) t)::getErrorCode)
                     .map(b -> new byte[]{b})
-                    .subscribe(responseLayer.createNewResponseSubscriber());
+                    .subscribe(authHandler.getResponseLayer().createNewResponseSubscriber());
         } else if (t instanceof StatusCodeException) {
             Single.just((byte) 0x30)
                     .map(b -> new byte[]{b})
@@ -29,7 +29,7 @@ public final class ErrorLayer {
                     .cast(Frame.class)
                     .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), getMaxLength()))
                     .map(Fragment::asBytes)
-                    .subscribe(responseLayer.createNewResponseSubscriber());
+                    .subscribe(authHandler.getResponseLayer().createNewResponseSubscriber());
         } else {
             // handle this shit
         }

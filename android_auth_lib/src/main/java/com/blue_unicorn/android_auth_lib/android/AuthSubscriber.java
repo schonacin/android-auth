@@ -7,6 +7,12 @@ import io.reactivex.rxjava3.subscribers.DefaultSubscriber;
 
 public abstract class AuthSubscriber<T> extends DefaultSubscriber<T> {
 
+    private AuthHandler authHandler;
+
+    protected AuthSubscriber(AuthHandler authHandler) {
+        this.authHandler = authHandler;
+    }
+
     @Override
     public void onStart() {
         request(1);
@@ -18,7 +24,7 @@ public abstract class AuthSubscriber<T> extends DefaultSubscriber<T> {
 
     @Override
     public void onError(Throwable e) {
-        ErrorLayer.handleErrors(e);
+        ErrorLayer.handleErrors(authHandler, e);
     }
 
 }
