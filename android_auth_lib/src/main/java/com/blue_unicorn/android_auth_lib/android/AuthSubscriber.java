@@ -2,10 +2,10 @@ package com.blue_unicorn.android_auth_lib.android;
 
 import com.blue_unicorn.android_auth_lib.android.layers.ErrorLayer;
 
-import io.reactivex.rxjava3.subscribers.DefaultSubscriber;
+import io.reactivex.rxjava3.subscribers.DisposableSubscriber;
 
 
-public abstract class AuthSubscriber<T> extends DefaultSubscriber<T> {
+public abstract class AuthSubscriber<T> extends DisposableSubscriber<T> {
 
     private AuthHandler authHandler;
 

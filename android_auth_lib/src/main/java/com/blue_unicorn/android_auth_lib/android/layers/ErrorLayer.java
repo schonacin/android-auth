@@ -16,28 +16,24 @@ public final class ErrorLayer {
 
     public static void handleErrors(AuthHandler authHandler, Throwable t) {
 
-        RxFragmentationProvider fragmentationProvider = new BaseFragmentationProvider();
+         RxFragmentationProvider fragmentationProvider = new BaseFragmentationProvider();
 
         if (t instanceof BleException) {
             Flowable.fromCallable(((BleException) t)::getErrorCode)
                     .map(b -> new byte[]{b})
-                    .subscribe(authHandler.getResponseLayer().createNewResponseSubscriber());
+                    .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
         } else if (t instanceof StatusCodeException) {
             Single.just((byte) 0x30)
                     .map(b -> new byte[]{b})
                     .map(BaseFrame::new)
                     .cast(Frame.class)
-                    .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), getMaxLength()))
+                    .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getMaxLength()))
                     .map(Fragment::asBytes)
-                    .subscribe(authHandler.getResponseLayer().createNewResponseSubscriber());
+                    .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
         } else {
             // handle this shit
         }
 
-    }
-
-    private static int getMaxLength() {
-        return 20;
     }
 
 }

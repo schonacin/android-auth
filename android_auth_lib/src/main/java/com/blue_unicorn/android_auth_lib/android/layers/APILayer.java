@@ -56,9 +56,9 @@ public class APILayer {
         cborHandler.encode(response)
                 .map(BaseFrame::new)
                 .cast(Frame.class)
-                .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), getMaxLength()))
+                .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getMaxLength()))
                 .map(Fragment::asBytes)
-                .subscribe(authHandler.getResponseLayer().createNewResponseSubscriber());
+                .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
     }
 
     private void buildResponseChainAfterUserInteraction(RequestObject request) {
@@ -68,17 +68,12 @@ public class APILayer {
                 .flatMap(cborHandler::encode)
                 .map(BaseFrame::new)
                 .cast(Frame.class)
-                .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), getMaxLength()))
+                .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getMaxLength()))
                 .map(Fragment::asBytes)
-                .subscribe(authHandler.getResponseLayer().createNewResponseSubscriber());
+                .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
     }
 
     private void buildNotification(RequestObject request) {
 
     }
-
-    private int getMaxLength() {
-        return 20;
-    }
-
 }

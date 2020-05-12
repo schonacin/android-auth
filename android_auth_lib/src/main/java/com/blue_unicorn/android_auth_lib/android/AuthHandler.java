@@ -8,6 +8,7 @@ import com.blue_unicorn.android_auth_lib.android.layers.ResponseLayer;
 
 import java.util.List;
 
+import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Observable;
 
 public class AuthHandler {
@@ -34,11 +35,15 @@ public class AuthHandler {
         return responseLayer;
     }
 
+    public int getMaxLength() {
+        return 20;
+    }
+
     public void startUp(Observable<byte[]> requests) {
         requestLayer.initialize(requests);
     }
 
-    public void constructResult(List<byte[]> result) {
-        byte[] a = result.get(0);
+    public Flowable<byte[]> getResponses() {
+        return responseLayer.getResponses();
     }
 }
