@@ -88,7 +88,8 @@ public final class FidoGattProfile {
 
     private RxBleCharacteristic createFidoControlPointCharacteristic() {
         fidoControlPointCharacteristic = new CharacteristicBuilder(FIDO_CONTROL_POINT_CHARACTERISTIC_UUID)
-                .allowMitmProtectedEncryptedWrite()
+                //.allowMitmProtectedEncryptedWrite()
+                .allowWrite()
                 .supportWrites()
                 .build();
 
@@ -97,6 +98,7 @@ public final class FidoGattProfile {
 
     private RxBleCharacteristic createFidoStatusCharacteristic() {
         fidoStatusCharacteristic = new CharacteristicBuilder(FIDO_STATUS_CHARACTERISTIC_UUID)
+                .allowRead()
                 .supportNotifications()
                 .build();
 
@@ -106,8 +108,9 @@ public final class FidoGattProfile {
     // TODO: set and update FidoControlPointLength depending on att_mtu
     private RxBleCharacteristic createFidoControlPointLengthCharacteristic() {
         fidoControlPointLengthCharacteristic = new CharacteristicBuilder(FIDO_CONTROL_POINT_LENGTH_CHARACTERISTIC_UUID)
-                .withInitialValue(new BaseValue(ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(512).array()))
-                .allowMitmProtectedEncryptedRead()
+                .withInitialValue(new BaseValue(ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(200).array()))
+                //.allowMitmProtectedEncryptedRead()
+                .allowRead()
                 .supportReads()
                 .build();
 
@@ -116,9 +119,12 @@ public final class FidoGattProfile {
 
     private RxBleCharacteristic createFidoServiceRevisionBitfieldCharacteristic() {
         fidoServiceRevisionBitfieldCharacteristic = new CharacteristicBuilder(FIDO_SERVICE_REVISION_BITFIELD_CHARACTERISTIC_UUID)
+                //.withDescriptor(new ClientCharacteristicConfiguration())
                 .withInitialValue(new BaseValue(new byte[]{0x20}))
-                .allowMitmProtectedEncryptedRead()
-                .allowMitmProtectedEncryptedWrite()
+                //.allowMitmProtectedEncryptedRead()
+                //.allowMitmProtectedEncryptedWrite()
+                .allowRead()
+                .allowWrite()
                 .supportReads()
                 .supportWrites()
                 .build();
@@ -139,8 +145,10 @@ public final class FidoGattProfile {
 
     private RxBleCharacteristic createManufacturerNameStringCharacteristic() {
         manufacturerNameStringCharacteristic = new CharacteristicBuilder(MANUFACTURER_NAME_STRING_CHARACTERISTIC_UUID)
+                //.withDescriptor(new ClientCharacteristicConfiguration())
                 .withInitialValue(new BaseValue("Test Manufacturer String".getBytes()))
-                .allowMitmProtectedEncryptedRead()
+                //.allowMitmProtectedEncryptedRead()
+                .allowRead()
                 .supportReads()
                 .build();
 
@@ -149,8 +157,10 @@ public final class FidoGattProfile {
 
     private RxBleCharacteristic createModelNumberStringCharacteristic() {
         modelNumberStringCharacteristic = new CharacteristicBuilder(MODEL_NUMBER_STRING_CHARACTERISTIC_UUID)
+                //.withDescriptor(new ClientCharacteristicConfiguration())
                 .withInitialValue(new BaseValue("Test Model Number".getBytes()))
-                .allowMitmProtectedEncryptedRead()
+                //.allowMitmProtectedEncryptedRead()
+                .allowRead()
                 .supportReads()
                 .build();
 
@@ -159,8 +169,10 @@ public final class FidoGattProfile {
 
     private RxBleCharacteristic createFirmwareRevisionStringCharacteristic() {
         firmwareRevisionStringCharacteristic = new CharacteristicBuilder(FIRMWARE_REVISION_STRING_CHARACTERISTIC_UUID)
+                //.withDescriptor(new ClientCharacteristicConfiguration())
                 .withInitialValue(new BaseValue("Test Firmware Revision".getBytes()))
-                .allowMitmProtectedEncryptedRead()
+                //.allowMitmProtectedEncryptedRead()
+                .allowRead()
                 .supportReads()
                 .build();
 

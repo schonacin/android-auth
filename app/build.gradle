@@ -8,8 +8,8 @@ android {
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        versionName '1.0'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildTypes {
         release {
@@ -31,10 +31,10 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.google.android.material:material:1.1.0'
 
-    implementation 'io.reactivex.rxjava3:rxjava:3.0.1'
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.2'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    implementation 'com.github.niklasvd96:rxpermissions:0.11.2'
-    implementation 'com.github.neXenio:RxAndroidBleServer:146e218bc1de0b1dc1fb162fd17d118e289f9d42'
+    implementation 'com.github.Nivador:rxpermissions:0.11.2'
+    implementation 'com.github.Nivador:RxAndroidBleServer:0.1.1'
 
     implementation 'com.jakewharton.timber:timber:4.7.1'
 

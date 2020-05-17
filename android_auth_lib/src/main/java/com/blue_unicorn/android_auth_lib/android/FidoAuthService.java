@@ -1,10 +1,7 @@
 package com.blue_unicorn.android_auth_lib.android;
 
 import android.app.Service;
-import android.bluetooth.BluetoothManager;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
@@ -17,9 +14,11 @@ import com.nexenio.rxandroidbleserver.RxBleServer;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import timber.log.Timber;
 
+// TODO: set as foreground service?
 public class FidoAuthService extends Service {
 
     private final CompositeDisposable fidoAuthServiceDisposable = new CompositeDisposable();
@@ -37,26 +36,12 @@ public class FidoAuthService extends Service {
     public IBinder onBind(Intent intent) {
         Timber.i("onBind() called!	%s", intent);
 
-        if (!bleCapable()) {
-            Timber.e("Device is not BLE capable");
-            return null;
-        }
-
-        if (!bleEnabled()) {
-            Timber.e("BLE is not enabled");
-            return null;
-        }
-
+        RxJavaPlugins.setErrorHandler(e -> {
+        });
         fidoGattProfile = new FidoGattProfile(this);
         bleServer = fidoGattProfile.getGattServer();
 
         isProvidingAndAdvertisingServices.setValue(false);
-
-        /* start advertising & build observable chains
-         *
-         * setForeground?
-         */
-        //fidoGattProfile.getFidoControlPointCharacteristic().getValueChanges();
 
         return mBinder;
     }
@@ -64,16 +49,7 @@ public class FidoAuthService extends Service {
     @Override
     public boolean onUnbind(Intent intent) {
         fidoAuthServiceDisposable.dispose();
-        // TODO: stop observable chain with onComplete()
         return false;
-    }
-
-    private boolean bleCapable() {
-        return getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
-    }
-
-    private boolean bleEnabled() {
-        return ((BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE)).getAdapter().isEnabled();
     }
 
     public LiveData<Boolean> isProvidingAndAdvertisingServices() {
@@ -106,6 +82,10 @@ public class FidoAuthService extends Service {
                         this::postError
                 );
 
+        fidoGattProfile.getFidoControlPointCharacteristic().getValueChanges().subscribe(
+                i -> Timber.d("Fido control point value changed!\t%s", i.toString())
+        );
+
         fidoAuthServiceDisposable.add(provideAndAdvertiseServicesDisposable);
         fidoAuthServiceDisposable.add(updateFidoStatusDisposable);
     }
@@ -115,9 +95,9 @@ public class FidoAuthService extends Service {
         if (provideAndAdvertiseServicesDisposable != null && !provideAndAdvertiseServicesDisposable.isDisposed()) {
             provideAndAdvertiseServicesDisposable.dispose();
         }
-        /*if (updateFidoStatusDisposable != null && !updateFidoStatusDisposable.isDisposed()) {
+        if (updateFidoStatusDisposable != null && !updateFidoStatusDisposable.isDisposed()) {
             updateFidoStatusDisposable.dispose();
-        }*/
+        }
     }
 
     private void postError(@NonNull Throwable throwable) {

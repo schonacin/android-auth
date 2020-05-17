@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
             fidoAuthService = ((FidoAuthServiceBinder) service).getService();
             mBound = true;
 
+            Timber.d("onServiceConnected called!!!");
+
             fidoAuthService.isProvidingAndAdvertisingServices().observe(MainActivity.this, isProvidingAndAdvertisingService -> {
                 if (isProvidingAndAdvertisingService) {
                     onServiceAdvertisingStarted();
@@ -54,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
                 showTemporaryMessage(throwable);
                 performTroubleshooting(throwable);
             });
+
+            advertiseServicesToggleButton.setOnClickListener(v -> fidoAuthService.toggleProvidingAndAdvertisingServices());
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -66,22 +70,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
-
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
 
+        setContentView(R.layout.activity_main);
         rxPermissions = new RxPermissions(this);
+        constraintLayout = findViewById(R.id.coordinatorLayout);
+        advertiseServicesToggleButton = findViewById(R.id.advertiseServicesToggleButton);
+        errorSnackbar = Snackbar.make(constraintLayout, R.string.error_unknown, Snackbar.LENGTH_SHORT);
 
         Intent intent = new Intent(this, FidoAuthService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-
-        constraintLayout = findViewById(R.id.coordinatorLayout);
-        advertiseServicesToggleButton = findViewById(R.id.advertiseServicesToggleButton);
-        advertiseServicesToggleButton.setOnClickListener(v -> fidoAuthService.toggleProvidingAndAdvertisingServices());
-
-        errorSnackbar = Snackbar.make(constraintLayout, R.string.error_unknown, Snackbar.LENGTH_SHORT);
     }
 
     @Override
