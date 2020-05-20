@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
             Timber.d("onServiceConnected called!!!");
 
-            fidoAuthService.isProvidingAndAdvertisingServices().observe(MainActivity.this, isProvidingAndAdvertisingService -> {
+            fidoAuthService.isAdvertising().observe(MainActivity.this, isProvidingAndAdvertisingService -> {
                 if (isProvidingAndAdvertisingService) {
                     onServiceAdvertisingStarted();
                 } else {
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
                 performTroubleshooting(throwable);
             });
 
-            advertiseServicesToggleButton.setOnClickListener(v -> fidoAuthService.toggleProvidingAndAdvertisingServices());
+            advertiseServicesToggleButton.setOnClickListener(v -> fidoAuthService.toggleBleAdvertising());
         }
 
         public void onServiceDisconnected(ComponentName className) {

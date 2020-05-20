@@ -33,7 +33,7 @@ public final class FidoGattProfile {
     private static final UUID FIDO_SERVICE_REVISION_BITFIELD_CHARACTERISTIC_UUID =
             UUID.fromString("F1D0FFF4-DEAA-ECEE-B42F-C9BA7ED623BB");
 
-    private static final UUID DEVICE_INFORMATION_SERVICE_UUID =
+    public static final UUID DEVICE_INFORMATION_SERVICE_UUID =
             UUID.fromString("0000180A-0000-1000-8000-00805F9B34FB");
     private static final UUID MANUFACTURER_NAME_STRING_CHARACTERISTIC_UUID =
             UUID.fromString("00002A29-0000-1000-8000-00805F9B34FB");
@@ -68,6 +68,14 @@ public final class FidoGattProfile {
                         .andThen(fidoStatusCharacteristic.sendNotifications()));
     }
 
+    public void setFidoStatusCharacteristicValue(BaseValue value) {
+        fidoStatusCharacteristic.setValue(value);
+    }
+
+    public void sendFidoStatusCharacteristicNotifications() {
+        fidoStatusCharacteristic.sendNotifications();
+    }
+
     private void createFidoGattServer(@NonNull Context context) {
         gattServer = RxBleServerProvider.createServer(context);
         gattServer.addService(createFidoService()).blockingAwait();
@@ -88,7 +96,8 @@ public final class FidoGattProfile {
 
     private RxBleCharacteristic createFidoControlPointCharacteristic() {
         fidoControlPointCharacteristic = new CharacteristicBuilder(FIDO_CONTROL_POINT_CHARACTERISTIC_UUID)
-                //.allowMitmProtectedEncryptedWrite()
+                .allowMitmProtectedEncryptedWrite()
+                .allowEncryptedWrite()
                 .allowWrite()
                 .supportWrites()
                 .build();
@@ -98,6 +107,8 @@ public final class FidoGattProfile {
 
     private RxBleCharacteristic createFidoStatusCharacteristic() {
         fidoStatusCharacteristic = new CharacteristicBuilder(FIDO_STATUS_CHARACTERISTIC_UUID)
+                .allowMitmProtectedEncryptedRead()
+                .allowEncryptedRead()
                 .allowRead()
                 .supportNotifications()
                 .build();
@@ -108,8 +119,9 @@ public final class FidoGattProfile {
     // TODO: set and update FidoControlPointLength depending on att_mtu
     private RxBleCharacteristic createFidoControlPointLengthCharacteristic() {
         fidoControlPointLengthCharacteristic = new CharacteristicBuilder(FIDO_CONTROL_POINT_LENGTH_CHARACTERISTIC_UUID)
-                .withInitialValue(new BaseValue(ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(200).array()))
-                //.allowMitmProtectedEncryptedRead()
+                .withInitialValue(new BaseValue(ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(20).array()))
+                .allowMitmProtectedEncryptedRead()
+                .allowEncryptedRead()
                 .allowRead()
                 .supportReads()
                 .build();
@@ -119,11 +131,12 @@ public final class FidoGattProfile {
 
     private RxBleCharacteristic createFidoServiceRevisionBitfieldCharacteristic() {
         fidoServiceRevisionBitfieldCharacteristic = new CharacteristicBuilder(FIDO_SERVICE_REVISION_BITFIELD_CHARACTERISTIC_UUID)
-                //.withDescriptor(new ClientCharacteristicConfiguration())
                 .withInitialValue(new BaseValue(new byte[]{0x20}))
-                //.allowMitmProtectedEncryptedRead()
-                //.allowMitmProtectedEncryptedWrite()
+                .allowMitmProtectedEncryptedRead()
+                .allowEncryptedRead()
                 .allowRead()
+                .allowMitmProtectedEncryptedWrite()
+                .allowEncryptedWrite()
                 .allowWrite()
                 .supportReads()
                 .supportWrites()
@@ -145,9 +158,9 @@ public final class FidoGattProfile {
 
     private RxBleCharacteristic createManufacturerNameStringCharacteristic() {
         manufacturerNameStringCharacteristic = new CharacteristicBuilder(MANUFACTURER_NAME_STRING_CHARACTERISTIC_UUID)
-                //.withDescriptor(new ClientCharacteristicConfiguration())
                 .withInitialValue(new BaseValue("Test Manufacturer String".getBytes()))
-                //.allowMitmProtectedEncryptedRead()
+                .allowMitmProtectedEncryptedRead()
+                .allowEncryptedRead()
                 .allowRead()
                 .supportReads()
                 .build();
@@ -157,9 +170,9 @@ public final class FidoGattProfile {
 
     private RxBleCharacteristic createModelNumberStringCharacteristic() {
         modelNumberStringCharacteristic = new CharacteristicBuilder(MODEL_NUMBER_STRING_CHARACTERISTIC_UUID)
-                //.withDescriptor(new ClientCharacteristicConfiguration())
                 .withInitialValue(new BaseValue("Test Model Number".getBytes()))
-                //.allowMitmProtectedEncryptedRead()
+                .allowMitmProtectedEncryptedRead()
+                .allowEncryptedRead()
                 .allowRead()
                 .supportReads()
                 .build();
@@ -169,9 +182,9 @@ public final class FidoGattProfile {
 
     private RxBleCharacteristic createFirmwareRevisionStringCharacteristic() {
         firmwareRevisionStringCharacteristic = new CharacteristicBuilder(FIRMWARE_REVISION_STRING_CHARACTERISTIC_UUID)
-                //.withDescriptor(new ClientCharacteristicConfiguration())
                 .withInitialValue(new BaseValue("Test Firmware Revision".getBytes()))
-                //.allowMitmProtectedEncryptedRead()
+                .allowMitmProtectedEncryptedRead()
+                .allowEncryptedRead()
                 .allowRead()
                 .supportReads()
                 .build();
