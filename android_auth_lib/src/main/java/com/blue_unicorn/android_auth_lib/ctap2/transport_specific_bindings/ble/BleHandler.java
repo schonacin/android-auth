@@ -24,7 +24,6 @@ public class BleHandler {
     private FidoGattProfile fidoGattProfile;
     private RxBleServer bleServer;
     private Disposable provideAndAdvertiseServicesDisposable;
-    //private Disposable updateFidoStatusDisposable;
 
     private MutableLiveData<Boolean> isProvidingAndAdvertisingServices = new MutableLiveData<>();
     private MutableLiveData<Throwable> errors;
@@ -44,7 +43,7 @@ public class BleHandler {
 
     public void startProvidingAndAdvertisingServices() {
         Timber.d("Starting to provide and advertise services");
-        provideAndAdvertiseServicesDisposable = bleServer.provideServicesAndAdvertise(FidoGattProfile.FIDO_SERVICE_UUID/*, FidoGattProfile.DEVICE_INFORMATION_SERVICE_UUID*/)
+        provideAndAdvertiseServicesDisposable = bleServer.provideServicesAndAdvertise(FidoGattProfile.FIDO_SERVICE_UUID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(disposable -> isProvidingAndAdvertisingServices.postValue(true))
@@ -53,15 +52,6 @@ public class BleHandler {
                         () -> Timber.i("Stopped providing and advertising services"),
                         this::postError
                 );
-        /*
-        updateFidoStatusDisposable = fidoGattProfile.updateFidoStatusCharacteristicValue()
-                .subscribeOn(Schedulers.io())
-                .subscribe(
-                        () -> Timber.d("Done updating characteristic values"),
-                        this::postError
-                );
-        bleHandlerDisposable.add(updateFidoStatusDisposable);
-        */
         bleHandlerDisposable.add(provideAndAdvertiseServicesDisposable);
     }
 
@@ -70,10 +60,6 @@ public class BleHandler {
         if (provideAndAdvertiseServicesDisposable != null && !provideAndAdvertiseServicesDisposable.isDisposed()) {
             provideAndAdvertiseServicesDisposable.dispose();
         }
-        /*
-        if (updateFidoStatusDisposable != null && !updateFidoStatusDisposable.isDisposed()) {
-            updateFidoStatusDisposable.dispose();
-        }*/
     }
 
     public Observable<byte[]> getIncomingBleData() {
@@ -81,8 +67,8 @@ public class BleHandler {
     }
 
     public void sendBleData(byte[] data) {
-        fidoGattProfile.setFidoStatusCharacteristicValue(new BaseValue(data));
-        fidoGattProfile.sendFidoStatusCharacteristicNotifications();
+        fidoGattProfile.getFidoStatusCharacteristic().setValue(new BaseValue(data));
+        fidoGattProfile.getFidoStatusCharacteristic().sendNotifications();
     }
 
     // TODO: make this dynamic, as client can change the MTU

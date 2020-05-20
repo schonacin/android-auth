@@ -68,14 +68,6 @@ public final class FidoGattProfile {
                         .andThen(fidoStatusCharacteristic.sendNotifications()));
     }
 
-    public void setFidoStatusCharacteristicValue(BaseValue value) {
-        fidoStatusCharacteristic.setValue(value);
-    }
-
-    public void sendFidoStatusCharacteristicNotifications() {
-        fidoStatusCharacteristic.sendNotifications();
-    }
-
     private void createFidoGattServer(@NonNull Context context) {
         gattServer = RxBleServerProvider.createServer(context);
         gattServer.addService(createFidoService()).blockingAwait();
