@@ -75,8 +75,8 @@ public class BleHandler {
         }
     }
 
-    public Observable<RxBleValue> getIncomingBleData() {
-        return fidoGattProfile.getFidoControlPointCharacteristic().getValueChanges();
+    public Observable<byte[]> getIncomingBleData() {
+        return fidoGattProfile.getFidoControlPointCharacteristic().getValueChanges().map(RxBleValue::getBytes);
     }
 
     public void sendBleData(byte[] data) {
