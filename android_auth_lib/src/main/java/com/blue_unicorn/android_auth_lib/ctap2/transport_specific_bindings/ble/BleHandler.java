@@ -24,7 +24,7 @@ public class BleHandler {
     private FidoGattProfile fidoGattProfile;
     private RxBleServer bleServer;
     private Disposable provideAndAdvertiseServicesDisposable;
-    private Disposable updateFidoStatusDisposable;
+    //private Disposable updateFidoStatusDisposable;
 
     private MutableLiveData<Boolean> isProvidingAndAdvertisingServices = new MutableLiveData<>();
     private MutableLiveData<Throwable> errors;
@@ -70,9 +70,10 @@ public class BleHandler {
         if (provideAndAdvertiseServicesDisposable != null && !provideAndAdvertiseServicesDisposable.isDisposed()) {
             provideAndAdvertiseServicesDisposable.dispose();
         }
+        /*
         if (updateFidoStatusDisposable != null && !updateFidoStatusDisposable.isDisposed()) {
             updateFidoStatusDisposable.dispose();
-        }
+        }*/
     }
 
     public Observable<byte[]> getIncomingBleData() {
