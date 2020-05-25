@@ -9,6 +9,7 @@ import com.blue_unicorn.android_auth_lib.android.AuthHandler;
 import com.blue_unicorn.android_auth_lib.android.AuthSingleObserver;
 import com.blue_unicorn.android_auth_lib.android.constants.IntentAction;
 import com.blue_unicorn.android_auth_lib.android.constants.UserAction;
+import com.blue_unicorn.android_auth_lib.android.constants.UserPreference;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.APIHandler;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.BaseAPIHandler;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.FidoObject;
@@ -16,6 +17,7 @@ import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.Ge
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.RequestObject;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.ResponseObject;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.OtherException;
 import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.BaseCborHandler;
 import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.CborHandler;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.BaseFragmentationProvider;
@@ -36,6 +38,10 @@ public class APILayer {
     private CborHandler cborHandler;
     private APIHandler apiHandler;
     private RxFragmentationProvider fragmentationProvider;
+
+    // TODO: this implementation supports one bluetooth client at a time, do we need to handle this?
+    // it will yield errors when new requests come in before old ones are processed
+    private RequestObject request;
 
     public APILayer(AuthHandler authHandler, Context context) {
         this.context = context;
@@ -62,13 +68,36 @@ public class APILayer {
                 .subscribe(apiSubscriber);
     }
 
+    private RequestObject getRequest() {
+        if (request == null) {
+            ErrorLayer.handleErrors(authHandler, new OtherException());
+        }
+        RequestObject requestInstance = request;
+        this.request = null;
+        return requestInstance;
+    }
+
+    private boolean setNewRequest(RequestObject request) {
+        if (this.request != null) {
+            // if the request isn't null, the prior request wasn't processed
+            this.request = null;
+            ErrorLayer.handleErrors(authHandler, new OtherException());
+            return false;
+        }
+        this.request = request;
+        return true;
+    }
+
     private void handleUserAction(RequestObject request) {
+        if (!setNewRequest(request)) {
+            return;
+        }
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         @UserAction int userAction = 0;
         if (request instanceof MakeCredentialRequest) {
-            userAction = sharedPreferences.getInt("MakeCredentialAction", UserAction.BUILD_NOTIFICATION);
+            userAction = sharedPreferences.getInt(UserPreference.MAKE_CREDENTIAL, UserAction.BUILD_NOTIFICATION_AND_PERFORM_AUTHENTICATION);
         } else if (request instanceof GetAssertionRequest) {
-            userAction = sharedPreferences.getInt("GetAssertionAction", UserAction.PERFORM_AUTHENTICATION);
+            userAction = sharedPreferences.getInt(UserPreference.GET_ASSERTION, UserAction.PERFORM_AUTHENTICATION);
         }
 
         switch (userAction) {
@@ -79,10 +108,10 @@ public class APILayer {
                 buildNotification(request, true);
                 break;
             case UserAction.PERFORM_AUTHENTICATION:
-                performAuthentication(request);
+                performAuthentication();
                 break;
             case UserAction.PROCEED_WITHOUT_USER_INTERACTION:
-                proceedWithoutUserInteraction(request);
+                proceedWithoutUserInteraction();
                 break;
         }
     }
@@ -97,11 +126,16 @@ public class APILayer {
                 .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
     }
 
-    private void buildResponseChainAfterUserInteraction(RequestObject request, boolean isApproved) {
+    private void buildResponseChainAfterUserInteraction(boolean isApproved) {
         // this chain is called after the user has interacted with the device
         // this function can be called from outside, i. e. a new intent on a service
-        request.setApproved(isApproved);
-        apiHandler.updateAPI(request)
+        RequestObject requestInstance = getRequest();
+        if (requestInstance == null) {
+            return;
+        }
+
+        requestInstance.setApproved(isApproved);
+        apiHandler.updateAPI(requestInstance)
                 .flatMap(cborHandler::encode)
                 .map(BaseFrame::new)
                 .cast(Frame.class)
@@ -116,7 +150,7 @@ public class APILayer {
         // performAuthentication() based on the input parameter
     }
 
-    private void performAuthentication(RequestObject request) {
+    private void performAuthentication() {
         // starts Activity responsible for authentication mechanism
         // Other possibilities to inject App behaviour into Lib could be:
         // @Override methods or Callbacks
@@ -125,9 +159,9 @@ public class APILayer {
         context.startActivity(intent);
     }
 
-    private void proceedWithoutUserInteraction(RequestObject request) {
+    private void proceedWithoutUserInteraction() {
         // this case should probably be non existent and might be removed later
         // Might be nice for testing purposes however
-        buildResponseChainAfterUserInteraction(request, true);
+        buildResponseChainAfterUserInteraction(true);
     }
 }
