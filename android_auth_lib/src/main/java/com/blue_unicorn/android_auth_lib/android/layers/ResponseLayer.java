@@ -30,7 +30,7 @@ public class ResponseLayer {
     }
 
     public Subscriber<byte[]> getResponseSubscriber() {
-        if(responseSubscriber != null && !responseSubscriber.isDisposed())
+        if (responseSubscriber != null && !responseSubscriber.isDisposed())
             this.responseSubscriber.dispose();
         return createNewResponseSubscriber();
     }

@@ -6,8 +6,6 @@ import com.blue_unicorn.android_auth_lib.android.layers.APILayer;
 import com.blue_unicorn.android_auth_lib.android.layers.RequestLayer;
 import com.blue_unicorn.android_auth_lib.android.layers.ResponseLayer;
 
-import java.util.List;
-
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Observable;
 
@@ -39,7 +37,7 @@ public class AuthHandler {
         return 20;
     }
 
-    public void startUp(Observable<byte[]> requests) {
+    public void initialize(Observable<byte[]> requests) {
         requestLayer.initialize(requests);
     }
 
