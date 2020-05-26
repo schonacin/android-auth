@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void onServiceDisconnected(ComponentName className) {
+            advertiseServicesToggleButton.setOnClickListener(null);
             fidoAuthService = null;
             mBound = false;
         }
