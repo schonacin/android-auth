@@ -10,7 +10,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.BleHandler;
 
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
-import timber.log.Timber;
 
 // TODO: set as foreground service?
 public class FidoAuthService extends Service {
@@ -22,8 +21,6 @@ public class FidoAuthService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Timber.i("onBind() called!	%s", intent);
-
         RxJavaPlugins.setErrorHandler(e -> {
         });
         bleHandler = new BleHandler(this, errors);

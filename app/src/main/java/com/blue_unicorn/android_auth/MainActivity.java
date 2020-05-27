@@ -23,8 +23,6 @@ import com.blue_unicorn.android_auth_lib.android.FidoAuthServiceBinder;
 import com.google.android.material.snackbar.Snackbar;
 import com.tbruyelle.rxpermissions3.RxPermissions;
 
-import timber.log.Timber;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
@@ -41,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName className, IBinder service) {
             fidoAuthService = ((FidoAuthServiceBinder) service).getService();
             mBound = true;
-
-            Timber.d("onServiceConnected called!!!");
 
             fidoAuthService.isAdvertising().observe(MainActivity.this, isProvidingAndAdvertisingService -> {
                 if (isProvidingAndAdvertisingService) {
@@ -70,10 +66,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (BuildConfig.DEBUG) {
-            Timber.plant(new Timber.DebugTree());
-        }
 
         setContentView(R.layout.activity_main);
         rxPermissions = new RxPermissions(this);

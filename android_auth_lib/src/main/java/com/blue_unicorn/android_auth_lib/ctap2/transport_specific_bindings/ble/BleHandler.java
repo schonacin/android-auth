@@ -1,6 +1,7 @@
 package com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -16,7 +17,6 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import timber.log.Timber;
 
 public class BleHandler {
 
@@ -42,21 +42,17 @@ public class BleHandler {
     }
 
     public void startProvidingAndAdvertisingServices() {
-        Timber.d("Starting to provide and advertise services");
         provideAndAdvertiseServicesDisposable = bleServer.provideServicesAndAdvertise(FidoGattProfile.FIDO_SERVICE_UUID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(disposable -> isProvidingAndAdvertisingServices.postValue(true))
                 .doFinally(() -> isProvidingAndAdvertisingServices.postValue(false))
-                .subscribe(
-                        () -> Timber.i("Stopped providing and advertising services"),
-                        this::postError
-                );
+                .subscribe(() -> {
+                }, this::postError);
         bleHandlerDisposable.add(provideAndAdvertiseServicesDisposable);
     }
 
     public void stopProvidingAndAdvertisingServices() {
-        Timber.d("Stopping to provide and advertise services");
         if (provideAndAdvertiseServicesDisposable != null && !provideAndAdvertiseServicesDisposable.isDisposed()) {
             provideAndAdvertiseServicesDisposable.dispose();
         }
@@ -77,7 +73,7 @@ public class BleHandler {
     }
 
     private void postError(@NonNull Throwable throwable) {
-        Timber.w(throwable);
+        Log.w("android-auth", throwable);
         errors.postValue(throwable);
     }
 }
