@@ -1,7 +1,6 @@
 package com.blue_unicorn.android_auth;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
@@ -32,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RxPermissions rxPermissions;
     private ConstraintLayout constraintLayout;
-    private ToggleButton advertiseServicesToggleButton;
+    private ToggleButton bindFidoAuthServiceToggleButton;
     private Snackbar errorSnackbar;
     private ServiceConnection mConnection = new ServiceConnection() {
 
@@ -40,24 +39,13 @@ public class MainActivity extends AppCompatActivity {
             fidoAuthService = ((FidoAuthServiceBinder) service).getService();
             mBound = true;
 
-            fidoAuthService.isAdvertising().observe(MainActivity.this, isProvidingAndAdvertisingService -> {
-                if (isProvidingAndAdvertisingService) {
-                    onServiceAdvertisingStarted();
-                } else {
-                    onServiceAdvertisingStopped();
-                }
-            });
-
             fidoAuthService.getErrors().observe(MainActivity.this, throwable -> {
                 showTemporaryMessage(throwable);
                 performTroubleshooting(throwable);
             });
-
-            advertiseServicesToggleButton.setOnClickListener(v -> fidoAuthService.toggleBleAdvertising());
         }
 
         public void onServiceDisconnected(ComponentName className) {
-            advertiseServicesToggleButton.setOnClickListener(null);
             fidoAuthService = null;
             mBound = false;
         }
@@ -70,11 +58,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         rxPermissions = new RxPermissions(this);
         constraintLayout = findViewById(R.id.coordinatorLayout);
-        advertiseServicesToggleButton = findViewById(R.id.advertiseServicesToggleButton);
+        bindFidoAuthServiceToggleButton = findViewById(R.id.advertiseServicesToggleButton);
         errorSnackbar = Snackbar.make(constraintLayout, R.string.error_unknown, Snackbar.LENGTH_SHORT);
 
-        Intent intent = new Intent(this, FidoAuthService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        bindFidoAuthServiceToggleButton.setOnClickListener(v -> toggleServiceConnection());
     }
 
     @Override
@@ -86,12 +73,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void onServiceAdvertisingStarted() {
-        advertiseServicesToggleButton.setChecked(true);
-    }
-
-    private void onServiceAdvertisingStopped() {
-        advertiseServicesToggleButton.setChecked(false);
+    private void toggleServiceConnection() {
+        if (!mBound) {
+            Intent intent = new Intent(this, FidoAuthService.class);
+            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            mBound = true;
+        } else {
+            unbindService(mConnection);
+            mBound = false;
+        }
     }
 
     private void checkPermissions() {
@@ -109,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
         errorSnackbar.show();
     }
 
-    @SuppressLint("CheckResult")
     private void requestMissingPermissions() {
         rxPermissions.request(Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN)
                 .subscribe(permissionsGranted -> {

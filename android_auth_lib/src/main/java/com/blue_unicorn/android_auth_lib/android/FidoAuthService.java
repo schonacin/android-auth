@@ -30,20 +30,8 @@ public class FidoAuthService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        bleHandler.bleHandlerDisposable.dispose();
+        bleHandler.disconnect();
         return false;
-    }
-
-    public void toggleBleAdvertising() {
-        if (!bleHandler.isProvidingAndAdvertisingServices().getValue()) {
-            bleHandler.startProvidingAndAdvertisingServices();
-        } else {
-            bleHandler.stopProvidingAndAdvertisingServices();
-        }
-    }
-
-    public LiveData<Boolean> isAdvertising() {
-        return bleHandler.isProvidingAndAdvertisingServices();
     }
 
     public LiveData<Throwable> getErrors() {

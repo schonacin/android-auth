@@ -4,58 +4,39 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.gatt.FidoGattProfile;
 import com.nexenio.rxandroidbleserver.RxBleServer;
+import com.nexenio.rxandroidbleserver.client.RxBleClient;
 import com.nexenio.rxandroidbleserver.service.value.BaseValue;
 import com.nexenio.rxandroidbleserver.service.value.RxBleValue;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class BleHandler {
 
-    public final CompositeDisposable bleHandlerDisposable = new CompositeDisposable();
     private FidoGattProfile fidoGattProfile;
     private RxBleServer bleServer;
-    private Disposable provideAndAdvertiseServicesDisposable;
-
-    private MutableLiveData<Boolean> isProvidingAndAdvertisingServices = new MutableLiveData<>();
     private MutableLiveData<Throwable> errors;
 
     public BleHandler(@NonNull Context context, MutableLiveData<Throwable> fidoAuthServiceErrors) {
         this.fidoGattProfile = new FidoGattProfile(context);
         this.bleServer = fidoGattProfile.getGattServer();
         this.errors = fidoAuthServiceErrors;
-
-        isProvidingAndAdvertisingServices.setValue(false);
-
-    }
-
-    public LiveData<Boolean> isProvidingAndAdvertisingServices() {
-        return isProvidingAndAdvertisingServices;
-    }
-
-    public void startProvidingAndAdvertisingServices() {
-        provideAndAdvertiseServicesDisposable = bleServer.provideServicesAndAdvertise(FidoGattProfile.FIDO_SERVICE_UUID)
+        Log.d("android-auth", "stating BLE advertising");
+        bleServer.provideServicesAndAdvertise(FidoGattProfile.FIDO_SERVICE_UUID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe(disposable -> isProvidingAndAdvertisingServices.postValue(true))
-                .doFinally(() -> isProvidingAndAdvertisingServices.postValue(false))
                 .subscribe(() -> {
                 }, this::postError);
-        bleHandlerDisposable.add(provideAndAdvertiseServicesDisposable);
     }
 
-    public void stopProvidingAndAdvertisingServices() {
-        if (provideAndAdvertiseServicesDisposable != null && !provideAndAdvertiseServicesDisposable.isDisposed()) {
-            provideAndAdvertiseServicesDisposable.dispose();
-        }
+    public void disconnect() {
+        for (RxBleClient client : bleServer.getClients())
+            bleServer.disconnect(client);
     }
 
     public Observable<byte[]> getIncomingBleData() {
