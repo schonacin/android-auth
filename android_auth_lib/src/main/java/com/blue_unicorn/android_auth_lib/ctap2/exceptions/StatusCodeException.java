@@ -10,6 +10,8 @@ public abstract class StatusCodeException extends Exception {
     // also think about best location (in the specification it's under Message Encoding
     // but the API Methods need to have access to them as well
 
+    // TODO: think of better name
+
     public StatusCodeException() {
     }
 

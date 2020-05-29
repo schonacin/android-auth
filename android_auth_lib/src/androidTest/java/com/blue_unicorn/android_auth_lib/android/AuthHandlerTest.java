@@ -14,6 +14,9 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
+
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.subscribers.TestSubscriber;
@@ -46,10 +49,11 @@ public class AuthHandlerTest {
     @Test
     public void getInfo_runsThrough() {
         // TODO: maybe mock max length
+        // TODO: test explicit strings with valueAt()
         TestSubscriber<byte[]> subscriber = authHandler.getResponses().test();
-        TestSubscriber<String> subscriber2 = authHandler.getResponses().map(bytes -> Base64.encodeToString(bytes, Base64.DEFAULT)).test();
+        //TestSubscriber<String> subscriber2 = authHandler.getResponses().map(bytes -> Base64.encodeToString(bytes, Base64.DEFAULT)).test();
         authHandler.initialize(Observable.just(RAW_GET_INFO));
-        //List<byte[]> EXPECTED_RESPONSE = Arrays.asList(Base64.decode("gwA3AKQBgWhGSURPXzJfMANQAAA=", Base64.DEFAULT), Base64.decode("AAAAAAAAAAAAAAAAAAAABKRicms=", Base64.DEFAULT), Base64.decode("AfVidXD1YnV29WRwbGF09AUZBAA=", Base64.DEFAULT));
+        List<byte[]> EXPECTED_RESPONSE = Arrays.asList(Base64.decode("gwA3AKQBgWhGSURPXzJfMANQAAA=", Base64.DEFAULT), Base64.decode("AAAAAAAAAAAAAAAAAAAABKRicms=", Base64.DEFAULT), Base64.decode("AfVidXD1YnV29WRwbGF09AUZBAA=", Base64.DEFAULT));
         subscriber
                 .assertValueCount(3);
     }

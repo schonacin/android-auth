@@ -151,6 +151,8 @@ public class APILayer {
     }
 
     private void performAuthentication() {
+        // TODO: provide standard android authentication choices
+        // (fingerprint reader... ) What about API level
         // starts Activity responsible for authentication mechanism
         // Other possibilities to inject App behaviour into Lib could be:
         // @Override methods or Callbacks
