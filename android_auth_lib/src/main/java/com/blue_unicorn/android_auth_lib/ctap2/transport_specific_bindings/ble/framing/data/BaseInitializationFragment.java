@@ -25,7 +25,7 @@ public class BaseInitializationFragment extends BaseFragment implements Initiali
     }
 
     private BaseInitializationFragment(byte CMD, byte HLEN, byte LLEN, byte[] DATA, int offset) throws InvalidCommandException, InvalidLengthException {
-        super(DATA);
+        super(DATA, offset);
         setCMD(CMD);
         setHLEN(HLEN);
         setLLEN(LLEN);

@@ -3,16 +3,16 @@ apply plugin: 'jacoco-android'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion '29.0.2'
+    buildToolsVersion '29.0.3'
 
 
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName '1.0'
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         consumerProguardFiles 'consumer-rules.pro'
     }
 
@@ -52,14 +52,17 @@ dependencies {
     implementation 'com.upokecenter:cbor:4.1.0'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.github.schonacin:RxKeyStore:RxJava3_update-SNAPSHOT'
+    implementation 'com.github.Nivador:RxAndroidBleServer:0.1.1'
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.2'
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation "io.reactivex.rxjava3:rxjava:3.0.2"
 
-    implementation "android.arch.lifecycle:extensions:1.1.1"
-    implementation "android.arch.persistence.room:runtime:1.1.1"
-    annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
+    implementation 'android.arch.lifecycle:extensions:1.1.1'
+    implementation 'android.arch.persistence.room:runtime:1.1.1'
+    annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
 
-    testImplementation "android.arch.persistence.room:testing:1.1.1"
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'android.arch.persistence.room:testing:1.1.1'
+    testImplementation 'junit:junit:4.13'
     testImplementation 'org.robolectric:robolectric:4.3.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
