@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">android-auth</string>
+
+    <string name="action_advertising_on">Advertising Fido2 Service</string>
+    <string name="action_advertising_off">Advertising Deactivated</string>
+    <string name="action_advertise_services">Advertise Services</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_enable">Enable</string>
+    <string name="action_grant_permission">Grant</string>
+
+    <string name="error_unknown">Unknown error</string>
+    <string name="error_missing_permissions">Required permissions missing</string>
+    <string name="error_bluetooth_disabled">Bluetooth disabled</string>
+    <string name="error_location_services_disabled">Location services disabled</string>
 </resources>
