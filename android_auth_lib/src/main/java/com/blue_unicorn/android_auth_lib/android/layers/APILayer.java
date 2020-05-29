@@ -121,7 +121,7 @@ public class APILayer {
         cborHandler.encode(response)
                 .map(BaseFrame::new)
                 .cast(Frame.class)
-                .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getMaxLength()))
+                .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getBleHandler().getMtu()))
                 .map(Fragment::asBytes)
                 .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
     }
@@ -139,7 +139,7 @@ public class APILayer {
                 .flatMap(cborHandler::encode)
                 .map(BaseFrame::new)
                 .cast(Frame.class)
-                .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getMaxLength()))
+                .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getBleHandler().getMtu()))
                 .map(Fragment::asBytes)
                 .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
     }

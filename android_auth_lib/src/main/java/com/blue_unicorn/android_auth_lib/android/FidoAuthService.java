@@ -16,6 +16,7 @@ public class FidoAuthService extends Service {
 
     private MutableLiveData<Throwable> errors = new MutableLiveData<>();
     private BleHandler bleHandler;
+    private AuthHandler authHandler;
 
     private final IBinder mBinder = new FidoAuthServiceBinder(this);
 
@@ -23,14 +24,15 @@ public class FidoAuthService extends Service {
     public IBinder onBind(Intent intent) {
         RxJavaPlugins.setErrorHandler(e -> {
         });
-        bleHandler = new BleHandler(this, errors);
+        authHandler = new AuthHandler(this, errors);
+        authHandler.startAdvertisingProcess();
 
         return mBinder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        bleHandler.disconnect();
+        authHandler.stopAdvertisingProcess();
         return false;
     }
 

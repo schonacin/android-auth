@@ -40,7 +40,7 @@ public class ResponseLayer {
             @Override
             public void onNext(byte[] response) {
                 // fragments are sent back to bluetooth either via call here
-
+                authHandler.getBleHandler().sendBleData(response);
                 // OR via another Flowable with a Subject.
                 subject.onNext(response);
                 request(1);

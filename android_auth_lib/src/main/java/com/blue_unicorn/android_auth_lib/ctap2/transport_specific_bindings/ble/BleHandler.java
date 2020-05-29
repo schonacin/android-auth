@@ -26,6 +26,9 @@ public class BleHandler {
         this.fidoGattProfile = new FidoGattProfile(context);
         this.bleServer = fidoGattProfile.getGattServer();
         this.errors = fidoAuthServiceErrors;
+    }
+
+    public void connect() {
         Log.d("android-auth", "stating BLE advertising");
         bleServer.provideServicesAndAdvertise(FidoGattProfile.FIDO_SERVICE_UUID)
                 .subscribeOn(Schedulers.io())

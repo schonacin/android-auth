@@ -61,7 +61,7 @@ public class RequestLayer {
         // if it does: get a new Observable from the Bluetooth component here
         bluetoothRequests
                 .flatMapSingle(this::toFragment)
-                .flatMapMaybe(fragment -> defragmentationProvider.defragment(fragment, authHandler.getMaxLength()))
+                .flatMapMaybe(fragment -> defragmentationProvider.defragment(fragment, authHandler.getBleHandler().getMtu()))
                 .map(Frame::getDATA)
                 .toFlowable(BackpressureStrategy.BUFFER)
                 .subscribe(frameSubscriber);

@@ -2,23 +2,27 @@ package com.blue_unicorn.android_auth_lib.android;
 
 import android.content.Context;
 
+import androidx.lifecycle.MutableLiveData;
+
 import com.blue_unicorn.android_auth_lib.android.layers.APILayer;
 import com.blue_unicorn.android_auth_lib.android.layers.RequestLayer;
 import com.blue_unicorn.android_auth_lib.android.layers.ResponseLayer;
+import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.BleHandler;
 
 import io.reactivex.rxjava3.core.Flowable;
-import io.reactivex.rxjava3.core.Observable;
 
 public class AuthHandler {
 
     private RequestLayer requestLayer;
     private APILayer apiLayer;
     private ResponseLayer responseLayer;
+    private BleHandler bleHandler;
 
-    AuthHandler(Context context) {
+    AuthHandler(Context context, MutableLiveData<Throwable> fidoAuthServiceErrors) {
         this.requestLayer = new RequestLayer(this);
         this.apiLayer = new APILayer(this, context);
         this.responseLayer = new ResponseLayer(this);
+        this.bleHandler = new BleHandler(context, fidoAuthServiceErrors);
     }
 
     public RequestLayer getRequestLayer() {
@@ -33,12 +37,17 @@ public class AuthHandler {
         return responseLayer;
     }
 
-    public int getMaxLength() {
-        return 20;
+    public BleHandler getBleHandler() {
+        return bleHandler;
     }
 
-    public void initialize(Observable<byte[]> requests) {
-        requestLayer.initialize(requests);
+    public void startAdvertisingProcess() {
+        bleHandler.connect();
+        requestLayer.initialize(bleHandler.getIncomingBleData());
+    }
+
+    public void stopAdvertisingProcess() {
+        bleHandler.disconnect();
     }
 
     public Flowable<byte[]> getResponses() {
