@@ -27,7 +27,7 @@ public final class ErrorLayer {
                     .map(b -> new byte[]{b})
                     .map(BaseFrame::new)
                     .cast(Frame.class)
-                    .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getMaxLength()))
+                    .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getBleHandler().getMtu()))
                     .map(Fragment::asBytes)
                     .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
         } else {
