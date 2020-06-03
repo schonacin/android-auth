@@ -15,6 +15,8 @@ coverage:
 ignore:
   - "/android_auth_lib/src/main/java/com/blue_unicorn/android_auth_lib/ctap2/transport_specific_bindings/ble/constants"
   - "/android_auth_lib/src/main/java/com/blue_unicorn/android_auth_lib/ctap2/transport_specific_bindings/ble/exceptions"
+  - "/android_auth_lib/src/main/java/com/blue_unicorn/android_auth_lib/ctap2/constants"
+  - "/android_auth_lib/src/main/java/com/blue_unicorn/android_auth_lib/ctap2/exceptions"
 
 parsers:
   gcov:
