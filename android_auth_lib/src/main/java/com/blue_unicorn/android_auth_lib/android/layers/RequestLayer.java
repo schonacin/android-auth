@@ -10,9 +10,9 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Frame;
 
 import io.reactivex.rxjava3.core.BackpressureStrategy;
-import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 import io.reactivex.rxjava3.subscribers.DisposableSubscriber;
 
 public class RequestLayer {
@@ -23,23 +23,20 @@ public class RequestLayer {
 
     private AuthHandler authHandler;
 
-    private Observable<byte[]> bluetoothRequests;
+    private PublishSubject<byte[]> incomingRequests;
 
     public RequestLayer(AuthHandler authHandler) {
         this.authHandler = authHandler;
         this.defragmentationProvider = new BaseDefragmentationProvider();
     }
 
-    private Observable<byte[]> getBluetoothRequests() {
-        //emulating incoming Bluetooth Requests
-        return Observable.just(new byte[]{(byte) 0x83, 0x02, 0x03, 0x04});
-    }
-
     public void initialize(Observable<byte[]> bluetoothRequests) {
         // call this method when Bluetooth is activated and advertising starts.
         // this basically starts the observable chain
-        this.bluetoothRequests = bluetoothRequests;
+        incomingRequests = PublishSubject.create();
         buildNewFragmentChain();
+        bluetoothRequests
+                .subscribe(incomingRequests);
     }
 
     private void buildNewFragmentChain() {
@@ -49,6 +46,7 @@ public class RequestLayer {
                 authHandler.getApiLayer().buildNewRequestChain(frame);
                 request(1);
             }
+
             @Override
             public void onError(Throwable t) {
                 super.onError(t);
@@ -57,22 +55,12 @@ public class RequestLayer {
             }
         };
 
-        //TODO: is the whole AuthHandler being called by Bluetooth or does it have access to Bluetooth?
-        // if it does: get a new Observable from the Bluetooth component here
-        bluetoothRequests
+        incomingRequests
+                .toFlowable(BackpressureStrategy.BUFFER)
                 .flatMapSingle(this::toFragment)
                 .flatMapMaybe(fragment -> defragmentationProvider.defragment(fragment, authHandler.getBleHandler().getMtu()))
                 .map(Frame::getDATA)
-                .toFlowable(BackpressureStrategy.BUFFER)
                 .subscribe(frameSubscriber);
-        //defragmentationProvider.defragment(getFragments(bluetoothRequest), getMaxLength());
-    }
-
-    // not really needed anymore
-    private Flowable<Fragment> getFragments(Observable<byte[]> bluetoothRequests) {
-        return bluetoothRequests
-                .flatMapSingle(this::toFragment)
-                .toFlowable(BackpressureStrategy.BUFFER);
     }
 
     // TODO: put this in right component

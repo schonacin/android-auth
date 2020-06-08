@@ -31,7 +31,7 @@ public final class ErrorLayer {
                     .map(Fragment::asBytes)
                     .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
         } else {
-            // handle this shit
+            // TODO handle this shit
         }
 
     }

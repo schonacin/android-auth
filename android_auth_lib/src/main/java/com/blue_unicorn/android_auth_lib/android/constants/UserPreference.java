@@ -8,10 +8,12 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.SOURCE)
 @StringDef({
         UserPreference.MAKE_CREDENTIAL,
-        UserPreference.GET_ASSERTION
+        UserPreference.GET_ASSERTION,
+        UserPreference.AUTHENTICATION_METHOD
 })
 
 public @interface UserPreference {
     String MAKE_CREDENTIAL = "MAKE_CREDENTIAL_ACTION";
     String GET_ASSERTION = "GET_ASSERTION_ACTION";
+    String AUTHENTICATION_METHOD = "AUTHENTICATION_METHOD";
 }

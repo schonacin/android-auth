@@ -52,9 +52,9 @@ public class AuthHandlerTest {
         // TODO: maybe mock max length
         // TODO: test explicit strings with valueAt()
         TestSubscriber<byte[]> subscriber = authHandler.getResponses().test();
-        //TestSubscriber<String> subscriber2 = authHandler.getResponses().map(bytes -> Base64.encodeToString(bytes, Base64.DEFAULT)).test();
+        List<String> listOfStrings = authHandler.getResponses().map(bytes -> Base64.encodeToString(bytes, Base64.DEFAULT)).test().values();
         // TODO mock bluetooth now
-        //authHandler.initialize(Observable.just(RAW_GET_INFO));
+        authHandler.startAdvertisingProcess();
         List<byte[]> EXPECTED_RESPONSE = Arrays.asList(Base64.decode("gwA3AKQBgWhGSURPXzJfMANQAAA=", Base64.DEFAULT), Base64.decode("AAAAAAAAAAAAAAAAAAAABKRicms=", Base64.DEFAULT), Base64.decode("AfVidXD1YnV29WRwbGF09AUZBAA=", Base64.DEFAULT));
         //subscriber
         //        .assertValueCount(3);

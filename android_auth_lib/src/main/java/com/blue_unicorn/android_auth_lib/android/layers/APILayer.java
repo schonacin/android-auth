@@ -3,10 +3,17 @@ package com.blue_unicorn.android_auth_lib.android.layers;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.preference.PreferenceManager;
+
+import androidx.annotation.RequiresApi;
 
 import com.blue_unicorn.android_auth_lib.android.AuthHandler;
 import com.blue_unicorn.android_auth_lib.android.AuthSingleObserver;
+import com.blue_unicorn.android_auth_lib.android.authentication.AuthInfo;
+import com.blue_unicorn.android_auth_lib.android.authentication.AuthenticationAPICallback;
+import com.blue_unicorn.android_auth_lib.android.authentication.BiometricAuth;
+import com.blue_unicorn.android_auth_lib.android.constants.AuthenticationMethod;
 import com.blue_unicorn.android_auth_lib.android.constants.IntentAction;
 import com.blue_unicorn.android_auth_lib.android.constants.UserAction;
 import com.blue_unicorn.android_auth_lib.android.constants.UserPreference;
@@ -95,20 +102,25 @@ public class APILayer {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         @UserAction int userAction = 0;
         if (request instanceof MakeCredentialRequest) {
-            userAction = sharedPreferences.getInt(UserPreference.MAKE_CREDENTIAL, UserAction.BUILD_NOTIFICATION_AND_PERFORM_AUTHENTICATION);
+            userAction = sharedPreferences.getInt(UserPreference.MAKE_CREDENTIAL, UserAction.PROCEED_WITHOUT_USER_INTERACTION);
         } else if (request instanceof GetAssertionRequest) {
-            userAction = sharedPreferences.getInt(UserPreference.GET_ASSERTION, UserAction.PERFORM_AUTHENTICATION);
+            userAction = sharedPreferences.getInt(UserPreference.GET_ASSERTION, UserAction.PROCEED_WITHOUT_USER_INTERACTION);
         }
 
         switch (userAction) {
             case UserAction.BUILD_NOTIFICATION:
                 buildNotification(request, false);
                 break;
+            case UserAction.PERFORM_STANDARD_AUTHENTICATION:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    performStandardAuthentication(request);
+                    break;
+                }
             case UserAction.BUILD_NOTIFICATION_AND_PERFORM_AUTHENTICATION:
                 buildNotification(request, true);
                 break;
             case UserAction.PERFORM_AUTHENTICATION:
-                performAuthentication();
+                performCustomAuthentication();
                 break;
             case UserAction.PROCEED_WITHOUT_USER_INTERACTION:
                 proceedWithoutUserInteraction();
@@ -126,7 +138,7 @@ public class APILayer {
                 .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
     }
 
-    private void buildResponseChainAfterUserInteraction(boolean isApproved) {
+    public void buildResponseChainAfterUserInteraction(boolean isApproved) {
         // this chain is called after the user has interacted with the device
         // this function can be called from outside, i. e. a new intent on a service
         RequestObject requestInstance = getRequest();
@@ -150,9 +162,33 @@ public class APILayer {
         // performAuthentication() based on the input parameter
     }
 
-    private void performAuthentication() {
-        // TODO: provide standard android authentication choices
-        // (fingerprint reader... ) What about API level
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    private void performStandardAuthentication(RequestObject request) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        @AuthenticationMethod int authenticationMethod = sharedPreferences.getInt(UserPreference.AUTHENTICATION_METHOD, AuthenticationMethod.FINGERPRINT);
+
+        AuthenticationAPICallback authenticationCallback = new AuthenticationAPICallback() {
+            @Override
+            public void handleAuthentication(boolean authenticated) {
+                buildResponseChainAfterUserInteraction(authenticated);
+            }
+        };
+
+        switch (authenticationMethod) {
+            case AuthenticationMethod.CODE:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    BiometricAuth.authenticateWithCredentialFallback(context, new AuthInfo(request), authenticationCallback);
+                    break;
+                }
+            case AuthenticationMethod.FINGERPRINT: {
+                BiometricAuth.authenticate(context, new AuthInfo(request), authenticationCallback);
+                break;
+            }
+
+        }
+    }
+
+    private void performCustomAuthentication() {
         // starts Activity responsible for authentication mechanism
         // Other possibilities to inject App behaviour into Lib could be:
         // @Override methods or Callbacks
