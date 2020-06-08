@@ -16,7 +16,7 @@ public interface GetAssertionResponse extends ResponseObject {
 
     void setSignature(byte[] signature);
 
-    void setPublicKeyCredentialUserEntity(PublicKeyCredentialUserEntity publicKeyCredentialUserEntity);
+    void setPublicKeyCredentialUserEntity(PublicKeyCredentialUserEntity user);
 
     void setNumberOfCredentials(int numberOfCredentials);
 

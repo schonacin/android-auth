@@ -5,12 +5,14 @@ import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.Ge
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseGetAssertionResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.GetAssertionResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.BasePublicKeyCredentialDescriptor;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.BasePublicKeyCredentialUserEntity;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialDescriptor;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialUserEntity;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidOptionException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.MissingParameterException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.NoCredentialsException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.OperationDeniedException;
-import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.OtherException;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
 
@@ -52,6 +54,7 @@ public class GetAssertion {
     }
 
     // 2. - 4. & 6. are ignored as pinAuth and extensions are not supported
+    // TODO: or throw respective errors when present: would need changes in data classes however
 
     public Single<GetAssertionResponse> operateInner() {
         // 7. - 8. handle user approval and whether credentials could be found
@@ -65,8 +68,7 @@ public class GetAssertion {
             if (request.isValid()) {
                 return Completable.complete();
             } else {
-                // TODO: change to respective error
-                return Completable.error(OtherException::new);
+                return Completable.error(MissingParameterException::new);
             }
         });
     }
@@ -148,6 +150,12 @@ public class GetAssertion {
                 .map(BasePublicKeyCredentialDescriptor::new);
     }
 
+    private Single<PublicKeyCredentialUserEntity> getUserEntity() {
+        return getSelectedCredential()
+                .map(PublicKeyCredentialSource::getUserHandle)
+                .map(BasePublicKeyCredentialUserEntity::new);
+    }
+
     private Single<byte[]> getAuthenticatorData() {
         return Single.defer(() -> {
             if (this.authenticatorData == null) {
@@ -175,8 +183,7 @@ public class GetAssertion {
     }
 
     private Single<GetAssertionResponse> constructResponse() {
-        // TODO: add UserEntity??
-        return Single.zip(constructCredentialDescriptor(), getAuthenticatorData(), generateSignature(), BaseGetAssertionResponse::new);
+        return Single.zip(constructCredentialDescriptor(), getAuthenticatorData(), generateSignature(), getUserEntity(), BaseGetAssertionResponse::new);
     }
 
 }

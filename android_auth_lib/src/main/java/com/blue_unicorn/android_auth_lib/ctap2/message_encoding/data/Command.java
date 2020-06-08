@@ -6,7 +6,7 @@ package com.blue_unicorn.android_auth_lib.ctap2.message_encoding.data;
  */
 public interface Command {
 
-    byte getValue();
+    int getValue();
 
     String getParameters();
 

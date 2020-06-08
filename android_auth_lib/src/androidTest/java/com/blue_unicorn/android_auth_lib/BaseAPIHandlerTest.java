@@ -16,6 +16,7 @@ import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.G
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.GetInfoResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.MakeCredentialResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidOptionException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.MissingParameterException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.NoCredentialsException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.OperationDeniedException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.UnsupportedAlgorithmException;
@@ -36,11 +37,15 @@ public class BaseAPIHandlerTest {
 
     private static final byte[] RAW_MAKE_CREDENTIAL_REQUEST = Base64.decode("AaUBWCDMVG/Vi0CDgAtgnuEKnn1oM9yeVFNAkbx+pfadNopNfAKiYmlka3dlYmF1dGhuLmlvZG5hbWVrd2ViYXV0aG4uaW8Do2JpZEq3mQEAAAAAAAAAZG5hbWVkVXNlcmtkaXNwbGF5TmFtZWR1c2VyBIqiY2FsZyZkdHlwZWpwdWJsaWMta2V5omNhbGc4ImR0eXBlanB1YmxpYy1rZXmiY2FsZzgjZHR5cGVqcHVibGljLWtleaJjYWxnOQEAZHR5cGVqcHVibGljLWtleaJjYWxnOQEBZHR5cGVqcHVibGljLWtleaJjYWxnOQECZHR5cGVqcHVibGljLWtleaJjYWxnOCRkdHlwZWpwdWJsaWMta2V5omNhbGc4JWR0eXBlanB1YmxpYy1rZXmiY2FsZzgmZHR5cGVqcHVibGljLWtleaJjYWxnJ2R0eXBlanB1YmxpYy1rZXkFgA==", Base64.DEFAULT);
 
+    private static final byte[] RAW_MAKE_CREDENTIAL_REQUEST_WITH_MISSING_PARAMETER = Base64.decode("AaQComJpZGt3ZWJhdXRobi5pb2RuYW1la3dlYmF1dGhuLmlvA6NiaWRKt5kBAAAAAAAAAGRuYW1lZFVzZXJrZGlzcGxheU5hbWVkdXNlcgSKomNhbGcmZHR5cGVqcHVibGljLWtleaJjYWxnOCJkdHlwZWpwdWJsaWMta2V5omNhbGc4I2R0eXBlanB1YmxpYy1rZXmiY2FsZzkBAGR0eXBlanB1YmxpYy1rZXmiY2FsZzkBAWR0eXBlanB1YmxpYy1rZXmiY2FsZzkBAmR0eXBlanB1YmxpYy1rZXmiY2FsZzgkZHR5cGVqcHVibGljLWtleaJjYWxnOCVkdHlwZWpwdWJsaWMta2V5omNhbGc4JmR0eXBlanB1YmxpYy1rZXmiY2FsZydkdHlwZWpwdWJsaWMta2V5BYA=", Base64.DEFAULT);
+
     private static final byte[] RAW_MAKE_CREDENTIAL_REQUEST_WITHOUT_SUPPORTED_ALGORITHM = Base64.decode("AaUBWCDMVG/Vi0CDgAtgnuEKnn1oM9yeVFNAkbx+pfadNopNfAKiYmlka3dlYmF1dGhuLmlvZG5hbWVrd2ViYXV0aG4uaW8Do2JpZEq3mQEAAAAAAAAAZG5hbWVkVXNlcmtkaXNwbGF5TmFtZWR1c2VyBImiY2FsZzgiZHR5cGVqcHVibGljLWtleaJjYWxnOCNkdHlwZWpwdWJsaWMta2V5omNhbGc5AQBkdHlwZWpwdWJsaWMta2V5omNhbGc5AQFkdHlwZWpwdWJsaWMta2V5omNhbGc5AQJkdHlwZWpwdWJsaWMta2V5omNhbGc4JGR0eXBlanB1YmxpYy1rZXmiY2FsZzglZHR5cGVqcHVibGljLWtleaJjYWxnOCZkdHlwZWpwdWJsaWMta2V5omNhbGcnZHR5cGVqcHVibGljLWtleQWA", Base64.DEFAULT);
 
     private static final byte[] RAW_MAKE_CREDENTIAL_REQUEST_WITH_INVALID_OPTION = Base64.decode("AaYBWCDMVG/Vi0CDgAtgnuEKnn1oM9yeVFNAkbx+pfadNopNfAKiYmlka3dlYmF1dGhuLmlvZG5hbWVrd2ViYXV0aG4uaW8Do2JpZEq3mQEAAAAAAAAAZG5hbWVkVXNlcmtkaXNwbGF5TmFtZWR1c2VyBIqiY2FsZyZkdHlwZWpwdWJsaWMta2V5omNhbGc4ImR0eXBlanB1YmxpYy1rZXmiY2FsZzgjZHR5cGVqcHVibGljLWtleaJjYWxnOQEAZHR5cGVqcHVibGljLWtleaJjYWxnOQEBZHR5cGVqcHVibGljLWtleaJjYWxnOQECZHR5cGVqcHVibGljLWtleaJjYWxnOCRkdHlwZWpwdWJsaWMta2V5omNhbGc4JWR0eXBlanB1YmxpYy1rZXmiY2FsZzgmZHR5cGVqcHVibGljLWtleaJjYWxnJ2R0eXBlanB1YmxpYy1rZXkFgAahZHBsYXT0", Base64.DEFAULT);
 
     private static final byte[] RAW_GET_ASSERTION_REQUEST = Base64.decode("AqQBa3dlYmF1dGhuLmlvAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEDgqJiaWRYQPIgBt5PkFr2ikOULwJPKl7OYD2cbUs9+L4I7QH8RCZG0DSFisdb7T/VgL+YCNlPy+6CubLvZnevCtzDWFLqa55kdHlwZWpwdWJsaWMta2V5omJpZFgyAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNkdHlwZWpwdWJsaWMta2V5BaFidXb1", Base64.DEFAULT);
+
+    private static final byte[] RAW_GET_ASSERTION_REQUEST_WITH_MISSING_PARAMETER = Base64.decode("AqMCWCBocTSWgiLsFyAuQlBfjtKxauIvFrsFuIwl255gJkXxQQOComJpZFhA8iAG3k+QWvaKQ5QvAk8qXs5gPZxtSz34vgjtAfxEJkbQNIWKx1vtP9WAv5gI2U/L7oK5su9md68K3MNYUuprnmR0eXBlanB1YmxpYy1rZXmiYmlkWDIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA2R0eXBlanB1YmxpYy1rZXkFoWJ1dvU=", Base64.DEFAULT);
 
     private static final byte[] RAW_GET_ASSERTION_REQUEST_WITHOUT_ALLOWLIST = Base64.decode("AqMBa3dlYmF1dGhuLmlvAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEFoWJ1dvU=", Base64.DEFAULT);
 
@@ -141,6 +146,13 @@ public class BaseAPIHandlerTest {
                 .assertError(InvalidOptionException.class);
     }
 
+    @Test
+    public void makeCredential_FailsWithMissingParameter() {
+        initiateMakeCredential(RAW_MAKE_CREDENTIAL_REQUEST_WITH_MISSING_PARAMETER)
+                .test()
+                .assertError(MissingParameterException.class);
+    }
+
     private Single<GetAssertionRequest> initiateGetAssertion(byte[] request) {
         return cborHandler.decode(request)
                 .flatMap(apiHandler::callAPI)
@@ -214,6 +226,13 @@ public class BaseAPIHandlerTest {
         initiateGetAssertion(RAW_GET_ASSERTION_REQUEST_WITH_INVALID_OPTION)
                 .test()
                 .assertError(InvalidOptionException.class);
+    }
+
+    @Test
+    public void getAssertion_FailsWithMissingParameter() {
+        initiateGetAssertion(RAW_GET_ASSERTION_REQUEST_WITH_MISSING_PARAMETER)
+                .test()
+                .assertError(MissingParameterException.class);
     }
 
     private Single<GetInfoResponse> completeGetInfo() {
