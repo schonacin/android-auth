@@ -23,7 +23,8 @@ public final class ErrorLayer {
                     .map(b -> new byte[]{b})
                     .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
         } else if (t instanceof StatusCodeException) {
-            Single.just((byte) 0x30)
+            Single.fromCallable(((StatusCodeException) t)::getErrorCode)
+                    .cast(Byte.class)
                     .map(b -> new byte[]{b})
                     .map(BaseFrame::new)
                     .cast(Frame.class)
