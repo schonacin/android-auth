@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
             fidoAuthService = ((FidoAuthServiceBinder) service).getService();
             mBound = true;
 
+            fidoAuthService.setActivityClass(this.getClass());
             fidoAuthService.getErrors().observe(MainActivity.this, throwable -> {
                 showTemporaryMessage(throwable);
                 performTroubleshooting(throwable);

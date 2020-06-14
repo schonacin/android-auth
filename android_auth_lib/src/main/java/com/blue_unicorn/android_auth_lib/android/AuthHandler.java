@@ -17,12 +17,20 @@ public class AuthHandler {
     private APILayer apiLayer;
     private ResponseLayer responseLayer;
     private BleHandler bleHandler;
+    private NotificationHandler notificationHandler;
+    private Class activityClass;
 
     AuthHandler(Context context, MutableLiveData<Throwable> fidoAuthServiceErrors) {
         this.requestLayer = new RequestLayer(this);
         this.apiLayer = new APILayer(this, context);
         this.responseLayer = new ResponseLayer(this);
         this.bleHandler = new BleHandler(context, fidoAuthServiceErrors);
+        this.notificationHandler = new NotificationHandler(context);
+    }
+
+    public void setActivityClass(Class activityClass) {
+        this.activityClass = activityClass;
+        notificationHandler.setMainActivity(activityClass);
     }
 
     public RequestLayer getRequestLayer() {
@@ -39,6 +47,10 @@ public class AuthHandler {
 
     public BleHandler getBleHandler() {
         return bleHandler;
+    }
+
+    public NotificationHandler getNotificationHandler() {
+        return notificationHandler;
     }
 
     public void startAdvertisingProcess() {

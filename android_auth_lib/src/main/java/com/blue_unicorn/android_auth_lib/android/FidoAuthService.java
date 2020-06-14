@@ -17,6 +17,7 @@ public class FidoAuthService extends Service {
     private MutableLiveData<Throwable> errors = new MutableLiveData<>();
     private BleHandler bleHandler;
     private AuthHandler authHandler;
+    private Class activityClass;
 
     private final IBinder mBinder = new FidoAuthServiceBinder(this);
 
@@ -38,5 +39,10 @@ public class FidoAuthService extends Service {
 
     public LiveData<Throwable> getErrors() {
         return errors;
+    }
+
+    public void setActivityClass(Class activityClass) {
+        this.activityClass = activityClass;
+        authHandler.setActivityClass(activityClass);
     }
 }

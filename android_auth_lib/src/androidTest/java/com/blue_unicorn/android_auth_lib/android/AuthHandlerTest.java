@@ -100,7 +100,7 @@ public class AuthHandlerTest {
 
     @Test
     public void makeCredential_runsThrough() {
-        // TODO: mock specific method behaviour
+        // TODO: mock keystore
         setSharedPreferences(UserPreference.MAKE_CREDENTIAL, UserAction.PROCEED_WITHOUT_USER_INTERACTION);
 
         when(bleHandler.getMtu()).thenReturn(200);

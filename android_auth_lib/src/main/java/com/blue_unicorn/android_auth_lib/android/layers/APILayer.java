@@ -160,6 +160,7 @@ public class APILayer {
         // builds a notification with info on username/ Website
         // acceptance of notification should call buildResponseChainAfterUserInteraction()/
         // performAuthentication() based on the input parameter
+        authHandler.getNotificationHandler().requestApproval(new AuthInfo(request), authenticationRequired);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
