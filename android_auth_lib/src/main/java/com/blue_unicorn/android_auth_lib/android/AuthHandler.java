@@ -33,6 +33,10 @@ public class AuthHandler {
         notificationHandler.setMainActivity(activityClass);
     }
 
+    public Class getActivityClass() {
+        return activityClass;
+    }
+
     public RequestLayer getRequestLayer() {
         return requestLayer;
     }

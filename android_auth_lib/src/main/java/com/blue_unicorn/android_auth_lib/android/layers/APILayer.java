@@ -194,7 +194,7 @@ public class APILayer {
         // Other possibilities to inject App behaviour into Lib could be:
         // @Override methods or Callbacks
         // Intent is implicit as we don't know the activity which performs this
-        Intent intent = new Intent(IntentAction.CTAP_PERFORM_AUTHENTICATION);
+        Intent intent = new Intent(IntentAction.CTAP_PERFORM_AUTHENTICATION, null, context, authHandler.getActivityClass());
         context.startActivity(intent);
     }
 

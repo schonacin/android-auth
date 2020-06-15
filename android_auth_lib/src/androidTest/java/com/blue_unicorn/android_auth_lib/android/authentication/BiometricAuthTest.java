@@ -4,6 +4,8 @@ import android.content.Context;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.blue_unicorn.android_auth_lib.android.NotificationHandler;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,6 +31,14 @@ public class BiometricAuthTest {
         while (!done[0]) {
 
         }
+    }
+
+    //WIP
+    @Test
+    public void notificationsArePresent() {
+        NotificationHandler notificationHandler = new NotificationHandler(context);
+        notificationHandler.setMainActivity(context.getClass());
+        notificationHandler.requestApproval(new AuthInfo("REGISTER!!!!", "haha.io", "me"), false);
     }
 
 }

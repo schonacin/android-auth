@@ -19,6 +19,7 @@ import androidx.core.content.ContextCompat;
 
 import com.blue_unicorn.android_auth_lib.android.FidoAuthService;
 import com.blue_unicorn.android_auth_lib.android.FidoAuthServiceBinder;
+import com.blue_unicorn.android_auth_lib.android.constants.IntentAction;
 import com.google.android.material.snackbar.Snackbar;
 import com.tbruyelle.rxpermissions3.RxPermissions;
 
@@ -71,6 +72,31 @@ public class MainActivity extends AppCompatActivity {
         if (mBound) {
             unbindService(mConnection);
             mBound = false;
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.getAction() == null) {
+            return;
+        }
+        @IntentAction String intentAction = intent.getAction();
+        switch (intentAction) {
+            case IntentAction.CTAP_APPROVE_NOTIFICATION:
+                fidoAuthService.handleUserInteraction(true);
+                break;
+            case IntentAction.CTAP_DECLINE_NOTIFICATION:
+                fidoAuthService.handleUserInteraction(false);
+                break;
+            case IntentAction.CTAP_APPROVE_NOTIFICATION_FOR_AUTHENTICATION:
+            case IntentAction.CTAP_PERFORM_AUTHENTICATION:
+                // TODO: Put call to custom authentication here and call handleCustomAuthentication with result
+                boolean result = true;
+                fidoAuthService.handleUserInteraction(result);
+                break;
+            default:
+                break;
         }
     }
 

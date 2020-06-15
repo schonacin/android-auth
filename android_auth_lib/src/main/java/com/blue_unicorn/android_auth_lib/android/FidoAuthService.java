@@ -45,4 +45,9 @@ public class FidoAuthService extends Service {
         this.activityClass = activityClass;
         authHandler.setActivityClass(activityClass);
     }
+
+    public void handleUserInteraction(boolean approved) {
+        authHandler.getApiLayer().buildResponseChainAfterUserInteraction(approved);
+    }
+
 }
