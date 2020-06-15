@@ -11,6 +11,8 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.B
 
 import io.reactivex.rxjava3.core.Flowable;
 
+//TODO: add interfaces for authHandler + Layers
+
 public class AuthHandler {
 
     private RequestLayer requestLayer;
@@ -20,7 +22,7 @@ public class AuthHandler {
     private NotificationHandler notificationHandler;
     private Class activityClass;
 
-    AuthHandler(Context context, MutableLiveData<Throwable> fidoAuthServiceErrors) {
+    public AuthHandler(Context context, MutableLiveData<Throwable> fidoAuthServiceErrors) {
         this.requestLayer = new RequestLayer(this);
         this.apiLayer = new APILayer(this, context);
         this.responseLayer = new ResponseLayer(this);

@@ -102,9 +102,9 @@ public class APILayer {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         @UserAction int userAction = 0;
         if (request instanceof MakeCredentialRequest) {
-            userAction = sharedPreferences.getInt(UserPreference.MAKE_CREDENTIAL, UserAction.PROCEED_WITHOUT_USER_INTERACTION);
+            userAction = sharedPreferences.getInt(UserPreference.MAKE_CREDENTIAL, UserAction.BUILD_NOTIFICATION);
         } else if (request instanceof GetAssertionRequest) {
-            userAction = sharedPreferences.getInt(UserPreference.GET_ASSERTION, UserAction.PROCEED_WITHOUT_USER_INTERACTION);
+            userAction = sharedPreferences.getInt(UserPreference.GET_ASSERTION, UserAction.PERFORM_AUTHENTICATION);
         }
 
         switch (userAction) {
@@ -143,8 +143,10 @@ public class APILayer {
         // this function can be called from outside, i. e. a new intent on a service
         RequestObject requestInstance = getRequest();
         if (requestInstance == null) {
+            authHandler.getNotificationHandler().notifyFailure();
             return;
         }
+        authHandler.getNotificationHandler().notifyResult(new AuthInfo(requestInstance), isApproved);
 
         requestInstance.setApproved(isApproved);
         apiHandler.updateAPI(requestInstance)
@@ -194,7 +196,9 @@ public class APILayer {
         // Other possibilities to inject App behaviour into Lib could be:
         // @Override methods or Callbacks
         // Intent is implicit as we don't know the activity which performs this
-        Intent intent = new Intent(IntentAction.CTAP_PERFORM_AUTHENTICATION, null, context, authHandler.getActivityClass());
+        Intent intent = new Intent(context, authHandler.getActivityClass());
+        intent.setAction(IntentAction.CTAP_PERFORM_AUTHENTICATION);
+        // TODO: figure out best way to send intent as startActivity requires an explicit flag
         context.startActivity(intent);
     }
 

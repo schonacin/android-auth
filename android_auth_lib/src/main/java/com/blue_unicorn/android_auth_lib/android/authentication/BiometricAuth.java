@@ -1,6 +1,8 @@
 package com.blue_unicorn.android_auth_lib.android.authentication;
 
+import android.app.KeyguardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.biometrics.BiometricPrompt;
 import android.os.Build;
 import android.os.CancellationSignal;
@@ -8,9 +10,9 @@ import android.os.CancellationSignal;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
-@RequiresApi(api = Build.VERSION_CODES.P)
 public final class BiometricAuth {
     // TODO test if device supports biometric prompts via hardware
 
@@ -42,6 +44,12 @@ public final class BiometricAuth {
                 .build();
 
         biometricPrompt.authenticate(new CancellationSignal(), executor, authenticationCallback);
+    }
+
+    public static void confirmCredentials(Context context, AuthInfo authInfo) {
+        String description = "Relying Party: " + authInfo.getRp() + ", User: " + authInfo.getUser();
+        Intent intent = ((KeyguardManager) Objects.requireNonNull(context.getSystemService(Context.KEYGUARD_SERVICE))).createConfirmDeviceCredentialIntent(authInfo.getTitle(), description);
+        context.startActivity(intent);
     }
 
 }

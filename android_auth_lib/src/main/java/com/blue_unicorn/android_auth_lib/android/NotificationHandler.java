@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -89,14 +90,21 @@ public class NotificationHandler {
             case AuthenticatorAPIMethod.GET_ASSERTION:
                 return "Authentication" + appendix;
             default:
-                return null;
+                return "Operation " + appendix;
         }
     }
 
-    public void notify(@AuthenticatorAPIMethod int method, boolean success) {
-        String msg = getMessage(method, success);
-        if (msg == null) return;
+    public void notifyFailure() {
+        notify("Something went wrong!");
+    }
 
+    public void notifyResult(@NonNull AuthInfo authInfo, boolean success) {
+        String message = getMessage(authInfo.getMethod(), success);
+        notify(message);
+
+    }
+
+    private void notify(@NonNull String message) {
         Intent resultIntent = new Intent(context, FidoAuthService.class);
         NotificationCompat.Builder builder =
                 buildNotification(NOTIFY_CHANNEL_ID)
@@ -105,7 +113,7 @@ public class NotificationHandler {
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                         .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                        .setContentTitle(msg);
+                        .setContentTitle(message);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         stackBuilder.addParentStack(mainActivity);

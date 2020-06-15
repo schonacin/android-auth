@@ -33,6 +33,11 @@ public class BiometricAuthTest {
         }
     }
 
+    @Test
+    public void oldConfirmation_Works() {
+        BiometricAuth.confirmCredentials(context, new AuthInfo("REGISTER!!!!", "haha.io", "me"));
+    }
+
     //WIP
     @Test
     public void notificationsArePresent() {
