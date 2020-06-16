@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 import com.blue_unicorn.android_auth_lib.android.FidoAuthService;
 import com.blue_unicorn.android_auth_lib.android.FidoAuthServiceBinder;
 import com.blue_unicorn.android_auth_lib.android.constants.IntentAction;
+import com.blue_unicorn.android_auth_lib.android.constants.IntentExtra;
 import com.google.android.material.snackbar.Snackbar;
 import com.tbruyelle.rxpermissions3.RxPermissions;
 
@@ -40,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
             fidoAuthService = ((FidoAuthServiceBinder) service).getService();
             mBound = true;
 
-            fidoAuthService.setActivityClass(this.getClass());
             fidoAuthService.getErrors().observe(MainActivity.this, throwable -> {
                 showTemporaryMessage(throwable);
                 performTroubleshooting(throwable);
@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
     private void toggleServiceConnection() {
         if (!mBound) {
             Intent intent = new Intent(this, FidoAuthService.class);
+            intent.putExtra(IntentExtra.ACTIVITY_CLASS, MainActivity.class);
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
             mBound = true;
         } else {
@@ -169,5 +170,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void showTemporaryMessage(@NonNull String message) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    public boolean isBound() {
+        return mBound;
+    }
+
+    public FidoAuthService getFidoAuthService() {
+        return fidoAuthService;
     }
 }

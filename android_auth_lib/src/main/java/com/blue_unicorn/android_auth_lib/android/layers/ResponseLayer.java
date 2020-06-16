@@ -30,13 +30,14 @@ public class ResponseLayer {
     }
 
     public Subscriber<byte[]> getResponseSubscriber() {
-        if (responseSubscriber != null && !responseSubscriber.isDisposed())
-            this.responseSubscriber.dispose();
+        if (responseSubscriber != null && !responseSubscriber.isDisposed()) {
+            responseSubscriber.dispose();
+        }
         return createNewResponseSubscriber();
     }
 
     private Subscriber<byte[]> createNewResponseSubscriber() {
-        this.responseSubscriber = new AuthSubscriber<byte[]>(authHandler) {
+        responseSubscriber = new AuthSubscriber<byte[]>(authHandler) {
             @Override
             public void onNext(byte[] response) {
                 // fragments are sent back to bluetooth either via call here

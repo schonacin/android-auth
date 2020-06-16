@@ -22,17 +22,13 @@ public class AuthHandler {
     private NotificationHandler notificationHandler;
     private Class activityClass;
 
-    public AuthHandler(Context context, MutableLiveData<Throwable> fidoAuthServiceErrors) {
+    public AuthHandler(Context context, MutableLiveData<Throwable> fidoAuthServiceErrors, Class activityClass) {
         this.requestLayer = new RequestLayer(this);
         this.apiLayer = new APILayer(this, context);
         this.responseLayer = new ResponseLayer(this);
         this.bleHandler = new BleHandler(context, fidoAuthServiceErrors);
-        this.notificationHandler = new NotificationHandler(context);
-    }
-
-    public void setActivityClass(Class activityClass) {
+        this.notificationHandler = new NotificationHandler(context, activityClass);
         this.activityClass = activityClass;
-        notificationHandler.setMainActivity(activityClass);
     }
 
     public Class getActivityClass() {

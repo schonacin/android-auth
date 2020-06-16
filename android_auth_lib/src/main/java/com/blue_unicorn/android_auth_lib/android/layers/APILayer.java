@@ -15,6 +15,7 @@ import com.blue_unicorn.android_auth_lib.android.authentication.AuthenticationAP
 import com.blue_unicorn.android_auth_lib.android.authentication.BiometricAuth;
 import com.blue_unicorn.android_auth_lib.android.constants.AuthenticationMethod;
 import com.blue_unicorn.android_auth_lib.android.constants.IntentAction;
+import com.blue_unicorn.android_auth_lib.android.constants.NotificationID;
 import com.blue_unicorn.android_auth_lib.android.constants.UserAction;
 import com.blue_unicorn.android_auth_lib.android.constants.UserPreference;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.APIHandler;
@@ -141,6 +142,7 @@ public class APILayer {
     public void buildResponseChainAfterUserInteraction(boolean isApproved) {
         // this chain is called after the user has interacted with the device
         // this function can be called from outside, i. e. a new intent on a service
+        authHandler.getNotificationHandler().closeNotification(NotificationID.REQUEST);
         RequestObject requestInstance = getRequest();
         if (requestInstance == null) {
             authHandler.getNotificationHandler().notifyFailure();

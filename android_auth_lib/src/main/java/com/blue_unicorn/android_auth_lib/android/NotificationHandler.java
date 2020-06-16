@@ -27,16 +27,15 @@ public class NotificationHandler {
 
     private static final String REQUEST_CHANNEL_ID = "FIDO_REQUESTS";
     private static final String NOTIFY_CHANNEL_ID = "FIDO_NOTIFICATIONS";
+    private static final String SERVICE_RUNNING_CHANNEL_ID = "FIDO_SERVICE_RUNNING";
 
-    public NotificationHandler(Context context) {
+
+    public NotificationHandler(Context context, Class activityClass) {
         this.context = context;
+        this.mainActivity = activityClass;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createFidoChannels();
         }
-    }
-
-    public void setMainActivity(Class mainActivity) {
-        this.mainActivity = mainActivity;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -59,6 +58,19 @@ public class NotificationHandler {
             String description = "Channel for FIDO notifications";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(NOTIFY_CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+
+            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+
+        {
+            CharSequence name = "FIDO_SERVICE_RUNNING_CHANNEL";
+            String description = "Channel showing that the service is running";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel(SERVICE_RUNNING_CHANNEL_ID, name, importance);
             channel.setDescription(description);
 
             NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
@@ -101,7 +113,6 @@ public class NotificationHandler {
     public void notifyResult(@NonNull AuthInfo authInfo, boolean success) {
         String message = getMessage(authInfo.getMethod(), success);
         notify(message);
-
     }
 
     private void notify(@NonNull String message) {
@@ -164,6 +175,28 @@ public class NotificationHandler {
         notificationManagerCompat.notify(NotificationID.REQUEST, builder.build());
     }
 
+    public void showServiceActiveNotification(Context context) {
+        PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
+                new Intent(context, mainActivity), 0);
+
+        String text = "Fido Advertising Service is Running.";
+
+        NotificationCompat.Builder builder =
+                buildNotification(SERVICE_RUNNING_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_launcher_foreground)  // the status icon
+                        .setTicker(text)  // the status text
+                        .setWhen(System.currentTimeMillis())  // the time stamp
+                        .setContentTitle("FIDO BLE")  // the label of the entry
+                        .setContentText(text)  // the contents of the entry
+                        .setContentIntent(contentIntent) // The intent to send when the entry is clicked
+                        .setOngoing(true);
+
+        // Send the notification.
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+        notificationManagerCompat.cancel(NotificationID.SHOW_SERVICE);
+        notificationManagerCompat.notify(NotificationID.SHOW_SERVICE, builder.build());
+    }
+
     public void closeNotification(@NotificationID int id) {
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
         notificationManagerCompat.cancel(id);
@@ -173,6 +206,7 @@ public class NotificationHandler {
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
         notificationManagerCompat.cancel(NotificationID.REQUEST);
         notificationManagerCompat.cancel(NotificationID.NOTIFY);
+        notificationManagerCompat.cancel(NotificationID.SHOW_SERVICE);
     }
 
 }

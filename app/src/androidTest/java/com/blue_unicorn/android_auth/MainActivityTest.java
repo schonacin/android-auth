@@ -1,15 +1,14 @@
-package com.blue_unicorn.android_auth_lib.android;
+package com.blue_unicorn.android_auth;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import android.content.Intent;
 import android.util.Base64;
 
-import androidx.lifecycle.MutableLiveData;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.ActivityTestRule;
 
-import com.blue_unicorn.android_auth_lib.android.constants.UserAction;
-import com.blue_unicorn.android_auth_lib.android.constants.UserPreference;
+import com.blue_unicorn.android_auth_lib.android.AuthHandler;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.BleHandler;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.BaseFragmentationProvider;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.RxFragmentationProvider;
@@ -18,6 +17,7 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Frame;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -25,44 +25,48 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AuthHandlerTest {
+@RunWith(AndroidJUnit4.class)
+public class MainActivityTest {
 
-    private final static byte[] RAW_GET_INFO = new byte[]{(byte) 0x83, (byte) 0x00, (byte) 0x01, (byte) 0x04};
-
-    private Context context;
+    Context context;
 
     private RxFragmentationProvider fragmentationProvider;
-
-    @Captor
-    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
 
     @Mock
     BleHandler bleHandler;
 
+    @Captor
+    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+
     @InjectMocks
-    private AuthHandler authHandler;
+    AuthHandler authHandler;
+
+    private MainActivity mainActivity;
+
+    @Rule
+    public ActivityTestRule activityRule
+            = new ActivityTestRule(
+            MainActivity.class,
+            true,     // initialTouchMode
+            false) {
+    };
 
     @Before
     public void setUp() {
-        this.context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        authHandler = new AuthHandler(context, new MutableLiveData<>(),context.getClass());
+        context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        Intent intent = new Intent();
+        mainActivity = (MainActivity) activityRule.launchActivity(intent);
         fragmentationProvider = new BaseFragmentationProvider();
-        MockitoAnnotations.initMocks(this);
     }
 
     private Observable<byte[]> RAW_MAKE_CREDENTIAL() {
@@ -74,43 +78,25 @@ public class AuthHandlerTest {
                 .toObservable();
     }
 
-    private void setSharedPreferences(@UserPreference String preference, @UserAction int value) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        sharedPreferences
-                .edit()
-                .putInt(preference, value)
-                .apply();
-    }
-
+    // These are also REAL LIFE tests where you need to interact with the phone.
+    // Might get deleted later but helpful to test the app without Bluetooth Requirements
+    // very hacky :D
     @Test
-    public void getInfo_runsThrough() {
-        when(bleHandler.getMtu()).thenReturn(20);
-        when(bleHandler.getIncomingBleData()).thenReturn(Observable.just(RAW_GET_INFO));
-
-        authHandler.startAdvertisingProcess();
-
-        verify(bleHandler, times(3)).sendBleData(captor.capture());
-        List<byte[]> responses = captor.getAllValues();
-
-        List<byte[]> EXPECTED_RESPONSE = Arrays.asList(Base64.decode("gwA3AKQBgWhGSURPXzJfMANQAAA=", Base64.DEFAULT), Base64.decode("AAAAAAAAAAAAAAAAAAAABKRicms=", Base64.DEFAULT), Base64.decode("AfVidXD1YnV29WRwbGF09AUZBAA=", Base64.DEFAULT));
-        for (int i = 0; i < responses.size(); i++) {
-            assertArrayEquals(EXPECTED_RESPONSE.get(0), responses.get(0));
+    public void makeCredential_RunsFromActivity() {
+        while (mainActivity.getFidoAuthService() == null) {
         }
-    }
-
-    @Test
-    public void makeCredential_runsThrough() {
-        // TODO: mock keystore
-        setSharedPreferences(UserPreference.MAKE_CREDENTIAL, UserAction.PROCEED_WITHOUT_USER_INTERACTION);
+        authHandler = mainActivity.getFidoAuthService().getAuthHandler();
+        MockitoAnnotations.initMocks(this);
 
         when(bleHandler.getMtu()).thenReturn(200);
         when(bleHandler.getIncomingBleData()).thenReturn(RAW_MAKE_CREDENTIAL());
-
-        authHandler.startAdvertisingProcess();
+        mainActivity.getFidoAuthService().getAuthHandler().stopAdvertisingProcess();
+        mainActivity.getFidoAuthService().getAuthHandler().startAdvertisingProcess();
+        while (mainActivity.isBound()) {
+        }
 
         verify(bleHandler, times(2)).sendBleData(captor.capture());
         List<byte[]> responses = captor.getAllValues();
-
-        assertEquals(responses.size(), 2);
     }
+
 }

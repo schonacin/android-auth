@@ -16,7 +16,7 @@ public final class ErrorLayer {
 
     public static void handleErrors(AuthHandler authHandler, Throwable t) {
 
-         RxFragmentationProvider fragmentationProvider = new BaseFragmentationProvider();
+        RxFragmentationProvider fragmentationProvider = new BaseFragmentationProvider();
 
         if (t instanceof BleException) {
             Flowable.fromCallable(((BleException) t)::getErrorCode)
@@ -24,8 +24,7 @@ public final class ErrorLayer {
                     .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
         } else if (t instanceof StatusCodeException) {
             Single.fromCallable(((StatusCodeException) t)::getErrorCode)
-                    .cast(Byte.class)
-                    .map(b -> new byte[]{b})
+                    .map(e -> new byte[]{(byte) (int) e})
                     .map(BaseFrame::new)
                     .cast(Frame.class)
                     .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getBleHandler().getMtu()))

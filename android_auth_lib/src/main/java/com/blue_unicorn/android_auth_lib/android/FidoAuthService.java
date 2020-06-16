@@ -7,7 +7,7 @@ import android.os.IBinder;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.BleHandler;
+import com.blue_unicorn.android_auth_lib.android.constants.IntentExtra;
 
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 
@@ -15,9 +15,7 @@ import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 public class FidoAuthService extends Service {
 
     private MutableLiveData<Throwable> errors = new MutableLiveData<>();
-    private BleHandler bleHandler;
     private AuthHandler authHandler;
-    private Class activityClass;
 
     private final IBinder mBinder = new FidoAuthServiceBinder(this);
 
@@ -25,15 +23,18 @@ public class FidoAuthService extends Service {
     public IBinder onBind(Intent intent) {
         RxJavaPlugins.setErrorHandler(e -> {
         });
-        authHandler = new AuthHandler(this, errors);
+        // TODO: handle NullPointerException
+        Class activityClass = (Class) intent.getExtras().get(IntentExtra.ACTIVITY_CLASS);
+        authHandler = new AuthHandler(this, errors, activityClass);
+        authHandler.getNotificationHandler().showServiceActiveNotification(this);
         authHandler.startAdvertisingProcess();
-
         return mBinder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
         authHandler.stopAdvertisingProcess();
+        authHandler.getNotificationHandler().closeAllNotifications();
         return false;
     }
 
@@ -41,13 +42,11 @@ public class FidoAuthService extends Service {
         return errors;
     }
 
-    public void setActivityClass(Class activityClass) {
-        this.activityClass = activityClass;
-        authHandler.setActivityClass(activityClass);
-    }
-
     public void handleUserInteraction(boolean approved) {
         authHandler.getApiLayer().buildResponseChainAfterUserInteraction(approved);
     }
 
+    public AuthHandler getAuthHandler() {
+        return authHandler;
+    }
 }
