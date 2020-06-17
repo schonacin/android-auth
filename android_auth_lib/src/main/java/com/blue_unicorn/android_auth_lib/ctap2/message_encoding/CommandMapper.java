@@ -16,6 +16,7 @@ import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.gson.GsonHelper;
 import com.google.gson.Gson;
 
 import io.reactivex.rxjava3.core.Single;
+import timber.log.Timber;
 
 final class CommandMapper {
 
@@ -34,14 +35,19 @@ final class CommandMapper {
     @NonNull
     static Single<RequestObject> mapRespectiveMethod(Command command) {
         return Single.defer(() -> {
+            Timber.d("Map Command based on value %s and parameters %s", command.getValue(), command.getParameters());
             switch (command.getValue()) {
                 case CommandValue.AUTHENTICATOR_MAKE_CREDENTIAL:
+                    Timber.d("\ttrigger makeCredential request with parameters %s", command.getParameters());
                     return Single.fromCallable(() -> buildMakeCredentialRequest(command.getParameters()));
                 case CommandValue.AUTHENTICATOR_GET_ASSERTION:
+                    Timber.d("\ttrigger getAssertionRequest with parameters %s", command.getParameters());
                     return Single.fromCallable(() -> buildGetAssertionRequest(command.getParameters()));
                 case CommandValue.AUTHENTICATOR_GET_INFO:
+                    Timber.d("\ttrigger getInfoRequest with parameters %s", command.getParameters());
                     return Single.fromCallable(CommandMapper::buildGetInfoRequest);
                 default:
+                    Timber.d("\tCommand Unknown");
                     return Single.error(new InvalidCommandException());
             }
         });

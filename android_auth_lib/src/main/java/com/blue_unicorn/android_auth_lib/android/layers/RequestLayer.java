@@ -8,12 +8,16 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.BaseInitializationFragment;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Fragment;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Frame;
+import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
+
+import java.util.Arrays;
 
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import io.reactivex.rxjava3.subscribers.DisposableSubscriber;
+import timber.log.Timber;
 
 public class RequestLayer {
 
@@ -30,6 +34,11 @@ public class RequestLayer {
         this.defragmentationProvider = new BaseDefragmentationProvider();
     }
 
+    private Observable<byte[]> getBluetoothRequests() {
+        //emulating incoming Bluetooth Requests
+        return Observable.just(new byte[]{(byte) 0x83, 0x02, 0x03, 0x04});
+    }
+
     public void initialize(Observable<byte[]> bluetoothRequests) {
         // call this method when Bluetooth is activated and advertising starts.
         // this basically starts the observable chain
@@ -43,6 +52,7 @@ public class RequestLayer {
         frameSubscriber = new AuthSubscriber<byte[]>(authHandler) {
             @Override
             public void onNext(byte[] frame) {
+                Timber.d("Build new request chain based on frame of length %d", frame.length);
                 authHandler.getApiLayer().buildNewRequestChain(frame);
                 request(1);
             }
@@ -65,12 +75,16 @@ public class RequestLayer {
 
     // TODO: put this in right component
     private Single<Fragment> toFragment(byte[] request) {
+        Timber.d("Got new fragment 0x%s to classify of length %d", ValueUtil.bytesToHex(request), request.length);
         return Single.just(request)
                 .map(bytes -> {
                     if ((bytes[0] & (byte) 0x80) == (byte) 0x80) {
+                        Timber.d("\tFragment of request is init fragment");
                         return new BaseInitializationFragment(bytes);
                     } else {
-                        return new BaseContinuationFragment(bytes);
+                        BaseContinuationFragment baseContinuationFragment = new BaseContinuationFragment(bytes);
+                        Timber.d("\tFragment is continuation fragment #%s", ValueUtil.bytesToHex(new byte[]{baseContinuationFragment.getSEQ()}));
+                        return baseContinuationFragment;
                     }
                 })
                 .cast(Fragment.class);

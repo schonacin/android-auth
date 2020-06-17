@@ -1,7 +1,11 @@
 package com.blue_unicorn.android_auth_lib.android.layers;
 
+import android.util.Base64;
+
 import com.blue_unicorn.android_auth_lib.android.AuthHandler;
 import com.blue_unicorn.android_auth_lib.android.AuthSubscriber;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.BaseCborHandler;
+import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
 
 import org.reactivestreams.Subscriber;
 
@@ -9,6 +13,7 @@ import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import io.reactivex.rxjava3.subscribers.DisposableSubscriber;
+import timber.log.Timber;
 
 public class ResponseLayer {
 
@@ -40,6 +45,8 @@ public class ResponseLayer {
             @Override
             public void onNext(byte[] response) {
                 // fragments are sent back to bluetooth either via call here
+                Timber.d("Sent response of length %d", response.length);
+                Timber.d("\t content: 0x%s", ValueUtil.bytesToHex(response));
                 authHandler.getBleHandler().sendBleData(response);
                 // OR via another Flowable with a Subject.
                 subject.onNext(response);

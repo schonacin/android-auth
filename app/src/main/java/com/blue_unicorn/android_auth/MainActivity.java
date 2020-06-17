@@ -87,7 +87,11 @@ public class MainActivity extends AppCompatActivity {
     private void checkPermissions() {
         int bluetoothPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH);
         int bluetoothAdminPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN);
-        if (bluetoothPermission != PackageManager.PERMISSION_GRANTED || bluetoothAdminPermission != PackageManager.PERMISSION_GRANTED) {
+        int bluetoothCoarseLocationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
+
+        if (bluetoothPermission != PackageManager.PERMISSION_GRANTED
+                || bluetoothAdminPermission != PackageManager.PERMISSION_GRANTED
+                || bluetoothCoarseLocationPermission != PackageManager.PERMISSION_GRANTED) {
             showMissingPermissionError();
         }
     }

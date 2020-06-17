@@ -48,7 +48,7 @@ public class AuthHandler {
 
     public void stopAdvertisingProcess() {
         bleHandler.disconnect();
-        // TODO dispose chains
+        bleHandler.removeServices();
     }
 
     public Flowable<byte[]> getResponses() {
