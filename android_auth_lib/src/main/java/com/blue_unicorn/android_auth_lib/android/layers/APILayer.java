@@ -103,7 +103,7 @@ public class APILayer {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         @UserAction int userAction = 0;
         if (request instanceof MakeCredentialRequest) {
-            userAction = sharedPreferences.getInt(UserPreference.MAKE_CREDENTIAL, UserAction.BUILD_NOTIFICATION);
+            userAction = sharedPreferences.getInt(UserPreference.MAKE_CREDENTIAL, UserAction.BUILD_NOTIFICATION_AND_PERFORM_AUTHENTICATION);
         } else if (request instanceof GetAssertionRequest) {
             userAction = sharedPreferences.getInt(UserPreference.GET_ASSERTION, UserAction.PERFORM_AUTHENTICATION);
         }
@@ -142,7 +142,6 @@ public class APILayer {
     public void buildResponseChainAfterUserInteraction(boolean isApproved) {
         // this chain is called after the user has interacted with the device
         // this function can be called from outside, i. e. a new intent on a service
-        authHandler.getNotificationHandler().closeNotification(NotificationID.REQUEST);
         RequestObject requestInstance = getRequest();
         if (requestInstance == null) {
             authHandler.getNotificationHandler().notifyFailure();
@@ -180,7 +179,7 @@ public class APILayer {
         };
 
         switch (authenticationMethod) {
-            case AuthenticationMethod.CODE:
+            case AuthenticationMethod.FINGERPRINT_WITH_FALLBACK:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     BiometricAuth.authenticateWithCredentialFallback(context, new AuthInfo(request), authenticationCallback);
                     break;
@@ -189,7 +188,6 @@ public class APILayer {
                 BiometricAuth.authenticate(context, new AuthInfo(request), authenticationCallback);
                 break;
             }
-
         }
     }
 
@@ -197,11 +195,11 @@ public class APILayer {
         // starts Activity responsible for authentication mechanism
         // Other possibilities to inject App behaviour into Lib could be:
         // @Override methods or Callbacks
-        // Intent is implicit as we don't know the activity which performs this
         Intent intent = new Intent(context, authHandler.getActivityClass());
         intent.setAction(IntentAction.CTAP_PERFORM_AUTHENTICATION);
         // TODO: figure out best way to send intent as startActivity requires an explicit flag
-        context.startActivity(intent);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.getApplicationContext().startActivity(intent);
     }
 
     private void proceedWithoutUserInteraction() {

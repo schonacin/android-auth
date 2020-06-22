@@ -154,8 +154,6 @@ public class NotificationHandler {
         PendingIntent approveIntent = PendingIntent.getActivity(context, 0, approve, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent declineIntent = PendingIntent.getActivity(context, 0, decline, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Action.Builder approveBuilder = new NotificationCompat.Action.Builder(
-                R.drawable.ic_launcher_background, "Once", approveIntent);
         NotificationCompat.Builder builder =
                 buildNotification(REQUEST_CHANNEL_ID)
                         .setColor(ContextCompat.getColor(context, R.color.colorPrimary))

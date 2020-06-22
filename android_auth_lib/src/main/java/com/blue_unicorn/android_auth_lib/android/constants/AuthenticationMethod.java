@@ -8,10 +8,10 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.SOURCE)
 @IntDef({
         AuthenticationMethod.FINGERPRINT,
-        AuthenticationMethod.CODE
+        AuthenticationMethod.FINGERPRINT_WITH_FALLBACK,
 })
 
 public @interface AuthenticationMethod {
     int FINGERPRINT = 1;
-    int CODE = 2;
+    int FINGERPRINT_WITH_FALLBACK = 2;
 }

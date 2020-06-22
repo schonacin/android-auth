@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blue_unicorn.android_auth_lib.android.constants.IntentExtra;
+import com.blue_unicorn.android_auth_lib.android.constants.NotificationID;
 
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 
@@ -44,6 +45,10 @@ public class FidoAuthService extends Service {
 
     public void handleUserInteraction(boolean approved) {
         authHandler.getApiLayer().buildResponseChainAfterUserInteraction(approved);
+    }
+
+    public void closeNotification() {
+        authHandler.getNotificationHandler().closeNotification(NotificationID.REQUEST);
     }
 
     public AuthHandler getAuthHandler() {

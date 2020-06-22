@@ -22,9 +22,8 @@ public final class BiometricAuth {
 
         BiometricPrompt biometricPrompt = new BiometricPrompt.Builder(context)
                 .setTitle(authInfo.getTitle())
-                .setDescription("Website: " + authInfo.getRp())
                 // TODO: username is not present in getAssertion
-                .setSubtitle("Username: " + authInfo.getUser())
+                .setSubtitle("Website: " + authInfo.getRp() + ", Username: " + authInfo.getUser())
                 .setNegativeButton("Decline", executor, (dialog, position) -> authenticationCallback.onAuthenticationFailed())
                 .build();
 
@@ -38,17 +37,19 @@ public final class BiometricAuth {
 
         BiometricPrompt biometricPrompt = new BiometricPrompt.Builder(context)
                 .setTitle(authInfo.getTitle())
-                .setDescription("Website: " + authInfo.getRp())
-                .setSubtitle("Username: " + authInfo.getUser())
+                .setSubtitle("Website: " + authInfo.getRp() + ", Username: " + authInfo.getUser())
                 .setDeviceCredentialAllowed(true)
                 .build();
 
         biometricPrompt.authenticate(new CancellationSignal(), executor, authenticationCallback);
     }
 
-    public static void confirmCredentials(Context context, AuthInfo authInfo) {
+    // will probably be deleted
+    public static void confirmCredentials(Context context, AuthInfo authInfo, Class activityClass) {
         String description = "Relying Party: " + authInfo.getRp() + ", User: " + authInfo.getUser();
         Intent intent = ((KeyguardManager) Objects.requireNonNull(context.getSystemService(Context.KEYGUARD_SERVICE))).createConfirmDeviceCredentialIntent(authInfo.getTitle(), description);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        //intent.setClass(context, activityClass);
         context.startActivity(intent);
     }
 

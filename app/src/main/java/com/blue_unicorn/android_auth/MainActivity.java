@@ -81,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
         if (intent.getAction() == null) {
             return;
         }
+        // TODO: find a way to close the notification within its action or via JobIntentService
+        fidoAuthService.closeNotification();
         @IntentAction String intentAction = intent.getAction();
         switch (intentAction) {
             case IntentAction.CTAP_APPROVE_NOTIFICATION:
