@@ -20,6 +20,8 @@ import com.blue_unicorn.android_auth_lib.android.constants.AuthenticatorAPIMetho
 import com.blue_unicorn.android_auth_lib.android.constants.IntentAction;
 import com.blue_unicorn.android_auth_lib.android.constants.NotificationID;
 
+import timber.log.Timber;
+
 public class NotificationHandler {
 
     private Context context;
@@ -40,6 +42,7 @@ public class NotificationHandler {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void createFidoChannels() {
+        Timber.d("Creating Notification Channels...");
         {
             CharSequence name = "FIDO_REQUEST_CHANNEL";
             String description = "Channel for FIDO requests";
@@ -116,6 +119,7 @@ public class NotificationHandler {
     }
 
     private void notify(@NonNull String message) {
+        Timber.d("Displaying Notification to show message \"%s\"", message);
         Intent resultIntent = new Intent(context, FidoAuthService.class);
         NotificationCompat.Builder builder =
                 buildNotification(NOTIFY_CHANNEL_ID)
@@ -142,6 +146,7 @@ public class NotificationHandler {
     }
 
     public void requestApproval(AuthInfo authInfo, boolean authenticationRequired) {
+        Timber.d("Displaying Notification to request User Approval");
         Intent approve = new Intent(context, mainActivity);
         Intent decline = new Intent(context, mainActivity);
         if (authenticationRequired) {
@@ -174,6 +179,7 @@ public class NotificationHandler {
     }
 
     public void showServiceActiveNotification(Context context) {
+        Timber.d("Displaying Notification that FIDO Service is active");
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
                 new Intent(context, mainActivity), 0);
 
@@ -181,26 +187,27 @@ public class NotificationHandler {
 
         NotificationCompat.Builder builder =
                 buildNotification(SERVICE_RUNNING_CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_launcher_foreground)  // the status icon
-                        .setTicker(text)  // the status text
-                        .setWhen(System.currentTimeMillis())  // the time stamp
-                        .setContentTitle("FIDO BLE")  // the label of the entry
-                        .setContentText(text)  // the contents of the entry
-                        .setContentIntent(contentIntent) // The intent to send when the entry is clicked
+                        .setSmallIcon(R.drawable.ic_launcher_foreground)
+                        .setTicker(text)
+                        .setWhen(System.currentTimeMillis())
+                        .setContentTitle("FIDO BLE")
+                        .setContentText(text)
+                        .setContentIntent(contentIntent)
                         .setOngoing(true);
 
-        // Send the notification.
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
         notificationManagerCompat.cancel(NotificationID.SHOW_SERVICE);
         notificationManagerCompat.notify(NotificationID.SHOW_SERVICE, builder.build());
     }
 
     public void closeNotification(@NotificationID int id) {
+        Timber.d("Closing Notification with id %i", id);
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
         notificationManagerCompat.cancel(id);
     }
 
     public void closeAllNotifications() {
+        Timber.d("Closing all Notifications");
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
         notificationManagerCompat.cancel(NotificationID.REQUEST);
         notificationManagerCompat.cancel(NotificationID.NOTIFY);

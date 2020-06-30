@@ -24,6 +24,8 @@ import com.blue_unicorn.android_auth_lib.android.constants.IntentExtra;
 import com.google.android.material.snackbar.Snackbar;
 import com.tbruyelle.rxpermissions3.RxPermissions;
 
+import timber.log.Timber;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
@@ -81,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
         if (intent.getAction() == null) {
             return;
         }
+        Timber.d("New intent in MainActivity with action %s", intent.getAction());
         // TODO: find a way to close the notification within its action or via JobIntentService
         fidoAuthService.closeNotification();
         @IntentAction String intentAction = intent.getAction();

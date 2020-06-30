@@ -7,6 +7,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.blue_unicorn.android_auth_lib.android.NotificationHandler;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class BiometricAuthTest {
@@ -18,6 +19,7 @@ public class BiometricAuthTest {
         this.context = InstrumentationRegistry.getInstrumentation().getTargetContext();
     }
 
+    @Ignore("WIP")
     @Test
     public void fingerPrint_DoesWork() {
         final boolean[] done = {false};
@@ -33,16 +35,11 @@ public class BiometricAuthTest {
         }
     }
 
-    @Test
-    public void oldConfirmation_Works() {
-        BiometricAuth.confirmCredentials(context, new AuthInfo("REGISTER!!!!", "haha.io", "me"));
-    }
-
     //WIP
+    @Ignore("WIP")
     @Test
     public void notificationsArePresent() {
-        NotificationHandler notificationHandler = new NotificationHandler(context);
-        notificationHandler.setMainActivity(context.getClass());
+        NotificationHandler notificationHandler = new NotificationHandler(context,context.getClass());
         notificationHandler.requestApproval(new AuthInfo("REGISTER!!!!", "haha.io", "me"), false);
     }
 
