@@ -17,6 +17,7 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Frame;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,6 +82,7 @@ public class MainActivityTest {
     // These are also REAL LIFE tests where you need to interact with the phone.
     // Might get deleted later but helpful to test the app without Bluetooth Requirements
     // very hacky :D
+    @Ignore("Reallife")
     @Test
     public void makeCredential_RunsFromActivity() {
         while (mainActivity.getFidoAuthService() == null) {
