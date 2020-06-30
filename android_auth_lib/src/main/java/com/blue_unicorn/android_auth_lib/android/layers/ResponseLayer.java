@@ -48,7 +48,7 @@ public class ResponseLayer {
 
             @Override
             public void onComplete() {
-                authHandler.stopKeepalive();
+                authHandler.getKeepaliveHandler().stopKeepalive();
             }
         };
         return responseSubscriber;
