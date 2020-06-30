@@ -48,8 +48,7 @@ public class ResponseLayer {
 
             @Override
             public void onComplete() {
-                // this is called whenever a response chain ends.
-                // Could be used for Keep Alive Purposes??
+                authHandler.stopKeepalive();
             }
         };
         return responseSubscriber;
