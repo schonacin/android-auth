@@ -25,8 +25,7 @@ public class APILayerTest {
     @Before
     public void setUp() {
         this.context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        this.authHandler = new AuthHandler(context, new MutableLiveData<>());
-        authHandler.setActivityClass(context.getClass());
+        this.authHandler = new AuthHandler(context, new MutableLiveData<>(), context.getClass());
     }
 
     private void setSharedPreferences(@UserPreference String preference, @UserAction int value) {
