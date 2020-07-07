@@ -32,11 +32,11 @@ class BaseFrameAccumulator implements FrameAccumulator {
     private Frame frame;
 
     BaseFrameAccumulator(int maxLen) throws OtherException {
-
         Timber.d("Initializing BaseFrameAccumulator with maxLength %d", maxLen);
 
-        if (maxLen < 3)
+        if (maxLen < 3) {
             throw new OtherException("Defragmentation error: maxLen (" + maxLen + ") is smaller than minimum required maxLen (3)");
+        }
 
         setSequenceNumberCount(new int[0x80]);
         setInitializationFragmentAccumulated(false);
@@ -60,7 +60,6 @@ class BaseFrameAccumulator implements FrameAccumulator {
 
     @Override
     public boolean isComplete() {
-
         boolean initializationFragmentComplete = initializationFragmentComplete();
         boolean continuationFragmentsComplete = continuationFragmentsComplete();
         boolean dataComplete = dataComplete();
@@ -77,7 +76,6 @@ class BaseFrameAccumulator implements FrameAccumulator {
     }
 
     private boolean continuationFragmentsComplete() {
-
         Timber.d("Check whether continuation fragments complete");
         int continuationFragmentsCount = 0;
         for (int sequenceNumberCount : getSequenceNumberCount())
@@ -118,8 +116,9 @@ class BaseFrameAccumulator implements FrameAccumulator {
     }
 
     private void addInitializationFragment(InitializationFragment fragment) throws InvalidCommandException, InvalidLengthException, OtherException {
-        if (isInitializationFragmentAccumulated())
+        if (isInitializationFragmentAccumulated()) {
             throw new OtherException("Defragmentation error: received multiple initialization fragments for same frame");
+        }
 
         Timber.d("Add initialization fragment");
         setInitializationFragmentAccumulated(true);
@@ -144,12 +143,12 @@ class BaseFrameAccumulator implements FrameAccumulator {
     }
 
     private void addContinuationFragment(ContinuationFragment fragment) throws InvalidLengthException {
-
         Timber.d("Add initialization fragment");
         setAccumulatedDataSize(getAccumulatedDataSize() + fragment.getDATA().length);
 
-        if (isInitializationFragmentAccumulated() && getAccumulatedDataSize() > getTotalDataSize())
+        if (isInitializationFragmentAccumulated() && getAccumulatedDataSize() > getTotalDataSize()) {
             throw new InvalidLengthException("Invalid length error: accumulated data length " + getAccumulatedDataSize() + " is greater than length declared in HLEN and LLEN " + getTotalDataSize());
+        }
 
         int initializationFragmentDataOffset = getInitializationFragmentDataSize();
         int continuationFragmentDataOffset = getContinuationFragmentDataSize() * fragment.getSEQ();

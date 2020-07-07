@@ -38,7 +38,7 @@ final class CommandMapper {
             Timber.d("Map Command based on value %s and parameters %s", command.getValue(), command.getParameters());
             switch (command.getValue()) {
                 case CommandValue.AUTHENTICATOR_MAKE_CREDENTIAL:
-                    Timber.d("\ttrigger makeCredential request with parameters %s", command.getParameters());
+                    Timber.d("\ttrigger makeCredentialRequest with parameters %s", command.getParameters());
                     return Single.fromCallable(() -> buildMakeCredentialRequest(command.getParameters()));
                 case CommandValue.AUTHENTICATOR_GET_ASSERTION:
                     Timber.d("\ttrigger getAssertionRequest with parameters %s", command.getParameters());

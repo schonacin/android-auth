@@ -99,9 +99,6 @@ public class GetAssertion {
         Timber.d("Select credentials to use for get assertion based on rp id and credentials source id");
         Timber.d("\tRpId: %s", request.getRpId());
         return credentialSafe.getKeysForEntity(request.getRpId())
-                .map(credentialSource -> {
-                    Timber.d("\tCredential Source id: %s",ValueUtil.bytesToHex(credentialSource.getId()));
-                    return credentialSource;})
                 .filter(credentialSource -> isInAllowedCredentialIds(credentialSource.id))
                 .toList()
                 .flatMapCompletable(credentials -> Completable.fromAction(() -> request.setSelectedCredentials(credentials)));

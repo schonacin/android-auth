@@ -26,9 +26,7 @@ public class BaseDefragmentationProvider implements RxDefragmentationProvider {
 
     @Override
     public Maybe<Frame> defragment(Fragment fragment, int maxLen) {
-
         Timber.d("Defragment fragment %s based on maxLength of %d", fragment.asBytes(), maxLen);
-
         return Single.just(fragment)
                 .map(frag -> {
                     if (frameAccumulator == null || frameAccumulator.isComplete()) {
