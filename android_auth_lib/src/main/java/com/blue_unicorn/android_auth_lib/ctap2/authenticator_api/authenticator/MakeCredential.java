@@ -191,7 +191,7 @@ public class MakeCredential {
         Single<byte[]> authenticatorData = getAuthenticatorData();
         Single<AttestationStatement> attestationStatementSingle = constructAttestationStatement();
 
-        Timber.d("Constructing MakeCredential Response by zipping authenticator data, and attestation statement");
+        Timber.d("Constructing MakeCredential Response by zipping authenticator data and attestation statement");
         Timber.d("\tAuthenticator data: %s", ValueUtil.bytesToHex(authenticatorData.blockingGet()));
         Timber.d("\tAttestation Statement: %s", attestationStatementSingle.blockingGet().toString());
         return Single.zip(getAuthenticatorData(), constructAttestationStatement(), BaseMakeCredentialResponse::new);

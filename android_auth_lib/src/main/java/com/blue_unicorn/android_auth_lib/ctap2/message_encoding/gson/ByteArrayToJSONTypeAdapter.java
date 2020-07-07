@@ -20,7 +20,7 @@ public class ByteArrayToJSONTypeAdapter implements JsonSerializer<byte[]>, JsonD
         Timber.d("Deserializing Json Element %s", json.getAsString());
         byte[] decode = Base64.decode(json.getAsString(), Base64.URL_SAFE);
         Timber.d("\t result: %s", ValueUtil.bytesToHex(decode));
-        return Base64.decode(json.getAsString(), Base64.URL_SAFE);
+        return decode;
     }
 
     public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {

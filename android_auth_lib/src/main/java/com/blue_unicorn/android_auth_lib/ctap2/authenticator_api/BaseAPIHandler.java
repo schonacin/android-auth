@@ -25,7 +25,6 @@ public class BaseAPIHandler implements APIHandler {
     }
 
     public Single<FidoObject> callAPI(RequestObject request) {
-
         return Single.defer(() -> {
             if (request instanceof MakeCredentialRequest) {
                 Timber.d("Call API for makeCrendential");

@@ -34,11 +34,6 @@ public class RequestLayer {
         this.defragmentationProvider = new BaseDefragmentationProvider();
     }
 
-    private Observable<byte[]> getBluetoothRequests() {
-        //emulating incoming Bluetooth Requests
-        return Observable.just(new byte[]{(byte) 0x83, 0x02, 0x03, 0x04});
-    }
-
     public void initialize(Observable<byte[]> bluetoothRequests) {
         // call this method when Bluetooth is activated and advertising starts.
         // this basically starts the observable chain
