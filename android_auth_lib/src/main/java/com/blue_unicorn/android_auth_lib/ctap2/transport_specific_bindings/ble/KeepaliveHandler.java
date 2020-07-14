@@ -23,13 +23,17 @@ public class KeepaliveHandler {
     }
 
     public void initialize(Observable<byte[]> bluetoothRequests) {
-        bluetoothRequests.subscribe(bleReq -> keepaliveDisposable = Observable
+        bluetoothRequests.subscribe(bleReq ->
+        {
+            if (keepaliveDisposable != null) keepaliveDisposable.dispose();
+            keepaliveDisposable = Observable
                 .interval(Timeout.kKeepAliveMillis, TimeUnit.MILLISECONDS)
                 .map(i -> rawUPKeepaliveCommand)
-                .subscribe(keepaliveCommand -> authHandler.getBleHandler().sendBleData(keepaliveCommand)));
+                    .subscribe(keepaliveCommand -> authHandler.getBleHandler().sendBleData(keepaliveCommand));
+        });
     }
 
     public void stopKeepalive() {
-        keepaliveDisposable.dispose();
+        if (keepaliveDisposable != null) keepaliveDisposable.dispose();
     }
 }

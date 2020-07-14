@@ -39,6 +39,7 @@ public class ResponseLayer {
         this.responseSubscriber = new AuthSubscriber<byte[]>(authHandler) {
             @Override
             public void onNext(byte[] response) {
+                authHandler.getKeepaliveHandler().stopKeepalive();
                 // fragments are sent back to bluetooth either via call here
                 authHandler.getBleHandler().sendBleData(response);
                 // OR via another Flowable with a Subject.
