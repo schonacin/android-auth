@@ -24,6 +24,8 @@ public interface AuthenticatorAPI {
 
     Single<GetAssertionResponse> getInternalAssertion(GetAssertionRequest request);
 
+    Single<GetInfoRequest> getInfoSetupExtension(GetInfoRequest request);
+
     Single<GetInfoResponse> getInfo(GetInfoRequest request);
 
 }

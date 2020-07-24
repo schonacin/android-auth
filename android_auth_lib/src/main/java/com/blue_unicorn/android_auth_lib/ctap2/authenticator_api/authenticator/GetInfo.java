@@ -1,5 +1,11 @@
 package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.ExtensionSupport;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.BaseGetInfoRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseGetInfoResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.GetInfoResponse;
 
@@ -14,8 +20,16 @@ import io.reactivex.rxjava3.core.Single;
  */
 public class GetInfo {
 
-    public Single<GetInfoResponse> operate() {
-        return constructResponse();
+    public Single<GetInfoRequest> setUpForExtension() {
+        return Single.just(new BaseGetInfoRequest());
+    }
+
+    public Single<GetInfoResponse> operate(@Nullable ExtensionSupport extensionSupport) {
+        if (extensionSupport == null) {
+            return constructResponse();
+        } else {
+            return constructResponseWithExtensions(extensionSupport);
+        }
     }
 
     private Single<Map<String, Boolean>> constructOptions() {
@@ -31,6 +45,10 @@ public class GetInfo {
 
     private Single<GetInfoResponse> constructResponse() {
         return Single.zip(Single.just(Config.VERSIONS), Single.just(Config.AAGUID), constructOptions(), Single.just(Config.MAX_MSG_SIZE), BaseGetInfoResponse::new);
+    }
+
+    private Single<GetInfoResponse> constructResponseWithExtensions(@NonNull ExtensionSupport extensionSupport) {
+        return Single.zip(Single.just(Config.VERSIONS), Single.just(extensionSupport.serializeToStringArray()), Single.just(Config.AAGUID), constructOptions(), Single.just(Config.MAX_MSG_SIZE), BaseGetInfoResponse::new);
     }
 
 }

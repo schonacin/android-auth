@@ -19,8 +19,10 @@ import com.blue_unicorn.android_auth_lib.android.constants.UserAction;
 import com.blue_unicorn.android_auth_lib.android.constants.UserPreference;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.APIHandler;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.BaseAPIHandler;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.ExtensionSupport;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.FidoObject;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.GetAssertionRequest;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.GetInfoRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.MakeCredentialRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.RequestObject;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.ResponseObject;
@@ -65,7 +67,7 @@ public class APILayer {
                 if (result instanceof ResponseObject) {
                     buildResponseChainWithoutUserInteraction((ResponseObject) result);
                 } else {
-                    handleUserAction((RequestObject) result);
+                    handleIntermediate((RequestObject) result);
                 }
             }
         };
@@ -95,10 +97,15 @@ public class APILayer {
         return true;
     }
 
-    private void handleUserAction(RequestObject request) {
+    private void handleIntermediate(RequestObject request) {
         if (!setNewRequest(request)) {
             return;
         }
+        if (request instanceof GetInfoRequest){
+            handleGetInfoExtensionSupport();
+            return;
+        }
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         @UserAction int userAction = 0;
         if (request instanceof MakeCredentialRequest) {
@@ -128,6 +135,13 @@ public class APILayer {
         }
     }
 
+    private void handleGetInfoExtensionSupport() {
+        // looks for activities that can perform continuous authentication
+        // Intent is implicit as we don't know the activity which performs this
+        Intent intent = new Intent(IntentAction.CONTINUOS_AUTHENTICATION);
+        context.startActivity(intent);
+    }
+
     private void buildResponseChainWithoutUserInteraction(ResponseObject response) {
         // this chain will be built if there is no user interaction required
         cborHandler.encode(response)
@@ -147,6 +161,9 @@ public class APILayer {
         }
 
         requestInstance.setApproved(isApproved);
+        if (requestInstance instanceof GetInfoRequest && isApproved)
+            ((GetInfoRequest)requestInstance).setExtensionSupport(new ExtensionSupport());
+
         apiHandler.updateAPI(requestInstance)
                 .flatMap(cborHandler::encode)
                 .map(BaseFrame::new)

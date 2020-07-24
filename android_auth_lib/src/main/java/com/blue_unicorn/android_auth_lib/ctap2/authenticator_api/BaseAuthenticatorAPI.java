@@ -43,9 +43,14 @@ public class BaseAuthenticatorAPI implements AuthenticatorAPI {
                 .flatMap(GetAssertion::operateInner);
     }
 
+    public Single<GetInfoRequest> getInfoSetupExtension(GetInfoRequest request) {
+        return Single.fromCallable(GetInfo::new)
+                .flatMap(GetInfo::setUpForExtension);
+    }
+
     public Single<GetInfoResponse> getInfo(GetInfoRequest request) {
         return Single.fromCallable(GetInfo::new)
-                .flatMap(GetInfo::operate);
+                .flatMap(getInfo -> getInfo.operate(request.getExtensionSupport()));
     }
 
 }
