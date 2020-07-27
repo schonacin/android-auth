@@ -15,7 +15,6 @@ import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 public class FidoAuthService extends Service {
 
     private MutableLiveData<Throwable> errors = new MutableLiveData<>();
-    private BleHandler bleHandler;
     private AuthHandler authHandler;
 
     private final IBinder mBinder = new FidoAuthServiceBinder(this);

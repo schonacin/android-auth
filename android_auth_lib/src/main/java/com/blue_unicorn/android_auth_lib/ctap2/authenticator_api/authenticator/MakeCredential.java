@@ -14,6 +14,7 @@ import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.MissingPa
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.OperationDeniedException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.UnsupportedAlgorithmException;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
+import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
 import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
 
 import java.security.PrivateKey;
@@ -22,6 +23,7 @@ import java.util.Map;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
+import timber.log.Timber;
 
 /**
  * Represents the authenticatorMakeCredential method.
@@ -185,7 +187,13 @@ public class MakeCredential {
                 .map(PackedAttestationStatement::new);
     }
 
-    private Single<MakeCredentialResponse> constructResponse() {
+    private Single<MakeCredentialResponse>  constructResponse() {
+        Single<byte[]> authenticatorData = getAuthenticatorData();
+        Single<AttestationStatement> attestationStatementSingle = constructAttestationStatement();
+
+        Timber.d("Constructing MakeCredential Response by zipping authenticator data and attestation statement");
+        Timber.d("\tAuthenticator data: %s", ValueUtil.bytesToHex(authenticatorData.blockingGet()));
+        Timber.d("\tAttestation Statement: %s", attestationStatementSingle.blockingGet().toString());
         return Single.zip(getAuthenticatorData(), constructAttestationStatement(), BaseMakeCredentialResponse::new);
     }
 }
