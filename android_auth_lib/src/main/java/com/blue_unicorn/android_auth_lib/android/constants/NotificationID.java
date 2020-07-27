@@ -7,11 +7,13 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.SOURCE)
 @IntDef({
-        AuthenticationMethod.FINGERPRINT,
-        AuthenticationMethod.FINGERPRINT_WITH_FALLBACK,
+        NotificationID.REQUEST,
+        NotificationID.NOTIFY,
+        NotificationID.SHOW_SERVICE
 })
 
-public @interface AuthenticationMethod {
-    int FINGERPRINT = 1;
-    int FINGERPRINT_WITH_FALLBACK = 2;
+public @interface NotificationID {
+    int REQUEST = 1;
+    int NOTIFY = 2;
+    int SHOW_SERVICE = 3;
 }

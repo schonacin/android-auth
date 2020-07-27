@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.database.CredentialDatabase;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.database.PublicKeyCredentialSource;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
+import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
 import com.nexenio.rxkeystore.RxKeyStore;
 import com.nexenio.rxkeystore.provider.asymmetric.ec.RxECCryptoProvider;
 import com.upokecenter.cbor.CBORObject;
@@ -16,10 +17,12 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECPoint;
+import java.util.Arrays;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
+import timber.log.Timber;
 
 /**
  * Handles the generation and retrieval of credentials via a specific database and the keystore.
@@ -120,6 +123,11 @@ public class CredentialSafe {
     public Single<PublicKeyCredentialSource> generateCredential(@NonNull String rpEntityId, byte[] userHandle, String userDisplayName) {
         return Single.defer(() -> {
             PublicKeyCredentialSource credentialSource = new PublicKeyCredentialSource(rpEntityId, userHandle, userDisplayName);
+            Timber.d("Generating Credential for rpEntityId %s and store in the credential store", rpEntityId);
+            Timber.d("\tKeypairAlias: %s", credentialSource.getKeyPairAlias());
+            Timber.d("\tId (hex): %s", ValueUtil.bytesToHex(credentialSource.getId()));
+            Timber.d("\tId: %s", Arrays.toString(credentialSource.getId()));
+            Timber.d("\tUser display name: %s", credentialSource.getUserDisplayName());
             return generateNewES256KeyPair(credentialSource.getKeyPairAlias())
                     .andThen(insertCredentialIntoDatabase(credentialSource))
                     .andThen(Single.just(credentialSource));
@@ -127,6 +135,7 @@ public class CredentialSafe {
     }
 
     private Completable insertCredentialIntoDatabase(PublicKeyCredentialSource credential) {
+        Timber.d("Inserting credential %s into DB", credential.getKeyPairAlias());
         return getInitializedDatabase()
                 .flatMapCompletable(database -> Completable.fromAction(() -> database.credentialDao().insert(credential)));
     }

@@ -7,11 +7,11 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.SOURCE)
 @IntDef({
-        AuthenticationMethod.FINGERPRINT,
-        AuthenticationMethod.FINGERPRINT_WITH_FALLBACK,
+        AuthenticatorAPIMethod.MAKE_CREDENTIAL,
+        AuthenticatorAPIMethod.GET_ASSERTION
 })
 
-public @interface AuthenticationMethod {
-    int FINGERPRINT = 1;
-    int FINGERPRINT_WITH_FALLBACK = 2;
+public @interface AuthenticatorAPIMethod {
+    int MAKE_CREDENTIAL = 1;
+    int GET_ASSERTION = 2;
 }

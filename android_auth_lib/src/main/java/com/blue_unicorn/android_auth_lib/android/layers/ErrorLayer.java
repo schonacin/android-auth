@@ -11,28 +11,28 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
+import timber.log.Timber;
 
 public final class ErrorLayer {
 
-    public static void handleErrors(AuthHandler authHandler, Throwable t) {
+    public static void handleErrors(AuthHandler authHandler, Throwable throwable) {
 
-         RxFragmentationProvider fragmentationProvider = new BaseFragmentationProvider();
+        RxFragmentationProvider fragmentationProvider = new BaseFragmentationProvider();
 
-        if (t instanceof BleException) {
-            Flowable.fromCallable(((BleException) t)::getErrorCode)
+        if (throwable instanceof BleException) {
+            Flowable.fromCallable(((BleException) throwable)::getErrorCode)
                     .map(b -> new byte[]{b})
                     .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
-        } else if (t instanceof StatusCodeException) {
-            Single.fromCallable(((StatusCodeException) t)::getErrorCode)
-                    .cast(Byte.class)
-                    .map(b -> new byte[]{b})
+        } else if (throwable instanceof StatusCodeException) {
+            Single.fromCallable(((StatusCodeException) throwable)::getErrorCode)
+                    .map(e -> new byte[]{(byte) (int) e})
                     .map(BaseFrame::new)
                     .cast(Frame.class)
                     .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getBleHandler().getMtu()))
                     .map(Fragment::asBytes)
                     .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
         } else {
-            // TODO handle this shit
+            Timber.d(throwable, "Something went wrong :(");
         }
 
     }

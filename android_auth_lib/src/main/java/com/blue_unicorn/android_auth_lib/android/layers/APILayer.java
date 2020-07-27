@@ -15,6 +15,7 @@ import com.blue_unicorn.android_auth_lib.android.authentication.AuthenticationAP
 import com.blue_unicorn.android_auth_lib.android.authentication.BiometricAuth;
 import com.blue_unicorn.android_auth_lib.android.constants.AuthenticationMethod;
 import com.blue_unicorn.android_auth_lib.android.constants.IntentAction;
+import com.blue_unicorn.android_auth_lib.android.constants.NotificationID;
 import com.blue_unicorn.android_auth_lib.android.constants.UserAction;
 import com.blue_unicorn.android_auth_lib.android.constants.UserPreference;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.APIHandler;
@@ -34,9 +35,9 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.BaseFrame;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Fragment;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Frame;
-
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleObserver;
+import timber.log.Timber;
 
 public class APILayer {
 
@@ -64,9 +65,12 @@ public class APILayer {
         SingleObserver<FidoObject> apiSubscriber = new AuthSingleObserver<FidoObject>(authHandler) {
             @Override
             public void onSuccess(FidoObject result) {
+                Timber.d("Got Result from API Call: %s", result.getClass().getCanonicalName());
                 if (result instanceof ResponseObject) {
+                    Timber.d("\tis response, directly return without user interaction");
                     buildResponseChainWithoutUserInteraction((ResponseObject) result);
                 } else {
+                    Timber.d("\tis still request, handle respective user action!");
                     handleIntermediate((RequestObject) result);
                 }
             }
@@ -83,6 +87,10 @@ public class APILayer {
         }
         RequestObject requestInstance = request;
         this.request = null;
+        Timber.d("Getting existing request %s", requestInstance);
+        if(requestInstance instanceof GetAssertionRequest) {
+            Timber.d("\tAmount of selected Credentials: %s", ((GetAssertionRequest) requestInstance).getSelectedCredentials().size());
+        }
         return requestInstance;
     }
 
@@ -98,6 +106,7 @@ public class APILayer {
     }
 
     private void handleIntermediate(RequestObject request) {
+        Timber.d("Handle user interaction");
         if (!setNewRequest(request)) {
             return;
         }
@@ -126,6 +135,7 @@ public class APILayer {
 
         switch (userAction) {
             case UserAction.BUILD_NOTIFICATION:
+                Timber.d("\tbuild notification!");
                 buildNotification(request, false);
                 break;
             case UserAction.PERFORM_STANDARD_AUTHENTICATION:
@@ -134,13 +144,19 @@ public class APILayer {
                     break;
                 }
             case UserAction.BUILD_NOTIFICATION_AND_PERFORM_AUTHENTICATION:
+                Timber.d("\tbuild notification and perform authentication!");
                 buildNotification(request, true);
                 break;
             case UserAction.PERFORM_AUTHENTICATION:
+                Timber.d("\tperform authentication!");
                 performCustomAuthentication();
                 break;
             case UserAction.PROCEED_WITHOUT_USER_INTERACTION:
+                Timber.d("\tproceed without any user interaction!");
                 proceedWithoutUserInteraction();
+                break;
+            default:
+                Timber.d("\tuser interaction unknown!");
                 break;
         }
     }
@@ -167,8 +183,10 @@ public class APILayer {
         // this function can be called from outside, i. e. a new intent on a service
         RequestObject requestInstance = getRequest();
         if (requestInstance == null) {
+            authHandler.getNotificationHandler().notifyFailure();
             return;
         }
+        authHandler.getNotificationHandler().notifyResult(new AuthInfo(requestInstance), isApproved);
 
         requestInstance.setApproved(isApproved);
         if (requestInstance instanceof GetInfoRequest && isApproved)
@@ -180,6 +198,9 @@ public class APILayer {
                 .cast(Frame.class)
                 .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getBleHandler().getMtu()))
                 .map(Fragment::asBytes)
+                .doOnError(throwable -> {
+                    Timber.d(throwable, "Something went wrong during update of api");
+                })
                 .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
     }
 
@@ -187,6 +208,7 @@ public class APILayer {
         // builds a notification with info on username/ Website
         // acceptance of notification should call buildResponseChainAfterUserInteraction()/
         // performAuthentication() based on the input parameter
+        authHandler.getNotificationHandler().requestApproval(new AuthInfo(request), authenticationRequired);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
@@ -202,7 +224,7 @@ public class APILayer {
         };
 
         switch (authenticationMethod) {
-            case AuthenticationMethod.CODE:
+            case AuthenticationMethod.FINGERPRINT_WITH_FALLBACK:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     BiometricAuth.authenticateWithCredentialFallback(context, new AuthInfo(request), authenticationCallback);
                     break;
@@ -211,7 +233,6 @@ public class APILayer {
                 BiometricAuth.authenticate(context, new AuthInfo(request), authenticationCallback);
                 break;
             }
-
         }
     }
 
@@ -219,9 +240,11 @@ public class APILayer {
         // starts Activity responsible for authentication mechanism
         // Other possibilities to inject App behaviour into Lib could be:
         // @Override methods or Callbacks
-        // Intent is implicit as we don't know the activity which performs this
-        Intent intent = new Intent(IntentAction.CTAP_PERFORM_AUTHENTICATION);
-        context.startActivity(intent);
+        Intent intent = new Intent(context, authHandler.getActivityClass());
+        intent.setAction(IntentAction.CTAP_PERFORM_AUTHENTICATION);
+        // TODO: figure out best way to send intent as startActivity requires an explicit flag
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.getApplicationContext().startActivity(intent);
     }
 
     private void proceedWithoutUserInteraction() {

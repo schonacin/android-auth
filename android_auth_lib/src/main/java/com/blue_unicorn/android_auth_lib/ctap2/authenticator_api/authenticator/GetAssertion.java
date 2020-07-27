@@ -15,14 +15,17 @@ import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.MissingPa
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.NoCredentialsException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.OperationDeniedException;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
+import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
 import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
 
 import java.security.PrivateKey;
+import java.util.Arrays;
 import java.util.Map;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
+import timber.log.Timber;
 
 /**
  * Represents the authenticatorGetAssertion method.
@@ -76,12 +79,18 @@ public class GetAssertion {
     }
 
     private boolean isInAllowedCredentialIds(byte[] id) {
+        Timber.d("Checking credential id %s for existence in allow list", ValueUtil.bytesToHex(id));
         if (request.getAllowList() == null) {
             // if the allow list is non existent, all credentials are valid
+            Timber.d("\tAllow list is null, any key is valid!");
             return true;
         }
+        Timber.d("\tAllow list size: %s", request.getAllowList().size());
+        Timber.d("\tComparing each entry with credential id in allow list");
         for (PublicKeyCredentialDescriptor descriptor : request.getAllowList()) {
-            if (descriptor.getId() == id) {
+            Timber.d("\t\tComparing %s with %s", ValueUtil.bytesToHex(descriptor.getId()), ValueUtil.bytesToHex(id));
+            if (Arrays.equals(descriptor.getId(), id)) {
+                Timber.d("\t\tId found!");
                 return true;
             }
         }
@@ -89,6 +98,8 @@ public class GetAssertion {
     }
 
     private Completable checkForCredentials() {
+        Timber.d("Select credentials to use for get assertion based on rp id and credentials source id");
+        Timber.d("\tRpId: %s", request.getRpId());
         return credentialSafe.getKeysForEntity(request.getRpId())
                 .filter(credentialSource -> isInAllowedCredentialIds(credentialSource.id))
                 .toList()
