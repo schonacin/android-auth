@@ -17,16 +17,15 @@ public final class ErrorLayer {
 
     public static void handleErrors(AuthHandler authHandler, Throwable throwable) {
 
-         RxFragmentationProvider fragmentationProvider = new BaseFragmentationProvider();
+        RxFragmentationProvider fragmentationProvider = new BaseFragmentationProvider();
 
         if (throwable instanceof BleException) {
             Flowable.fromCallable(((BleException) throwable)::getErrorCode)
                     .map(b -> new byte[]{b})
                     .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
-        } else if(throwable instanceof StatusCodeException) {
+        } else if (throwable instanceof StatusCodeException) {
             Single.fromCallable(((StatusCodeException) throwable)::getErrorCode)
-                    .cast(Byte.class)
-                    .map(b -> new byte[]{b})
+                    .map(e -> new byte[]{(byte) (int) e})
                     .map(BaseFrame::new)
                     .cast(Frame.class)
                     .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getBleHandler().getMtu()))

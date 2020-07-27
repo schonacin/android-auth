@@ -15,6 +15,7 @@ import com.blue_unicorn.android_auth_lib.android.authentication.AuthenticationAP
 import com.blue_unicorn.android_auth_lib.android.authentication.BiometricAuth;
 import com.blue_unicorn.android_auth_lib.android.constants.AuthenticationMethod;
 import com.blue_unicorn.android_auth_lib.android.constants.IntentAction;
+import com.blue_unicorn.android_auth_lib.android.constants.NotificationID;
 import com.blue_unicorn.android_auth_lib.android.constants.UserAction;
 import com.blue_unicorn.android_auth_lib.android.constants.UserPreference;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.APIHandler;
@@ -110,9 +111,9 @@ public class APILayer {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         @UserAction int userAction = 0;
         if (request instanceof MakeCredentialRequest) {
-            userAction = sharedPreferences.getInt(UserPreference.MAKE_CREDENTIAL, UserAction.PROCEED_WITHOUT_USER_INTERACTION);
+            userAction = sharedPreferences.getInt(UserPreference.MAKE_CREDENTIAL, UserAction.BUILD_NOTIFICATION_AND_PERFORM_AUTHENTICATION);
         } else if (request instanceof GetAssertionRequest) {
-            userAction = sharedPreferences.getInt(UserPreference.GET_ASSERTION, UserAction.PROCEED_WITHOUT_USER_INTERACTION);
+            userAction = sharedPreferences.getInt(UserPreference.GET_ASSERTION, UserAction.PERFORM_AUTHENTICATION);
         }
 
         switch (userAction) {
@@ -158,8 +159,10 @@ public class APILayer {
         // this function can be called from outside, i. e. a new intent on a service
         RequestObject requestInstance = getRequest();
         if (requestInstance == null) {
+            authHandler.getNotificationHandler().notifyFailure();
             return;
         }
+        authHandler.getNotificationHandler().notifyResult(new AuthInfo(requestInstance), isApproved);
 
         requestInstance.setApproved(isApproved);
         apiHandler.updateAPI(requestInstance)
@@ -178,6 +181,7 @@ public class APILayer {
         // builds a notification with info on username/ Website
         // acceptance of notification should call buildResponseChainAfterUserInteraction()/
         // performAuthentication() based on the input parameter
+        authHandler.getNotificationHandler().requestApproval(new AuthInfo(request), authenticationRequired);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
@@ -193,7 +197,7 @@ public class APILayer {
         };
 
         switch (authenticationMethod) {
-            case AuthenticationMethod.CODE:
+            case AuthenticationMethod.FINGERPRINT_WITH_FALLBACK:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     BiometricAuth.authenticateWithCredentialFallback(context, new AuthInfo(request), authenticationCallback);
                     break;
@@ -202,7 +206,6 @@ public class APILayer {
                 BiometricAuth.authenticate(context, new AuthInfo(request), authenticationCallback);
                 break;
             }
-
         }
     }
 
@@ -210,9 +213,11 @@ public class APILayer {
         // starts Activity responsible for authentication mechanism
         // Other possibilities to inject App behaviour into Lib could be:
         // @Override methods or Callbacks
-        // Intent is implicit as we don't know the activity which performs this
-        Intent intent = new Intent(IntentAction.CTAP_PERFORM_AUTHENTICATION);
-        context.startActivity(intent);
+        Intent intent = new Intent(context, authHandler.getActivityClass());
+        intent.setAction(IntentAction.CTAP_PERFORM_AUTHENTICATION);
+        // TODO: figure out best way to send intent as startActivity requires an explicit flag
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.getApplicationContext().startActivity(intent);
     }
 
     private void proceedWithoutUserInteraction() {

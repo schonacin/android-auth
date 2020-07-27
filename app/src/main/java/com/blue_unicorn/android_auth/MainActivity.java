@@ -19,8 +19,12 @@ import androidx.core.content.ContextCompat;
 
 import com.blue_unicorn.android_auth_lib.android.FidoAuthService;
 import com.blue_unicorn.android_auth_lib.android.FidoAuthServiceBinder;
+import com.blue_unicorn.android_auth_lib.android.constants.IntentAction;
+import com.blue_unicorn.android_auth_lib.android.constants.IntentExtra;
 import com.google.android.material.snackbar.Snackbar;
 import com.tbruyelle.rxpermissions3.RxPermissions;
+
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -73,9 +77,38 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.getAction() == null) {
+            return;
+        }
+        Timber.d("New intent in MainActivity with action %s", intent.getAction());
+        // TODO: find a way to close the notification within its action or via JobIntentService
+        fidoAuthService.closeNotification();
+        @IntentAction String intentAction = intent.getAction();
+        switch (intentAction) {
+            case IntentAction.CTAP_APPROVE_NOTIFICATION:
+                fidoAuthService.handleUserInteraction(true);
+                break;
+            case IntentAction.CTAP_DECLINE_NOTIFICATION:
+                fidoAuthService.handleUserInteraction(false);
+                break;
+            case IntentAction.CTAP_APPROVE_NOTIFICATION_FOR_AUTHENTICATION:
+            case IntentAction.CTAP_PERFORM_AUTHENTICATION:
+                // TODO: Put call to custom authentication here and call handleCustomAuthentication with result
+                boolean result = true;
+                fidoAuthService.handleUserInteraction(result);
+                break;
+            default:
+                break;
+        }
+    }
+
     private void toggleServiceConnection() {
         if (!mBound) {
             Intent intent = new Intent(this, FidoAuthService.class);
+            intent.putExtra(IntentExtra.ACTIVITY_CLASS, MainActivity.class);
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
             mBound = true;
         } else {
@@ -146,5 +179,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void showTemporaryMessage(@NonNull String message) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    public boolean isBound() {
+        return mBound;
+    }
+
+    public FidoAuthService getFidoAuthService() {
+        return fidoAuthService;
     }
 }

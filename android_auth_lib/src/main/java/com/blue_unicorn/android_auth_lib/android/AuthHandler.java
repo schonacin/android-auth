@@ -11,18 +11,28 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.B
 
 import io.reactivex.rxjava3.core.Flowable;
 
+//TODO: add interfaces for authHandler + Layers
+
 public class AuthHandler {
 
     private RequestLayer requestLayer;
     private APILayer apiLayer;
     private ResponseLayer responseLayer;
     private BleHandler bleHandler;
+    private NotificationHandler notificationHandler;
+    private Class activityClass;
 
-    AuthHandler(Context context, MutableLiveData<Throwable> fidoAuthServiceErrors) {
+    public AuthHandler(Context context, MutableLiveData<Throwable> fidoAuthServiceErrors, Class activityClass) {
         this.requestLayer = new RequestLayer(this);
         this.apiLayer = new APILayer(this, context);
         this.responseLayer = new ResponseLayer(this);
         this.bleHandler = new BleHandler(context, fidoAuthServiceErrors);
+        this.notificationHandler = new NotificationHandler(context, activityClass);
+        this.activityClass = activityClass;
+    }
+
+    public Class getActivityClass() {
+        return activityClass;
     }
 
     public RequestLayer getRequestLayer() {
@@ -39,6 +49,10 @@ public class AuthHandler {
 
     public BleHandler getBleHandler() {
         return bleHandler;
+    }
+
+    public NotificationHandler getNotificationHandler() {
+        return notificationHandler;
     }
 
     public void startAdvertisingProcess() {

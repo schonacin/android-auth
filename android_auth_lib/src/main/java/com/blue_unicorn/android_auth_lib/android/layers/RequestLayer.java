@@ -43,6 +43,13 @@ public class RequestLayer {
                 .subscribe(incomingRequests);
     }
 
+    private void resetChain() {
+        incomingRequests = PublishSubject.create();
+        buildNewFragmentChain();
+        authHandler.getBleHandler().getIncomingBleData()
+                .subscribe(incomingRequests);
+    }
+
     private void buildNewFragmentChain() {
         frameSubscriber = new AuthSubscriber<byte[]>(authHandler) {
             @Override
@@ -56,7 +63,11 @@ public class RequestLayer {
             public void onError(Throwable t) {
                 super.onError(t);
                 dispose();
-                buildNewFragmentChain();
+                if(incomingRequests.hasThrowable()) {
+                    resetChain();
+                } else {
+                    buildNewFragmentChain();
+                }
             }
         };
 
