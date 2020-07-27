@@ -101,7 +101,7 @@ public class APILayer {
         if (!setNewRequest(request)) {
             return;
         }
-        if (request instanceof GetInfoRequest){
+        if (request instanceof GetInfoRequest) {
             handleGetInfoExtensionSupport();
             return;
         }
@@ -111,7 +111,17 @@ public class APILayer {
         if (request instanceof MakeCredentialRequest) {
             userAction = sharedPreferences.getInt(UserPreference.MAKE_CREDENTIAL, UserAction.PROCEED_WITHOUT_USER_INTERACTION);
         } else if (request instanceof GetAssertionRequest) {
-            userAction = sharedPreferences.getInt(UserPreference.GET_ASSERTION, UserAction.PROCEED_WITHOUT_USER_INTERACTION);
+            GetAssertionRequest getAssertionRequest = (GetAssertionRequest) request;
+            if (getAssertionRequest.getContinuousFreshness() == null) {
+                userAction = sharedPreferences.getInt(UserPreference.GET_ASSERTION, UserAction.PROCEED_WITHOUT_USER_INTERACTION);
+            } else {
+                Boolean isInitialRequest = getAssertionRequest.getOptions().get("uv");
+                if (isInitialRequest != null && isInitialRequest) {
+                    userAction = UserAction.BUILD_NOTIFICATION_AND_PERFORM_AUTHENTICATION;
+                } else {
+                    userAction = UserAction.PERFORM_AUTHENTICATION;
+                }
+            }
         }
 
         switch (userAction) {
@@ -138,7 +148,7 @@ public class APILayer {
     private void handleGetInfoExtensionSupport() {
         // looks for activities that can perform continuous authentication
         // Intent is implicit as we don't know the activity which performs this
-        Intent intent = new Intent(IntentAction.CONTINUOS_AUTHENTICATION);
+        Intent intent = new Intent(IntentAction.CONTINUOUS_AUTHENTICATION);
         context.startActivity(intent);
     }
 
@@ -162,7 +172,7 @@ public class APILayer {
 
         requestInstance.setApproved(isApproved);
         if (requestInstance instanceof GetInfoRequest && isApproved)
-            ((GetInfoRequest)requestInstance).setExtensionSupport(new ExtensionSupport());
+            ((GetInfoRequest) requestInstance).setExtensionSupport(new ExtensionSupport());
 
         apiHandler.updateAPI(requestInstance)
                 .flatMap(cborHandler::encode)

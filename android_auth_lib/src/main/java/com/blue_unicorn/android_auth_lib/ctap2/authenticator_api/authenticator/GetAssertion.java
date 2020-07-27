@@ -1,5 +1,6 @@
 package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator;
 
+import com.blue_unicorn.android_auth_lib.android.constants.ExtensionValue;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.database.PublicKeyCredentialSource;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.GetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseGetAssertionResponse;
@@ -50,6 +51,7 @@ public class GetAssertion {
         return validate()
                 .andThen(this.checkForCredentials())
                 .andThen(this.checkOptions())
+                .andThen(this.handleExtensions())
                 .andThen(Single.just(request));
     }
 
@@ -110,6 +112,24 @@ public class GetAssertion {
                             } else {
                                 return Completable.complete();
                             }
+                        });
+            }
+        });
+    }
+
+    private Completable handleExtensions() {
+        return Completable.defer(() -> {
+            if (request.getExtensions() == null) {
+                return Completable.complete();
+            } else {
+                return Single.just(request.getExtensions())
+                        .map(Map::keySet)
+                        .flatMapPublisher(Flowable::fromIterable)
+                        .flatMapCompletable(key -> {
+                            if (key.equals(ExtensionValue.CONTINUOUS_AUTHENTICATION)) {
+                                request.setContinuousFreshness(request.getExtensions().get(ExtensionValue.CONTINUOUS_AUTHENTICATION));
+                            }
+                            return Completable.complete();
                         });
             }
         });
