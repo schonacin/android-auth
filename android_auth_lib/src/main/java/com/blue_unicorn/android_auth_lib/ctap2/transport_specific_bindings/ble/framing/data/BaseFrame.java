@@ -21,6 +21,10 @@ public class BaseFrame implements Frame {
         this((byte)0x83,(byte)(DATA.length >> 8), (byte)(DATA.length & 0xff), DATA);
     }
 
+    public BaseFrame(byte command, byte[] DATA) throws InvalidCommandException, InvalidLengthException {
+        this(command,(byte)(DATA.length >> 8), (byte)(DATA.length & 0xff), DATA);
+    }
+
     public BaseFrame(byte CMDSTAT, byte HLEN, byte LLEN, byte[] DATA) throws InvalidCommandException, InvalidLengthException {
         if (!Command.commands.contains(CMDSTAT))
             throw new InvalidCommandException("Invalid command error: frame command " + CMDSTAT + " is not specified");

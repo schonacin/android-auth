@@ -33,9 +33,9 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.BaseFrame;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Fragment;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Frame;
-
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleObserver;
+import timber.log.Timber;
 
 public class APILayer {
 
@@ -63,9 +63,12 @@ public class APILayer {
         SingleObserver<FidoObject> apiSubscriber = new AuthSingleObserver<FidoObject>(authHandler) {
             @Override
             public void onSuccess(FidoObject result) {
+                Timber.d("Got Result from API Call: %s", result.getClass().getCanonicalName());
                 if (result instanceof ResponseObject) {
+                    Timber.d("\tis response, directly return without user interaction");
                     buildResponseChainWithoutUserInteraction((ResponseObject) result);
                 } else {
+                    Timber.d("\tis still request, handle respective user action!");
                     handleUserAction((RequestObject) result);
                 }
             }
@@ -82,6 +85,10 @@ public class APILayer {
         }
         RequestObject requestInstance = request;
         this.request = null;
+        Timber.d("Getting existing request %s", requestInstance);
+        if(requestInstance instanceof GetAssertionRequest) {
+            Timber.d("\tAmount of selected Credentials: %s", ((GetAssertionRequest) requestInstance).getSelectedCredentials().size());
+        }
         return requestInstance;
     }
 
@@ -97,6 +104,7 @@ public class APILayer {
     }
 
     private void handleUserAction(RequestObject request) {
+        Timber.d("Handle user interaction");
         if (!setNewRequest(request)) {
             return;
         }
@@ -110,6 +118,7 @@ public class APILayer {
 
         switch (userAction) {
             case UserAction.BUILD_NOTIFICATION:
+                Timber.d("\tbuild notification!");
                 buildNotification(request, false);
                 break;
             case UserAction.PERFORM_STANDARD_AUTHENTICATION:
@@ -118,13 +127,19 @@ public class APILayer {
                     break;
                 }
             case UserAction.BUILD_NOTIFICATION_AND_PERFORM_AUTHENTICATION:
+                Timber.d("\tbuild notification and perform authentication!");
                 buildNotification(request, true);
                 break;
             case UserAction.PERFORM_AUTHENTICATION:
+                Timber.d("\tperform authentication!");
                 performCustomAuthentication();
                 break;
             case UserAction.PROCEED_WITHOUT_USER_INTERACTION:
+                Timber.d("\tproceed without any user interaction!");
                 proceedWithoutUserInteraction();
+                break;
+            default:
+                Timber.d("\tuser interaction unknown!");
                 break;
         }
     }
@@ -156,6 +171,9 @@ public class APILayer {
                 .cast(Frame.class)
                 .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getBleHandler().getMtu()))
                 .map(Fragment::asBytes)
+                .doOnError(throwable -> {
+                    Timber.d(throwable, "Something went wrong during update of api");
+                })
                 .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
     }
 

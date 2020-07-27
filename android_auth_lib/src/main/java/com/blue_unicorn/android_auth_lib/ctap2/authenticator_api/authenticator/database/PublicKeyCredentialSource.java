@@ -38,7 +38,7 @@ public class PublicKeyCredentialSource {
         PublicKeyCredentialSource.random.nextBytes(this.id);
 
         this.rpId = rpId;
-        this.keyPairAlias = KEYPAIR_PREFIX + Base64.encodeToString(id, Base64.NO_WRAP);
+        this.keyPairAlias = KEYPAIR_PREFIX + Base64.encodeToString(id, Base64.URL_SAFE);
         this.userHandle = userHandle;
         this.keyUseCounter = 1;
     }
