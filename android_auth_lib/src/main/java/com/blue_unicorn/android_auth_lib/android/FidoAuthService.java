@@ -24,7 +24,11 @@ public class FidoAuthService extends Service {
     public IBinder onBind(Intent intent) {
         RxJavaPlugins.setErrorHandler(e -> {
         });
-        // TODO: handle NullPointerException
+        if (intent.getExtras() == null) {
+            // TODO: handle this error
+            return mBinder;
+        }
+
         Class activityClass = (Class) intent.getExtras().get(IntentExtra.ACTIVITY_CLASS);
         authHandler = new AuthHandler(this, errors, activityClass);
         authHandler.getNotificationHandler().showServiceActiveNotification(this);
