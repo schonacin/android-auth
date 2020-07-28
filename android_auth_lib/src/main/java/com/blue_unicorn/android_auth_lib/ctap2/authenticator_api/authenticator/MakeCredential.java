@@ -156,11 +156,15 @@ public class MakeCredential {
                 .flatMap(helper::constructAttestedCredentialData);
     }
 
+    private Single<byte[]> constructExtensionField() {
+        return Single.fromCallable(() -> new byte[]{});
+    }
+
     private Single<byte[]> getAuthenticatorData() {
         return Single.defer(() -> {
             if (this.authenticatorData == null) {
                 this.authenticatorData =
-                        Single.zip(AuthenticatorHelper.hashSha256(request.getRp().getId()), constructAttestedCredentialData(), helper::constructAuthenticatorData)
+                        Single.zip(AuthenticatorHelper.hashSha256(request.getRp().getId()), constructAttestedCredentialData(), constructExtensionField(), helper::constructAuthenticatorData)
                                 .flatMap(x -> x)
                                 .cache();
             }
@@ -187,7 +191,7 @@ public class MakeCredential {
                 .map(PackedAttestationStatement::new);
     }
 
-    private Single<MakeCredentialResponse>  constructResponse() {
+    private Single<MakeCredentialResponse> constructResponse() {
         Single<byte[]> authenticatorData = getAuthenticatorData();
         Single<AttestationStatement> attestationStatementSingle = constructAttestationStatement();
 

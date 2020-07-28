@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -18,6 +19,7 @@ import com.blue_unicorn.android_auth_lib.R;
 import com.blue_unicorn.android_auth_lib.android.authentication.AuthInfo;
 import com.blue_unicorn.android_auth_lib.android.constants.AuthenticatorAPIMethod;
 import com.blue_unicorn.android_auth_lib.android.constants.IntentAction;
+import com.blue_unicorn.android_auth_lib.android.constants.IntentExtra;
 import com.blue_unicorn.android_auth_lib.android.constants.NotificationID;
 
 import timber.log.Timber;
@@ -145,7 +147,7 @@ public class NotificationHandler {
         notificationManagerCompat.notify(NotificationID.NOTIFY, builder.build());
     }
 
-    public void requestApproval(AuthInfo authInfo, boolean authenticationRequired) {
+    public void requestApproval(AuthInfo authInfo, boolean authenticationRequired, @Nullable Integer freshness) {
         Timber.d("Displaying Notification to request User Approval");
         Intent approve = new Intent(context, mainActivity);
         Intent decline = new Intent(context, mainActivity);
@@ -155,6 +157,10 @@ public class NotificationHandler {
             approve.setAction(IntentAction.CTAP_APPROVE_NOTIFICATION);
         }
         decline.setAction(IntentAction.CTAP_DECLINE_NOTIFICATION);
+
+        if (freshness != null) {
+            approve.putExtra(IntentExtra.AUTHENTICATION_FRESHNESS, freshness);
+        }
 
         PendingIntent approveIntent = PendingIntent.getActivity(context, 0, approve, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent declineIntent = PendingIntent.getActivity(context, 0, decline, PendingIntent.FLAG_UPDATE_CURRENT);

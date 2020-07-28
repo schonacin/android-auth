@@ -20,7 +20,7 @@ import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 
-final class CborSerializer {
+public final class CborSerializer {
 
     private static final CBOREncodeOptions ENCODE_OPTIONS = CBOREncodeOptions.DefaultCtap2Canonical;
 
@@ -44,7 +44,7 @@ final class CborSerializer {
     }
 
     @NonNull
-    static Single<byte[]> serializeOther(Object o) {
+    public static Single<byte[]> serializeOther(Object o) {
         return processObject(o)
                 .toSingle()
                 .map(result -> CBORObject.FromObject(result).EncodeToBytes(ENCODE_OPTIONS))

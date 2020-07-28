@@ -14,12 +14,14 @@ import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidOp
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.MissingParameterException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.NoCredentialsException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.OperationDeniedException;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.CborSerializer;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
 import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
 
 import java.security.PrivateKey;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import io.reactivex.rxjava3.core.Completable;
@@ -58,7 +60,7 @@ public class GetAssertion {
                 .andThen(Single.just(request));
     }
 
-    // 2. - 4. & 6. are ignored as pinAuth and extensions are not supported
+    // 2. - 4 are ignored as pinAuth is not supported
     // TODO: or throw respective errors when present: would need changes in data classes however
 
     public Single<GetAssertionResponse> operateInner() {
@@ -187,12 +189,30 @@ public class GetAssertion {
                 .map(BasePublicKeyCredentialUserEntity::new);
     }
 
+    private Single<byte[]> constructExtensionField() {
+        return Single.defer(() -> {
+            if (request.getContinuousFreshness() == null) {
+                return Single.just(new byte[]{});
+            } else {
+                Map<String, Integer> extensions = new HashMap<>();
+                extensions.put(ExtensionValue.CONTINUOUS_AUTHENTICATION, request.getContinuousFreshness());
+                return Single.just(extensions)
+                        .flatMap(CborSerializer::serializeOther);
+            }
+        });
+    }
+
+    private Single<byte[]> constructAttestedCredentialData() {
+        // empty in getAssertion
+        return Single.fromCallable(() -> new byte[]{});
+    }
+
     private Single<byte[]> getAuthenticatorData() {
         return Single.defer(() -> {
             if (this.authenticatorData == null) {
                 this.authenticatorData =
-                        AuthenticatorHelper.hashSha256(request.getRpId())
-                                .flatMap(rpIdHash -> helper.constructAuthenticatorData(rpIdHash, null))
+                        Single.zip(AuthenticatorHelper.hashSha256(request.getRpId()), constructAttestedCredentialData(), constructExtensionField(), helper::constructAuthenticatorData)
+                                .flatMap(x -> x)
                                 .cache();
             }
             return this.authenticatorData;

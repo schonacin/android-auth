@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.blue_unicorn.android_auth_lib.android.AuthHandler;
@@ -15,7 +16,7 @@ import com.blue_unicorn.android_auth_lib.android.authentication.AuthenticationAP
 import com.blue_unicorn.android_auth_lib.android.authentication.BiometricAuth;
 import com.blue_unicorn.android_auth_lib.android.constants.AuthenticationMethod;
 import com.blue_unicorn.android_auth_lib.android.constants.IntentAction;
-import com.blue_unicorn.android_auth_lib.android.constants.NotificationID;
+import com.blue_unicorn.android_auth_lib.android.constants.IntentExtra;
 import com.blue_unicorn.android_auth_lib.android.constants.UserAction;
 import com.blue_unicorn.android_auth_lib.android.constants.UserPreference;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.APIHandler;
@@ -35,6 +36,7 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.BaseFrame;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Fragment;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Frame;
+
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleObserver;
 import timber.log.Timber;
@@ -88,7 +90,7 @@ public class APILayer {
         RequestObject requestInstance = request;
         this.request = null;
         Timber.d("Getting existing request %s", requestInstance);
-        if(requestInstance instanceof GetAssertionRequest) {
+        if (requestInstance instanceof GetAssertionRequest) {
             Timber.d("\tAmount of selected Credentials: %s", ((GetAssertionRequest) requestInstance).getSelectedCredentials().size());
         }
         return requestInstance;
@@ -117,6 +119,7 @@ public class APILayer {
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         @UserAction int userAction = 0;
+        Integer freshness = null;
         if (request instanceof MakeCredentialRequest) {
             userAction = sharedPreferences.getInt(UserPreference.MAKE_CREDENTIAL, UserAction.PROCEED_WITHOUT_USER_INTERACTION);
         } else if (request instanceof GetAssertionRequest) {
@@ -124,7 +127,8 @@ public class APILayer {
             if (getAssertionRequest.getContinuousFreshness() == null) {
                 userAction = sharedPreferences.getInt(UserPreference.GET_ASSERTION, UserAction.PROCEED_WITHOUT_USER_INTERACTION);
             } else {
-                Boolean isInitialRequest = getAssertionRequest.getOptions().get("uv");
+                freshness = getAssertionRequest.getContinuousFreshness();
+                Boolean isInitialRequest = getAssertionRequest.getOptions().get("up");
                 if (isInitialRequest != null && isInitialRequest) {
                     userAction = UserAction.BUILD_NOTIFICATION_AND_PERFORM_AUTHENTICATION;
                 } else {
@@ -136,20 +140,21 @@ public class APILayer {
         switch (userAction) {
             case UserAction.BUILD_NOTIFICATION:
                 Timber.d("\tbuild notification!");
-                buildNotification(request, false);
+                buildNotification(request, false, freshness);
                 break;
             case UserAction.PERFORM_STANDARD_AUTHENTICATION:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    Timber.d("\tperform standard android notification!");
                     performStandardAuthentication(request);
                     break;
                 }
             case UserAction.BUILD_NOTIFICATION_AND_PERFORM_AUTHENTICATION:
                 Timber.d("\tbuild notification and perform authentication!");
-                buildNotification(request, true);
+                buildNotification(request, true, freshness);
                 break;
             case UserAction.PERFORM_AUTHENTICATION:
                 Timber.d("\tperform authentication!");
-                performCustomAuthentication();
+                performCustomAuthentication(freshness);
                 break;
             case UserAction.PROCEED_WITHOUT_USER_INTERACTION:
                 Timber.d("\tproceed without any user interaction!");
@@ -178,19 +183,27 @@ public class APILayer {
                 .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
     }
 
-    public void buildResponseChainAfterUserInteraction(boolean isApproved) {
-        // this chain is called after the user has interacted with the device
-        // this function can be called from outside, i. e. a new intent on a service
+    public void updateAfterUserInteraction(boolean isApproved) {
+        // this method is called after the user has interacted with the device
+        updateAfterUserInteraction(isApproved, null);
+    }
+
+    public void updateAfterUserInteraction(boolean isApproved, @Nullable Integer freshness) {
+        // this method is called after the user has interacted with the device
         RequestObject requestInstance = getRequest();
         if (requestInstance == null) {
             authHandler.getNotificationHandler().notifyFailure();
             return;
         }
         authHandler.getNotificationHandler().notifyResult(new AuthInfo(requestInstance), isApproved);
-
         requestInstance.setApproved(isApproved);
-        if (requestInstance instanceof GetInfoRequest && isApproved)
+
+        if (requestInstance instanceof GetAssertionRequest && isApproved) {
+            ((GetAssertionRequest) requestInstance).setContinuousFreshness(freshness);
+        }
+        if (requestInstance instanceof GetInfoRequest && isApproved) {
             ((GetInfoRequest) requestInstance).setExtensionSupport(new ExtensionSupport());
+        }
 
         apiHandler.updateAPI(requestInstance)
                 .flatMap(cborHandler::encode)
@@ -198,17 +211,15 @@ public class APILayer {
                 .cast(Frame.class)
                 .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getBleHandler().getMtu()))
                 .map(Fragment::asBytes)
-                .doOnError(throwable -> {
-                    Timber.d(throwable, "Something went wrong during update of api");
-                })
+                .doOnError(throwable -> Timber.d(throwable, "Something went wrong during update of api"))
                 .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
     }
 
-    private void buildNotification(RequestObject request, boolean authenticationRequired) {
+    private void buildNotification(RequestObject request, boolean authenticationRequired, @Nullable Integer freshness) {
         // builds a notification with info on username/ Website
         // acceptance of notification should call buildResponseChainAfterUserInteraction()/
         // performAuthentication() based on the input parameter
-        authHandler.getNotificationHandler().requestApproval(new AuthInfo(request), authenticationRequired);
+        authHandler.getNotificationHandler().requestApproval(new AuthInfo(request), authenticationRequired, freshness);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
@@ -219,7 +230,7 @@ public class APILayer {
         AuthenticationAPICallback authenticationCallback = new AuthenticationAPICallback() {
             @Override
             public void handleAuthentication(boolean authenticated) {
-                buildResponseChainAfterUserInteraction(authenticated);
+                updateAfterUserInteraction(authenticated);
             }
         };
 
@@ -236,12 +247,15 @@ public class APILayer {
         }
     }
 
-    private void performCustomAuthentication() {
+    private void performCustomAuthentication(@Nullable Integer freshness) {
         // starts Activity responsible for authentication mechanism
         // Other possibilities to inject App behaviour into Lib could be:
         // @Override methods or Callbacks
         Intent intent = new Intent(context, authHandler.getActivityClass());
         intent.setAction(IntentAction.CTAP_PERFORM_AUTHENTICATION);
+        if (freshness != null) {
+            intent.putExtra(IntentExtra.AUTHENTICATION_FRESHNESS, freshness);
+        }
         // TODO: figure out best way to send intent as startActivity requires an explicit flag
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.getApplicationContext().startActivity(intent);
@@ -250,6 +264,6 @@ public class APILayer {
     private void proceedWithoutUserInteraction() {
         // this case should probably be non existent and might be removed later
         // Might be nice for testing purposes however
-        buildResponseChainAfterUserInteraction(true);
+        updateAfterUserInteraction(true);
     }
 }

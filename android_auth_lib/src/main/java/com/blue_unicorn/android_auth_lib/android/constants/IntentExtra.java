@@ -7,9 +7,11 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.SOURCE)
 @StringDef({
-        IntentExtra.ACTIVITY_CLASS
+        IntentExtra.ACTIVITY_CLASS,
+        IntentExtra.AUTHENTICATION_FRESHNESS
 })
 
 public @interface IntentExtra {
     String ACTIVITY_CLASS = "ACTIVITY_CLASS";
+    String AUTHENTICATION_FRESHNESS = "AUTHENTICATION_FRESHNESS";
 }
