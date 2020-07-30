@@ -121,11 +121,11 @@ public class APILayer {
         @UserAction int userAction = 0;
         Integer freshness = null;
         if (request instanceof MakeCredentialRequest) {
-            userAction = sharedPreferences.getInt(UserPreference.MAKE_CREDENTIAL, UserAction.PROCEED_WITHOUT_USER_INTERACTION);
+            userAction = sharedPreferences.getInt(UserPreference.MAKE_CREDENTIAL, UserAction.PERFORM_STANDARD_AUTHENTICATION);
         } else if (request instanceof GetAssertionRequest) {
             GetAssertionRequest getAssertionRequest = (GetAssertionRequest) request;
             if (getAssertionRequest.getContinuousFreshness() == null) {
-                userAction = sharedPreferences.getInt(UserPreference.GET_ASSERTION, UserAction.PROCEED_WITHOUT_USER_INTERACTION);
+                userAction = sharedPreferences.getInt(UserPreference.GET_ASSERTION, UserAction.PERFORM_STANDARD_AUTHENTICATION);
             } else {
                 freshness = getAssertionRequest.getContinuousFreshness();
                 Boolean isInitialRequest = getAssertionRequest.getOptions().get("up");
@@ -164,13 +164,6 @@ public class APILayer {
                 Timber.d("\tuser interaction unknown!");
                 break;
         }
-    }
-
-    private void handleGetInfoExtensionSupport() {
-        // looks for activities that can perform continuous authentication
-        // Intent is implicit as we don't know the activity which performs this
-        Intent intent = new Intent(IntentAction.CONTINUOUS_AUTHENTICATION);
-        context.startActivity(intent);
     }
 
     private void buildResponseChainWithoutUserInteraction(ResponseObject response) {
@@ -257,6 +250,13 @@ public class APILayer {
             intent.putExtra(IntentExtra.AUTHENTICATION_FRESHNESS, freshness);
         }
         // TODO: figure out best way to send intent as startActivity requires an explicit flag
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.getApplicationContext().startActivity(intent);
+    }
+
+    private void handleGetInfoExtensionSupport() {
+        Intent intent = new Intent(context, authHandler.getActivityClass());
+        intent.setAction(IntentAction.CONTINUOUS_AUTHENTICATION);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.getApplicationContext().startActivity(intent);
     }
