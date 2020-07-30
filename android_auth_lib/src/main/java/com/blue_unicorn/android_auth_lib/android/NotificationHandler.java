@@ -147,6 +147,10 @@ public class NotificationHandler {
         notificationManagerCompat.notify(NotificationID.NOTIFY, builder.build());
     }
 
+    public void requestApproval(AuthInfo authInfo, boolean authenticationRequired) {
+        requestApproval(authInfo, authenticationRequired, null);
+    }
+
     public void requestApproval(AuthInfo authInfo, boolean authenticationRequired, @Nullable Integer freshness) {
         Timber.d("Displaying Notification to request User Approval");
         Intent approve = new Intent(context, mainActivity);
