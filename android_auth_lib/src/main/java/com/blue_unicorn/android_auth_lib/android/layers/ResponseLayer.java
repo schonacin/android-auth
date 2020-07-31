@@ -1,10 +1,7 @@
 package com.blue_unicorn.android_auth_lib.android.layers;
 
-import android.util.Base64;
-
 import com.blue_unicorn.android_auth_lib.android.AuthHandler;
 import com.blue_unicorn.android_auth_lib.android.AuthSubscriber;
-import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.BaseCborHandler;
 import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
 
 import org.reactivestreams.Subscriber;
@@ -25,6 +22,10 @@ public class ResponseLayer {
     public ResponseLayer(AuthHandler authHandler) {
         this.authHandler = authHandler;
         subject = PublishSubject.create();
+    }
+
+    public PublishSubject<byte[]> getSubject() {
+        return subject;
     }
 
     public Flowable<byte[]> getResponses() {
