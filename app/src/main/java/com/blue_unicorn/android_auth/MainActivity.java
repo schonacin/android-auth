@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         rxPermissions = new RxPermissions(this);
         constraintLayout = findViewById(R.id.coordinatorLayout);
         bindFidoAuthServiceToggleButton = findViewById(R.id.advertiseServicesToggleButton);
-        bindContAuthMockFlowToggleButton = findViewById(R.id.contAuthMockFlowToggleButton);
+        bindContAuthMockFlowToggleButton = findViewById(R.id.ContinuousGetAsseertionButton);
         errorSnackbar = Snackbar.make(constraintLayout, R.string.error_unknown, Snackbar.LENGTH_SHORT);
         authenticatorZ = new AuthenticatorZ(this);
 
