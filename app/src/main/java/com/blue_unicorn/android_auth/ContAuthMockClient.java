@@ -17,23 +17,17 @@ public class ContAuthMockClient {
     private static final byte[] RAW_MAKE_CREDENTIAL_REQUEST = Base64.decode("AaUBWCDMVG/Vi0CDgAtgnuEKnn1oM9yeVFNAkbx+pfadNopNfAKiYmlka3dlYmF1dGhuLmlvZG5hbWVrd2ViYXV0aG4uaW8Do2JpZEq3mQEAAAAAAAAAZG5hbWVkVXNlcmtkaXNwbGF5TmFtZWR1c2VyBIqiY2FsZyZkdHlwZWpwdWJsaWMta2V5omNhbGc4ImR0eXBlanB1YmxpYy1rZXmiY2FsZzgjZHR5cGVqcHVibGljLWtleaJjYWxnOQEAZHR5cGVqcHVibGljLWtleaJjYWxnOQEBZHR5cGVqcHVibGljLWtleaJjYWxnOQECZHR5cGVqcHVibGljLWtleaJjYWxnOCRkdHlwZWpwdWJsaWMta2V5omNhbGc4JWR0eXBlanB1YmxpYy1rZXmiY2FsZzgmZHR5cGVqcHVibGljLWtleaJjYWxnJ2R0eXBlanB1YmxpYy1rZXkFgA==", Base64.DEFAULT);
     private static final byte[] RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER = Base64.decode("AqQBa3dlYmF1dGhuLmlvAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEEoXgZY29udGludW91c19hdXRoZW50aWNhdGlvbhknEAWhYnV29Q==", Base64.DEFAULT);
     private static final byte[] RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER_AND_UV_BIT = Base64.decode("AqQBa3dlYmF1dGhuLmlvAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEEoXgZY29udGludW91c19hdXRoZW50aWNhdGlvbhknEAWiYnVw9WJ1dvU=", Base64.DEFAULT);
+    private int interval = 5000;
     private String lastCommand;
+    private Boolean sendGetAssertionContinuously = true;
     private Handler handler;
     private FidoAuthService fidoAuthService;
-    private int interval = 5000;
-    private Boolean sendGetAssertionContinuously = true;
-    final Runnable r = new Runnable() {
-        public void run() {
-            if (sendGetAssertionContinuously) {
-                fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER);
-                handler.postDelayed(this, interval);
-            }
-        }
-    };
+    private MainActivity activity;
 
-    public ContAuthMockClient(Handler handler, FidoAuthService fidoAuthService) {
+    public ContAuthMockClient(Handler handler, FidoAuthService fidoAuthService, MainActivity activity) {
         this.handler = handler;
         this.fidoAuthService = fidoAuthService;
+        this.activity = activity;
         fidoAuthService.getAuthHandler().getBleHandler().setMtu(5000);
         fidoAuthService.getAuthHandler().getResponseLayer().getResponses().subscribe(getResponseSubscriber());
         resetKeystore(fidoAuthService);
@@ -52,6 +46,7 @@ public class ContAuthMockClient {
     public void startGetAssertionContinuous(int interval) {
         setInterval(interval);
         lastCommand = "getAssertionWithUV";
+        sendGetAssertionContinuously = true;
         fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER_AND_UV_BIT);
     }
 
@@ -64,7 +59,7 @@ public class ContAuthMockClient {
             @Override
             public void onNext(byte[] response) {
                 if (response[0] == (byte) 0x83 && response[3] == (byte) 0x00) {
-                    Timber.d("RESPONSE WAS SUCCESSFUL, TRIGGERING NEXT REQUEST");
+                    Timber.d("Response to %s indicated success", lastCommand);
                     switch (lastCommand) {
                         case "getInfo":
                             lastCommand = "makeCredential";
@@ -79,7 +74,14 @@ public class ContAuthMockClient {
                         case "getAssertionWithUV":
                             lastCommand = "getAssertionWithoutUV";
                             Timber.d("Next request is: %s", lastCommand);
-                            handler.post(r);
+                            Timber.d("handler.post call %s", handler.post(new Runnable() {
+                                public void run() {
+                                    if (sendGetAssertionContinuously) {
+                                        fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER);
+                                        handler.postDelayed(this, interval);
+                                    } else return;
+                                }
+                            }) ? "was successful" : "failed");
                             break;
                         case "getAssertionWithoutUV":
                             Timber.d("Next request is: %s", lastCommand);
@@ -88,8 +90,10 @@ public class ContAuthMockClient {
                             break;
                     }
                 } else {
-                    Timber.d("RESPONSE CONTAINED ERROR");
+                    Timber.d("Response to %s failed", lastCommand);
                     sendGetAssertionContinuously = false;
+                    activity.bindGetAssertionContinuousButton.setChecked(false);
+                    activity.getAssertionContinuous = false;
                 }
             }
 
