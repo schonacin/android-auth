@@ -8,13 +8,15 @@ import android.widget.TextView;
 
 public class AuthenticatorZ {
 
-    Context context;
-    Activity activity;
+    private Context context;
+    private Activity activity;
     private SeekBar freshnessSeekBar;
     private TextView seekbarValueField;
+    private boolean continuousAuthenticationSupport;
 
-    public AuthenticatorZ(Activity mainActivity) {
-        this.activity = mainActivity;
+    public AuthenticatorZ(Activity activity) {
+        this.activity = activity;
+        continuousAuthenticationSupport = true;
     }
 
     void initiateAuthentication() {
@@ -45,5 +47,9 @@ public class AuthenticatorZ {
 
     boolean authenticate() {
         return activity.findViewById(R.id.switch1).isEnabled();
+    }
+
+    public boolean hasContinuousAuthenticationSupport() {
+        return continuousAuthenticationSupport;
     }
 }

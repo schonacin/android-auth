@@ -123,6 +123,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 fidoAuthService.handleUserInteraction(authenticated);
                 break;
+            case IntentAction.CONTINUOUS_AUTHENTICATION:
+                fidoAuthService.handleUserInteraction(authenticatorZ.hasContinuousAuthenticationSupport());
+                break;
             default:
                 break;
         }
