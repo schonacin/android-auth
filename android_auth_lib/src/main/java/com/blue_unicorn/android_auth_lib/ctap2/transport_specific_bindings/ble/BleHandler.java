@@ -1,7 +1,6 @@
 package com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
@@ -23,11 +22,13 @@ public class BleHandler {
     private FidoGattProfile fidoGattProfile;
     private RxBleServer bleServer;
     private MutableLiveData<Throwable> errors;
+    private int mtu;
 
     public BleHandler(@NonNull Context context, MutableLiveData<Throwable> fidoAuthServiceErrors) {
         this.fidoGattProfile = new FidoGattProfile(context);
         this.bleServer = fidoGattProfile.getGattServer();
         this.errors = fidoAuthServiceErrors;
+        this.mtu = 20;
     }
 
     public void connect() {
@@ -73,7 +74,11 @@ public class BleHandler {
 
     // TODO: make this dynamic, as client can change the MTU
     public int getMtu() {
-        return 20;
+        return mtu;
+    }
+
+    public void setMtu(int mtu) {
+        this.mtu = mtu;
     }
 
     private void postError(@NonNull Throwable throwable) {

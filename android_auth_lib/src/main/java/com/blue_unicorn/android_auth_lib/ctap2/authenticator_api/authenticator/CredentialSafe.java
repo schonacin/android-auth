@@ -44,6 +44,11 @@ public class CredentialSafe {
         this.context = context;
     }
 
+    public void resetKeystore() {
+        this.getRxKeyStore().deleteAllEntries()
+                .andThen(this.deleteAllCredentials()).blockingAwait();
+    }
+
     private static byte[] toUnsignedFixedLength(byte[] arr, int fixedLength) {
         byte[] fixed = new byte[fixedLength];
         int offset = fixedLength - arr.length;
