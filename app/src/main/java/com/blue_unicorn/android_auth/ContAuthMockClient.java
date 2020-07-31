@@ -65,23 +65,27 @@ public class ContAuthMockClient {
                     switch (lastCommand) {
                         case "getInfo":
                             lastCommand = "makeCredential";
+                            Timber.d("Next request is: %s", lastCommand);
                             fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_MAKE_CREDENTIAL_REQUEST);
                             break;
                         case "makeCredential":
                             lastCommand = "getAssertionWithUV";
+                            Timber.d("Next request is: %s", lastCommand);
                             fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER_AND_UV_BIT);
                             break;
                         case "getAssertionWithUV":
                             lastCommand = "getAssertionWithoutUV";
+                            Timber.d("Next request is: %s", lastCommand);
                             handler.post(r);
                             break;
                         case "getAssertionWithoutUV":
+                            Timber.d("Next request is: %s", lastCommand);
                             break;
                         default:
                             break;
                     }
                 } else {
-                    Timber.d("RESONSE CONTAINED ERROR");
+                    Timber.d("RESPONSE CONTAINED ERROR");
                 }
             }
 
