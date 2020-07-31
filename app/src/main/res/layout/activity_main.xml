@@ -32,12 +32,11 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:background="#4D009688"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/advertiseServicesToggleButton"
-                tools:visibility="invisible">
+                app:layout_constraintTop_toBottomOf="@+id/advertiseServicesToggleButton">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -59,40 +58,24 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <ToggleButton
-                            android:id="@+id/contAuthMockFlowToggleButton"
+                            android:id="@+id/ContinuousGetAsseertionButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
                             android:checked="false"
-                            android:textOff="Mock Authentication Off"
-                            android:textOn="Mock Authenitcation in Progress"
+                            android:textOff="Continuous GetAssertion Off"
+                            android:textOn="Continuous GetAssertion On"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recyclerView"
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:visibility="visible"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="1.0"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/contAuthMockFlowToggleButton"
-                            app:layout_constraintVertical_bias="0.0"
-                            tools:itemCount="3"
-                            tools:layoutManager="GridLayoutManager"
-                            tools:spanCount="5" />
+                            app:layout_constraintTop_toBottomOf="@+id/getInfoMakeCredentialButton" />
 
                         <SeekBar
                             android:id="@+id/seekBar"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="292dp"
-                            app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/contAuthMockFlowToggleButton" />
+                            app:layout_constraintTop_toBottomOf="@+id/ContinuousGetAsseertionButton" />
 
                         <TextView
                             android:id="@+id/seekbarTextField"
@@ -123,6 +106,15 @@
                             app:layout_constraintEnd_toStartOf="@+id/seekbarTextField"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/seekBar" />
+
+                        <Button
+                            android:id="@+id/getInfoMakeCredentialButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Send getinfo & makecredential"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/textView" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
