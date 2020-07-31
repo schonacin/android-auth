@@ -20,12 +20,12 @@ public class ContAuthMockClient {
     private String lastCommand;
     private Handler handler;
     private FidoAuthService fidoAuthService;
-    private int interval;
+    private int interval = 5000;
     private Boolean sendGetAssertionContinuously = true;
     final Runnable r = new Runnable() {
         public void run() {
             if (sendGetAssertionContinuously) {
-                Timber.d("THREAD TEST");
+                fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER);
                 handler.postDelayed(this, interval);
             }
         }
@@ -49,7 +49,6 @@ public class ContAuthMockClient {
         fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_INFO_REQUEST);
     }
 
-    // TODO:: check if its the 1st time or 2 to nth time
     public void startGetAssertionContinuous(int interval) {
         setInterval(interval);
         lastCommand = "getAssertionWithUV";
