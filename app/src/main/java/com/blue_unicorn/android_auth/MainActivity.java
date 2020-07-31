@@ -8,7 +8,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Toast;
@@ -111,8 +113,8 @@ public class MainActivity extends AppCompatActivity {
                 Timber.d(String.valueOf(intent.getExtras()));
                 boolean result = true;
                 fidoAuthService.handleUserInteraction(result);
-                if (counter > 1) {
-                    Timber.d("SENDING GET ASSERTION REQUREST WITH EXTENSION PARAM");
+                if (counter > 0) {
+                    Timber.d("SENDING GET ASSERTION REQUEST WITH EXTENSION PARAM");
                     try {
                         Thread.sleep(5000);
                     } catch (InterruptedException e) {
@@ -143,7 +145,9 @@ public class MainActivity extends AppCompatActivity {
     private void toggleContAuthMockFlow() {
         if (!mockFlowInProgress) {
             Timber.d("Starting Cont Auth Mock Flow");
-            fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_MAKE_CREDENTIAL_REQUEST);
+            ContAuthMockClient mockClient = new ContAuthMockClient(new Handler(Looper.getMainLooper()));
+            mockClient.start();
+            //fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_MAKE_CREDENTIAL_REQUEST);
             //Timber.d("SENDING GET ASSERTION REQUEST WITH EXTENSION PARAMETER");
             //fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER);
             mockFlowInProgress = true;
