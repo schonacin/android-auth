@@ -32,7 +32,7 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:background="#4D009688"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -58,7 +58,7 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <ToggleButton
-                            android:id="@+id/ContinuousGetAsseertionButton"
+                            android:id="@+id/ContinuousGetAssertionButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
@@ -71,11 +71,11 @@
 
                         <SeekBar
                             android:id="@+id/seekBar"
-                            android:layout_width="0dp"
+                            android:layout_width="411dp"
                             android:layout_height="wrap_content"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/ContinuousGetAsseertionButton" />
+                            app:layout_constraintTop_toBottomOf="@+id/ContinuousGetAssertionButton" />
 
                         <TextView
                             android:id="@+id/seekbarTextField"
@@ -111,7 +111,7 @@
                             android:id="@+id/getInfoMakeCredentialButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Send getinfo & makecredential"
+                            android:text="Send getinfo and makecredential"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/textView" />

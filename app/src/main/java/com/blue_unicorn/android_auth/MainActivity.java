@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Base64;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -37,14 +38,20 @@ public class MainActivity extends AppCompatActivity {
     private boolean mBound;
     private static final byte[] RAW_MAKE_CREDENTIAL_REQUEST = Base64.decode("AaUBWCDMVG/Vi0CDgAtgnuEKnn1oM9yeVFNAkbx+pfadNopNfAKiYmlka3dlYmF1dGhuLmlvZG5hbWVrd2ViYXV0aG4uaW8Do2JpZEq3mQEAAAAAAAAAZG5hbWVkVXNlcmtkaXNwbGF5TmFtZWR1c2VyBIqiY2FsZyZkdHlwZWpwdWJsaWMta2V5omNhbGc4ImR0eXBlanB1YmxpYy1rZXmiY2FsZzgjZHR5cGVqcHVibGljLWtleaJjYWxnOQEAZHR5cGVqcHVibGljLWtleaJjYWxnOQEBZHR5cGVqcHVibGljLWtleaJjYWxnOQECZHR5cGVqcHVibGljLWtleaJjYWxnOCRkdHlwZWpwdWJsaWMta2V5omNhbGc4JWR0eXBlanB1YmxpYy1rZXmiY2FsZzgmZHR5cGVqcHVibGljLWtleaJjYWxnJ2R0eXBlanB1YmxpYy1rZXkFgA==", Base64.DEFAULT);
     private static final byte[] RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER = Base64.decode("AqQBa3dlYmF1dGhuLmlvAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEEoXgZY29udGludW91c19hdXRoZW50aWNhdGlvbhknEAWhYnV29Q==", Base64.DEFAULT);
+
+    private boolean getAssertionContinuous = false;
+    private Button bindGetInfoMakeCredentialButton;
+    private ToggleButton bindGetAssertionContinuousButton;
+
+
     private FidoAuthService fidoAuthService;
 
     private AuthenticatorZ authenticatorZ;
 
     private RxPermissions rxPermissions;
     private ConstraintLayout constraintLayout;
-    private ToggleButton bindFidoAuthServiceToggleButton;
     private Snackbar errorSnackbar;
+    private ToggleButton bindFidoAuthServiceToggleButton;
     ContAuthMockClient mockClient;
     private ServiceConnection mConnection = new ServiceConnection() {
 
@@ -64,8 +71,6 @@ public class MainActivity extends AppCompatActivity {
             mBound = false;
         }
     };
-    private boolean mockFlowInProgress = false;
-    private ToggleButton bindContAuthMockFlowToggleButton;
 
     @Override
     protected void onDestroy() {
@@ -84,12 +89,14 @@ public class MainActivity extends AppCompatActivity {
         rxPermissions = new RxPermissions(this);
         constraintLayout = findViewById(R.id.coordinatorLayout);
         bindFidoAuthServiceToggleButton = findViewById(R.id.advertiseServicesToggleButton);
-        bindContAuthMockFlowToggleButton = findViewById(R.id.ContinuousGetAsseertionButton);
+        bindGetInfoMakeCredentialButton = findViewById(R.id.getInfoMakeCredentialButton);
+        bindGetAssertionContinuousButton = findViewById(R.id.ContinuousGetAssertionButton);
         errorSnackbar = Snackbar.make(constraintLayout, R.string.error_unknown, Snackbar.LENGTH_SHORT);
         authenticatorZ = new AuthenticatorZ(this);
 
         bindFidoAuthServiceToggleButton.setOnClickListener(v -> toggleServiceConnection());
-        bindContAuthMockFlowToggleButton.setOnClickListener(v -> toggleContAuthMockFlow());
+        bindGetInfoMakeCredentialButton.setOnClickListener(v -> mockClient.sendGetInfoAndMakeCredential());
+        bindGetAssertionContinuousButton.setOnClickListener(v -> toggleGetAssertionContinuous());
     }
 
     @Override
@@ -146,14 +153,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void toggleContAuthMockFlow() {
-        if (!mockFlowInProgress) {
-            Timber.d("Starting Cont Auth Mock Flow");
-            mockClient.sendGetInfoAndMakeCredential();
-            mockFlowInProgress = true;
+    private void toggleGetAssertionContinuous() {
+        if (!getAssertionContinuous) {
+            Timber.d("Starting to send getAssertion continuously");
+            mockClient.startGetAssertionContinuous(9000);
+            getAssertionContinuous = true;
         } else {
-            Timber.d("Stopped Cont Auth Mock Flow");
-            mockFlowInProgress = false;
+            Timber.d("Stopped Continuous getAssertions");
+            mockClient.stopGetAssertionContinuous();
+            getAssertionContinuous = false;
         }
     }
 

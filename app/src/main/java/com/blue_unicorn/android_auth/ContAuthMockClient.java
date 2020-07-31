@@ -52,7 +52,11 @@ public class ContAuthMockClient {
     public void startGetAssertionContinuous(int interval) {
         setInterval(interval);
         lastCommand = "getAssertionWithUV";
-        fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER);
+        fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER_AND_UV_BIT);
+    }
+
+    public void stopGetAssertionContinuous() {
+        sendGetAssertionContinuously = false;
     }
 
     private Subscriber<byte[]> getResponseSubscriber() {
@@ -68,9 +72,9 @@ public class ContAuthMockClient {
                             fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_MAKE_CREDENTIAL_REQUEST);
                             break;
                         case "makeCredential":
-                            lastCommand = "getAssertionWithUV";
-                            Timber.d("Next request is: %s", lastCommand);
-                            fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER_AND_UV_BIT);
+                            //lastCommand = "getAssertionWithUV";
+                            //Timber.d("Next request is: %s", lastCommand);
+                            //fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER_AND_UV_BIT);
                             break;
                         case "getAssertionWithUV":
                             lastCommand = "getAssertionWithoutUV";
@@ -99,9 +103,6 @@ public class ContAuthMockClient {
                 Timber.d("Response subscriber compelete");
             }
         };
-    }
-
-    public void stopGetAssertionContinuous() {
     }
 
     private void setInterval(int interval) {
