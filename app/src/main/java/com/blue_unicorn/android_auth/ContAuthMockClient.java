@@ -27,7 +27,7 @@ public class ContAuthMockClient {
             if (sendGetAssertionContinuously) {
                 fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER);
                 handler.postDelayed(this, interval);
-            }
+            } else return;
         }
     };
 
@@ -85,6 +85,7 @@ public class ContAuthMockClient {
                     }
                 } else {
                     Timber.d("RESPONSE CONTAINED ERROR");
+                    sendGetAssertionContinuously = false;
                 }
             }
 
