@@ -36,7 +36,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/advertiseServicesToggleButton">
+                app:layout_constraintTop_toBottomOf="@+id/advertiseServicesToggleButton"
+                tools:visibility="invisible">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -69,17 +70,59 @@
                             app:layout_constraintTop_toBottomOf="@+id/textView" />
 
                         <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recyclerView"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:visibility="visible"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="1.0"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/contAuthMockFlowToggleButton"
                             app:layout_constraintVertical_bias="0.0"
                             tools:itemCount="3"
                             tools:layoutManager="GridLayoutManager"
                             tools:spanCount="5" />
+
+                        <SeekBar
+                            android:id="@+id/seekBar"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="292dp"
+                            app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/contAuthMockFlowToggleButton" />
+
+                        <TextView
+                            android:id="@+id/seekbarTextField"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="33dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/seekBar" />
+
+                        <Switch
+                            android:id="@+id/switch1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="32dp"
+                            android:text="auth     "
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.508"
+                            app:layout_constraintStart_toEndOf="@+id/seekbarTextField"
+                            app:layout_constraintTop_toBottomOf="@+id/seekBar" />
+
+                        <TextView
+                            android:id="@+id/freshnessCaption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="32dp"
+                            android:text="Last authentication (ms):"
+                            app:layout_constraintEnd_toStartOf="@+id/seekbarTextField"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/seekBar" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 

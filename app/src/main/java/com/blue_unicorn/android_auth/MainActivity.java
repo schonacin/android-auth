@@ -39,10 +39,11 @@ public class MainActivity extends AppCompatActivity {
     private static final byte[] RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER = Base64.decode("AqQBa3dlYmF1dGhuLmlvAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEEoXgZY29udGludW91c19hdXRoZW50aWNhdGlvbhknEAWhYnV29Q==", Base64.DEFAULT);
     private FidoAuthService fidoAuthService;
 
+    private AuthenticatorZ authenticatorZ;
+
     private RxPermissions rxPermissions;
     private ConstraintLayout constraintLayout;
     private ToggleButton bindFidoAuthServiceToggleButton;
-    private int counter = 0;
     private Snackbar errorSnackbar;
     ContAuthMockClient mockClient;
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         bindFidoAuthServiceToggleButton = findViewById(R.id.advertiseServicesToggleButton);
         bindContAuthMockFlowToggleButton = findViewById(R.id.contAuthMockFlowToggleButton);
         errorSnackbar = Snackbar.make(constraintLayout, R.string.error_unknown, Snackbar.LENGTH_SHORT);
+        authenticatorZ = new AuthenticatorZ(this);
 
         bindFidoAuthServiceToggleButton.setOnClickListener(v -> toggleServiceConnection());
         bindContAuthMockFlowToggleButton.setOnClickListener(v -> toggleContAuthMockFlow());
@@ -92,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onNewIntent(Intent intent) {
-        counter++;
         super.onNewIntent(intent);
         if (intent.getAction() == null) {
             return;
@@ -113,17 +114,14 @@ public class MainActivity extends AppCompatActivity {
                 // TODO: Put call to custom authentication here and call handleCustomAuthentication with result
                 Timber.d("AUTHENTICATION REQUESTED VIA INTENT");
                 Timber.d(String.valueOf(intent.getExtras()));
-                boolean result = true;
-                fidoAuthService.handleUserInteraction(result);
-                if (counter > 0) {
-                    Timber.d("SENDING GET ASSERTION REQUEST WITH EXTENSION PARAM");
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER);
+                Integer freshness = intent.getExtras() == null ? null : (Integer)intent.getExtras().get(IntentExtra.AUTHENTICATION_FRESHNESS);
+                boolean authenticated;
+                if (freshness != null) {
+                    authenticated = authenticatorZ.isInAuthenticationInterval(freshness);
+                } else {
+                    authenticated = authenticatorZ.authenticate();
                 }
+                fidoAuthService.handleUserInteraction(authenticated);
                 break;
             default:
                 break;
@@ -136,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(IntentExtra.ACTIVITY_CLASS, MainActivity.class);
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
             findViewById(R.id.frameLayout).setVisibility(View.VISIBLE);
+            authenticatorZ.initiateAuthentication();
             mBound = true;
         } else {
             unbindService(mConnection);
