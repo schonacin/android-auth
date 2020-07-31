@@ -9,6 +9,8 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Base64;
+import android.view.View;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -30,12 +32,15 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
 
+    private static final byte[] RAW_MAKE_CREDENTIAL_REQUEST = Base64.decode("AaUBWCDMVG/Vi0CDgAtgnuEKnn1oM9yeVFNAkbx+pfadNopNfAKiYmlka3dlYmF1dGhuLmlvZG5hbWVrd2ViYXV0aG4uaW8Do2JpZEq3mQEAAAAAAAAAZG5hbWVkVXNlcmtkaXNwbGF5TmFtZWR1c2VyBIqiY2FsZyZkdHlwZWpwdWJsaWMta2V5omNhbGc4ImR0eXBlanB1YmxpYy1rZXmiY2FsZzgjZHR5cGVqcHVibGljLWtleaJjYWxnOQEAZHR5cGVqcHVibGljLWtleaJjYWxnOQEBZHR5cGVqcHVibGljLWtleaJjYWxnOQECZHR5cGVqcHVibGljLWtleaJjYWxnOCRkdHlwZWpwdWJsaWMta2V5omNhbGc4JWR0eXBlanB1YmxpYy1rZXmiY2FsZzgmZHR5cGVqcHVibGljLWtleaJjYWxnJ2R0eXBlanB1YmxpYy1rZXkFgA==", Base64.DEFAULT);
     private boolean mBound;
+    private static final byte[] RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER = Base64.decode("AqUBa3dlYmF1dGhuLmlvAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEDgqJiaWRYQPIgBt5PkFr2ikOULwJPKl7OYD2cbUs9+L4I7QH8RCZG0DSFisdb7T/VgL+YCNlPy+6CubLvZnevCtzDWFLqa55kdHlwZWpwdWJsaWMta2V5omJpZFgyAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNkdHlwZWpwdWJsaWMta2V5BKF4GWNvbnRpbnVvdXNfYXV0aGVudGljYXRpb24ZJxAFoWJ1dvU=", Base64.DEFAULT);
     private FidoAuthService fidoAuthService;
 
     private RxPermissions rxPermissions;
     private ConstraintLayout constraintLayout;
     private ToggleButton bindFidoAuthServiceToggleButton;
+    private int counter = 0;
     private Snackbar errorSnackbar;
     private ServiceConnection mConnection = new ServiceConnection() {
 
@@ -54,19 +59,8 @@ public class MainActivity extends AppCompatActivity {
             mBound = false;
         }
     };
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_main);
-        rxPermissions = new RxPermissions(this);
-        constraintLayout = findViewById(R.id.coordinatorLayout);
-        bindFidoAuthServiceToggleButton = findViewById(R.id.advertiseServicesToggleButton);
-        errorSnackbar = Snackbar.make(constraintLayout, R.string.error_unknown, Snackbar.LENGTH_SHORT);
-
-        bindFidoAuthServiceToggleButton.setOnClickListener(v -> toggleServiceConnection());
-    }
+    private boolean mockFlowInProgress = false;
+    private ToggleButton bindContAuthMockFlowToggleButton;
 
     @Override
     protected void onDestroy() {
@@ -78,7 +72,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_main);
+        rxPermissions = new RxPermissions(this);
+        constraintLayout = findViewById(R.id.coordinatorLayout);
+        bindFidoAuthServiceToggleButton = findViewById(R.id.advertiseServicesToggleButton);
+        bindContAuthMockFlowToggleButton = findViewById(R.id.contAuthMockFlowToggleButton);
+        errorSnackbar = Snackbar.make(constraintLayout, R.string.error_unknown, Snackbar.LENGTH_SHORT);
+
+        bindFidoAuthServiceToggleButton.setOnClickListener(v -> toggleServiceConnection());
+        bindContAuthMockFlowToggleButton.setOnClickListener(v -> toggleContAuthMockFlow());
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
+        counter++;
         super.onNewIntent(intent);
         if (intent.getAction() == null) {
             return;
@@ -97,8 +107,19 @@ public class MainActivity extends AppCompatActivity {
             case IntentAction.CTAP_APPROVE_NOTIFICATION_FOR_AUTHENTICATION:
             case IntentAction.CTAP_PERFORM_AUTHENTICATION:
                 // TODO: Put call to custom authentication here and call handleCustomAuthentication with result
+                Timber.d("AUTHENTICATION REQUESTED VIA INTENT");
+                Timber.d(String.valueOf(intent.getExtras()));
                 boolean result = true;
                 fidoAuthService.handleUserInteraction(result);
+                if (counter > 1) {
+                    Timber.d("SENDING GET ASSERTION REQUREST WITH EXTENSION PARAM");
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER);
+                }
                 break;
             default:
                 break;
@@ -110,10 +131,25 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, FidoAuthService.class);
             intent.putExtra(IntentExtra.ACTIVITY_CLASS, MainActivity.class);
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            findViewById(R.id.frameLayout).setVisibility(View.VISIBLE);
             mBound = true;
         } else {
             unbindService(mConnection);
+            findViewById(R.id.frameLayout).setVisibility(View.INVISIBLE);
             mBound = false;
+        }
+    }
+
+    private void toggleContAuthMockFlow() {
+        if (!mockFlowInProgress) {
+            Timber.d("Starting Cont Auth Mock Flow");
+            fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_MAKE_CREDENTIAL_REQUEST);
+            //Timber.d("SENDING GET ASSERTION REQUEST WITH EXTENSION PARAMETER");
+            //fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER);
+            mockFlowInProgress = true;
+        } else {
+            Timber.d("Stopped Cont Auth Mock Flow");
+            mockFlowInProgress = false;
         }
     }
 

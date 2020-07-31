@@ -63,7 +63,7 @@ public class APILayer {
         this.fragmentationProvider = new BaseFragmentationProvider();
     }
 
-    void buildNewRequestChain(byte[] input) {
+    public void buildNewRequestChain(byte[] input) {
         SingleObserver<FidoObject> apiSubscriber = new AuthSingleObserver<FidoObject>(authHandler) {
             @Override
             public void onSuccess(FidoObject result) {

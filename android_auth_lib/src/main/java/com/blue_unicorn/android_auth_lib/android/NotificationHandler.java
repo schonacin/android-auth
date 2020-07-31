@@ -87,7 +87,7 @@ public class NotificationHandler {
 
     private NotificationCompat.Builder buildNotification(String channelId) {
         NotificationCompat.Builder builder;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             builder = new NotificationCompat.Builder(context, channelId);
         } else {
             builder = new NotificationCompat.Builder(context);
@@ -211,7 +211,7 @@ public class NotificationHandler {
     }
 
     public void closeNotification(@NotificationID int id) {
-        Timber.d("Closing Notification with id %i", id);
+        Timber.d("Closing Notification");
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
         notificationManagerCompat.cancel(id);
     }
