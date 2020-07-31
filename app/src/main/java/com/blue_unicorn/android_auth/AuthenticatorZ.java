@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 
 public class AuthenticatorZ {
@@ -12,7 +13,9 @@ public class AuthenticatorZ {
     private Activity activity;
     private SeekBar freshnessSeekBar;
     private TextView seekbarValueField;
+    private Switch authSwitch;
     private boolean continuousAuthenticationSupport;
+    private boolean isAuthenticating;
 
     public AuthenticatorZ(Activity activity) {
         this.activity = activity;
@@ -22,7 +25,9 @@ public class AuthenticatorZ {
     void initiateAuthentication() {
         freshnessSeekBar = activity.findViewById(R.id.seekBar);
         seekbarValueField = activity.findViewById(R.id.seekbarTextField);
+        authSwitch = activity.findViewById(R.id.switch1);
         seekbarValueField.setText(Integer.toString(0));
+        isAuthenticating = false;
         freshnessSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -39,14 +44,19 @@ public class AuthenticatorZ {
 
             }
         });
+        authSwitch.setOnClickListener(v -> toggleAuthenticated());
+    }
+
+    private void toggleAuthenticated() {
+        isAuthenticating = !isAuthenticating;
     }
 
     boolean isInAuthenticationInterval(int freshness) {
-        return freshness > Integer.parseInt(seekbarValueField.getText().toString()) && activity.findViewById(R.id.switch1).isEnabled();
+        return freshness > Integer.parseInt(seekbarValueField.getText().toString()) && isAuthenticating;
     }
 
     boolean authenticate() {
-        return activity.findViewById(R.id.switch1).isEnabled();
+        return isAuthenticating;
     }
 
     public boolean hasContinuousAuthenticationSupport() {

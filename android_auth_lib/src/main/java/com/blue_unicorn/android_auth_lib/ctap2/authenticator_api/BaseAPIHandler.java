@@ -42,7 +42,7 @@ public class BaseAPIHandler implements APIHandler {
                 // start sending keep alives with processing status
                 // check for extension support if wanted
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-                if (sharedPreferences.getBoolean(UserPreference.CONTINUOUS_AUTHENTICATION_SUPPORT, false)) {
+                if (sharedPreferences.getBoolean(UserPreference.CONTINUOUS_AUTHENTICATION_SUPPORT, true)) {
                     return api.getInfoSetupExtension((GetInfoRequest) request);
                 } else {
                     return api.getInfo((GetInfoRequest) request);
