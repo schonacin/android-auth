@@ -121,11 +121,11 @@ public class APILayer {
         @UserAction int userAction = 0;
         Integer freshness = null;
         if (request instanceof MakeCredentialRequest) {
-            userAction = sharedPreferences.getInt(UserPreference.MAKE_CREDENTIAL, UserAction.PERFORM_STANDARD_AUTHENTICATION);
+            userAction = sharedPreferences.getInt(UserPreference.MAKE_CREDENTIAL, UserAction.BUILD_NOTIFICATION_AND_PERFORM_AUTHENTICATION);
         } else if (request instanceof GetAssertionRequest) {
             GetAssertionRequest getAssertionRequest = (GetAssertionRequest) request;
             if (getAssertionRequest.getContinuousFreshness() == null) {
-                userAction = sharedPreferences.getInt(UserPreference.GET_ASSERTION, UserAction.PERFORM_STANDARD_AUTHENTICATION);
+                userAction = sharedPreferences.getInt(UserPreference.GET_ASSERTION, UserAction.PERFORM_AUTHENTICATION);
             } else {
                 freshness = getAssertionRequest.getContinuousFreshness();
                 Boolean isInitialRequest = getAssertionRequest.getOptions().get("up");
