@@ -21,7 +21,11 @@ public class AuthInfo {
             this.method = AuthenticatorAPIMethod.MAKE_CREDENTIAL;
         } else if (requestObject instanceof GetAssertionRequest) {
             GetAssertionRequest getAssertionRequest = (GetAssertionRequest) requestObject;
-            this.title = "Authentication Needs Approval!";
+            if (getAssertionRequest.getContinuousFreshness() != null) {
+                this.title = "Continuous Authentication Needs Approval!";
+            } else {
+                this.title = "Authentication Needs Approval!";
+            }
             this.rp = getAssertionRequest.getRpId();
             this.user = null;
             this.method = AuthenticatorAPIMethod.GET_ASSERTION;

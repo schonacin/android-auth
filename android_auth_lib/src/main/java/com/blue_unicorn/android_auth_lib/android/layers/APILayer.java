@@ -191,7 +191,7 @@ public class APILayer {
         authHandler.getNotificationHandler().notifyResult(new AuthInfo(requestInstance), isApproved);
         requestInstance.setApproved(isApproved);
 
-        if (requestInstance instanceof GetAssertionRequest && isApproved) {
+        if (requestInstance instanceof GetAssertionRequest && isApproved && freshness != null) {
             ((GetAssertionRequest) requestInstance).setContinuousFreshness(freshness);
         }
         if (requestInstance instanceof GetInfoRequest && isApproved) {
