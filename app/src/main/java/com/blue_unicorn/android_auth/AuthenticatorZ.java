@@ -1,15 +1,14 @@
 package com.blue_unicorn.android_auth;
 
 import android.app.Activity;
-import android.content.Context;
-import android.view.View;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import timber.log.Timber;
+
 public class AuthenticatorZ {
 
-    private Context context;
     private Activity activity;
     private SeekBar freshnessSeekBar;
     private TextView seekbarValueField;
@@ -23,6 +22,7 @@ public class AuthenticatorZ {
     }
 
     void initiateAuthentication() {
+        Timber.d("Initiating AuthenticatorZ...");
         freshnessSeekBar = activity.findViewById(R.id.seekBar);
         seekbarValueField = activity.findViewById(R.id.seekbarTextField);
         authSwitch = activity.findViewById(R.id.switch1);
@@ -31,7 +31,7 @@ public class AuthenticatorZ {
         freshnessSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                seekbarValueField.setText(String.valueOf(i*200));
+                seekbarValueField.setText(String.valueOf(i * 200));
             }
 
             @Override
@@ -49,9 +49,11 @@ public class AuthenticatorZ {
 
     private void toggleAuthenticated() {
         isAuthenticating = !isAuthenticating;
+        Timber.d("AuthenticatorZ authentication status: %b", isAuthenticating);
     }
 
     boolean isInAuthenticationInterval(int freshness) {
+        Timber.d("Check whether last authentication of AuthenticatorZ is is freshness requirement!");
         return freshness > Integer.parseInt(seekbarValueField.getText().toString()) && isAuthenticating;
     }
 
