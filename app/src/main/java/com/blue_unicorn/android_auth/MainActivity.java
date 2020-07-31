@@ -44,10 +44,12 @@ public class MainActivity extends AppCompatActivity {
     private ToggleButton bindFidoAuthServiceToggleButton;
     private int counter = 0;
     private Snackbar errorSnackbar;
+    ContAuthMockClient mockClient;
     private ServiceConnection mConnection = new ServiceConnection() {
 
         public void onServiceConnected(ComponentName className, IBinder service) {
             fidoAuthService = ((FidoAuthServiceBinder) service).getService();
+            mockClient = new ContAuthMockClient(new Handler(Looper.getMainLooper()), fidoAuthService);
             mBound = true;
 
             fidoAuthService.getErrors().observe(MainActivity.this, throwable -> {
@@ -145,11 +147,7 @@ public class MainActivity extends AppCompatActivity {
     private void toggleContAuthMockFlow() {
         if (!mockFlowInProgress) {
             Timber.d("Starting Cont Auth Mock Flow");
-            ContAuthMockClient mockClient = new ContAuthMockClient(new Handler(Looper.getMainLooper()), fidoAuthService);
-            mockClient.start();
-            //fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_MAKE_CREDENTIAL_REQUEST);
-            //Timber.d("SENDING GET ASSERTION REQUEST WITH EXTENSION PARAMETER");
-            //fidoAuthService.getAuthHandler().getApiLayer().buildNewRequestChain(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER);
+            mockClient.sendGetInfoAndMakeCredential();
             mockFlowInProgress = true;
         } else {
             Timber.d("Stopped Cont Auth Mock Flow");

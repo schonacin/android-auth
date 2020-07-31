@@ -24,10 +24,6 @@ public class ResponseLayer {
         subject = PublishSubject.create();
     }
 
-    public PublishSubject<byte[]> getSubject() {
-        return subject;
-    }
-
     public Flowable<byte[]> getResponses() {
         // Note: this subject doesn't complete when the subscriber completes.
         // It sends out byte arrays whenever any response subscriber calls onNext()
