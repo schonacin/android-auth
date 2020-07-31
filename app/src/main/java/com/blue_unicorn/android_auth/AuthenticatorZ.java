@@ -40,10 +40,10 @@ public class AuthenticatorZ {
     }
 
     boolean isInAuthenticationInterval(int freshness) {
-        return freshness > Integer.parseInt(seekbarValueField.getText().toString()) && activity.findViewById(R.id.switch1).isActivated();
+        return freshness > Integer.parseInt(seekbarValueField.getText().toString()) && activity.findViewById(R.id.switch1).isEnabled();
     }
 
     boolean authenticate() {
-        return activity.findViewById(R.id.switch1).isActivated();
+        return activity.findViewById(R.id.switch1).isEnabled();
     }
 }
