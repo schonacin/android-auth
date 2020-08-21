@@ -58,8 +58,11 @@ final class AuthenticatorHelper {
             if (this.credentialSafe.supportsUserVerification()) {
                 flags |= (0x01 << 2); // user verified
             }
-            if (attestedCredentialData != null) {
+            if (attestedCredentialData != null && attestedCredentialData.length > 0) {
                 flags |= (0x01 << 6); // attested credential data included
+            }
+            if(extensionField != null && extensionField.length > 0) {
+                flags |= (0x01 << 7); // extensions included
             }
 
             // 32-byte hash + 1-byte flags + 4 bytes signCount = 37 bytes

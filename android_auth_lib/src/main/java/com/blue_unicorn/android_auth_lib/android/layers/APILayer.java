@@ -256,7 +256,7 @@ public class APILayer {
 
     private void handleGetInfoExtensionSupport() {
         Intent intent = new Intent(context, authHandler.getActivityClass());
-        intent.setAction(IntentAction.CONTINUOUS_AUTHENTICATION);
+        intent.setAction(IntentAction.CHECK_FOR_CONTINUOUS_AUTHENTICATION);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.getApplicationContext().startActivity(intent);
     }
