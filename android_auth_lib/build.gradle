@@ -18,7 +18,7 @@ android {
 
     buildTypes {
         debug {
-            testCoverageEnabled false
+            testCoverageEnabled true
         }
         release {
             minifyEnabled false
@@ -48,7 +48,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.upokecenter:cbor:4.1.0'
     implementation 'com.google.code.gson:gson:2.8.6'
 
@@ -69,7 +69,7 @@ dependencies {
     testImplementation 'junit:junit:4.13'
     testImplementation 'org.robolectric:robolectric:4.3.1'
 
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'org.jetbrains:annotations:16.0.1'
 }

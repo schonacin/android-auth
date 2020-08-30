@@ -13,6 +13,7 @@ import com.blue_unicorn.android_auth_lib.android.constants.UserAction;
 import com.blue_unicorn.android_auth_lib.android.constants.UserPreference;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class APILayerTest {
@@ -44,6 +45,7 @@ public class APILayerTest {
         authHandler.getApiLayer().buildNewRequestChain(RAW_MAKE_CREDENTIAL_REQUEST);
     }
 
+    @Ignore
     @Test
     public void complexRequest_DoesStandardAuthenticationWhenSpecified() {
         setSharedPreferences(UserPreference.MAKE_CREDENTIAL, UserAction.PERFORM_STANDARD_AUTHENTICATION);
@@ -53,7 +55,7 @@ public class APILayerTest {
     @Test
     public void complexRequest_DoesCustomAuthentication() {
         setSharedPreferences(UserPreference.MAKE_CREDENTIAL, UserAction.PERFORM_AUTHENTICATION);
-        //authHandler.getApiLayer().buildNewRequestChain(RAW_MAKE_CREDENTIAL_REQUEST);
+        authHandler.getApiLayer().buildNewRequestChain(RAW_MAKE_CREDENTIAL_REQUEST);
     }
 
 }
