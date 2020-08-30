@@ -52,6 +52,7 @@ public class APILayerTest {
         authHandler.getApiLayer().buildNewRequestChain(RAW_MAKE_CREDENTIAL_REQUEST);
     }
 
+    @Ignore
     @Test
     public void complexRequest_DoesCustomAuthentication() {
         setSharedPreferences(UserPreference.MAKE_CREDENTIAL, UserAction.PERFORM_AUTHENTICATION);
