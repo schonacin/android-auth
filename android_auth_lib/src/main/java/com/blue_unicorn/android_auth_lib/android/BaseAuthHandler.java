@@ -5,6 +5,9 @@ import android.content.Context;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blue_unicorn.android_auth_lib.android.layers.APILayer;
+import com.blue_unicorn.android_auth_lib.android.layers.BaseAPILayer;
+import com.blue_unicorn.android_auth_lib.android.layers.BaseRequestLayer;
+import com.blue_unicorn.android_auth_lib.android.layers.BaseResponseLayer;
 import com.blue_unicorn.android_auth_lib.android.layers.RequestLayer;
 import com.blue_unicorn.android_auth_lib.android.layers.ResponseLayer;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.BleHandler;
@@ -23,9 +26,9 @@ public class BaseAuthHandler implements AuthHandler {
     private Class activityClass;
 
     public BaseAuthHandler(Context context, MutableLiveData<Throwable> fidoAuthServiceErrors, Class activityClass) {
-        this.requestLayer = new RequestLayer(this);
-        this.apiLayer = new APILayer(this, context);
-        this.responseLayer = new ResponseLayer(this);
+        this.requestLayer = new BaseRequestLayer(this);
+        this.apiLayer = new BaseAPILayer(this, context);
+        this.responseLayer = new BaseResponseLayer(this);
         this.bleHandler = new BleHandler(context, fidoAuthServiceErrors);
         this.notificationHandler = new NotificationHandler(context, activityClass);
         this.activityClass = activityClass;
