@@ -2,10 +2,13 @@ package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator;
 
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.database.PublicKeyCredentialSource;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
+import com.upokecenter.cbor.CBORObject;
 
 import java.nio.ByteBuffer;
-import java.security.KeyPair;
 import java.security.MessageDigest;
+import java.security.PublicKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECPoint;
 
 import io.reactivex.rxjava3.core.Single;
 
@@ -29,13 +32,61 @@ final class AuthenticatorHelper {
         }).onErrorResumeNext(throwable -> Single.error(new AuthLibException("couldn't hash data", throwable)));
     }
 
+    private static byte[] toUnsignedFixedLength(byte[] arr, int fixedLength) {
+        byte[] fixed = new byte[fixedLength];
+        int offset = fixedLength - arr.length;
+        int srcPos = Math.max(-offset, 0);
+        int dstPos = Math.max(offset, 0);
+        int copyLength = Math.min(arr.length, fixedLength);
+        System.arraycopy(arr, srcPos, fixed, dstPos, copyLength);
+        return fixed;
+    }
+
+    private static Single<byte[]> encodePointstoBytes(byte[] x, byte[] y) {
+        return Single.fromCallable(() -> {
+            CBORObject object = CBORObject.NewMap();
+            object.Add(1, 2);
+            object.Add(3, -7);
+            object.Add(-1, 1);
+            object.Add(-2, x);
+            object.Add(-3, y);
+
+            return object.EncodeToBytes();
+        }).onErrorResumeNext(throwable -> Single.error(new AuthLibException("couldn't serialize to cbor", throwable)));
+    }
+
+    private Single<byte[]> coseEncodePublicKey(PublicKey publicKey) {
+        return Single.defer(() -> {
+            ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
+            ECPoint point = ecPublicKey.getW();
+            // ECPoint coordinates are *unsigned* values that span the range [0, 2**32). The getAffine
+            // methods return BigInteger objects, which are signed. toByteArray will output a byte array
+            // containing the two's complement representation of the value, outputting only as many
+            // bytes as necessary to do so. We want an unsigned byte array of length 32, but when we
+            // call toByteArray, we could get:
+            // 1) A 33-byte array, if the point's unsigned representation has a high 1 bit.
+            //    toByteArray will prepend a zero byte to keep the value positive.
+            // 2) A <32-byte array, if the point's unsigned representation has 9 or more high zero
+            //    bits.
+            // Due to this, we need to either chop off the high zero byte or prepend zero bytes
+            // until we have a 32-length byte array.
+            byte[] xVariableLength = point.getAffineX().toByteArray();
+            byte[] yVariableLength = point.getAffineY().toByteArray();
+
+            byte[] x = toUnsignedFixedLength(xVariableLength, 32);
+
+            byte[] y = toUnsignedFixedLength(yVariableLength, 32);
+
+            return encodePointstoBytes(x, y);
+        });
+    }
+
     Single<byte[]> constructAttestedCredentialData(PublicKeyCredentialSource credentialSource) {
         // | AAGUID | L | credentialId | credentialPublicKey |
         // |   16   | 2 |      32      |          n          |
         // total size: 50+n
-        return this.credentialSafe.getKeyPairByAlias(credentialSource.getKeyPairAlias())
-                .map(KeyPair::getPublic)
-                .flatMap(CredentialSafe::coseEncodePublicKey)
+        return this.credentialSafe.getPublicKeyByAlias(credentialSource.getKeyPairAlias())
+                .flatMap(this::coseEncodePublicKey)
                 .map(encodedPublicKey -> {
                     ByteBuffer credentialData = ByteBuffer.allocate(16 + 2 + credentialSource.getId().length + encodedPublicKey.length);
 

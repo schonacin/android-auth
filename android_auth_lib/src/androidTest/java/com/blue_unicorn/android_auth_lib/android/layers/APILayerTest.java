@@ -38,21 +38,22 @@ public class APILayerTest {
     }
 
 
-    // not really real tests, just for my experiences
     @Test
     public void complexRequest_CallsBuildNotificationWhenSpecified() {
         setSharedPreferences(UserPreference.MAKE_CREDENTIAL, UserAction.BUILD_NOTIFICATION);
         authHandler.getApiLayer().buildNewRequestChain(RAW_MAKE_CREDENTIAL_REQUEST);
+        // TODO: check with UI Automator whether notification got displayed
+
     }
 
-    @Ignore
+    @Ignore("handle in integration tests")
     @Test
     public void complexRequest_DoesStandardAuthenticationWhenSpecified() {
         setSharedPreferences(UserPreference.MAKE_CREDENTIAL, UserAction.PERFORM_STANDARD_AUTHENTICATION);
         authHandler.getApiLayer().buildNewRequestChain(RAW_MAKE_CREDENTIAL_REQUEST);
     }
 
-    @Ignore
+    @Ignore("handle in integration tests")
     @Test
     public void complexRequest_DoesCustomAuthentication() {
         setSharedPreferences(UserPreference.MAKE_CREDENTIAL, UserAction.PERFORM_AUTHENTICATION);

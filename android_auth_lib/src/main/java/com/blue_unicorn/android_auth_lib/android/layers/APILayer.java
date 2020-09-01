@@ -15,7 +15,6 @@ import com.blue_unicorn.android_auth_lib.android.authentication.AuthenticationAP
 import com.blue_unicorn.android_auth_lib.android.authentication.BiometricAuth;
 import com.blue_unicorn.android_auth_lib.android.constants.AuthenticationMethod;
 import com.blue_unicorn.android_auth_lib.android.constants.IntentAction;
-import com.blue_unicorn.android_auth_lib.android.constants.NotificationID;
 import com.blue_unicorn.android_auth_lib.android.constants.UserAction;
 import com.blue_unicorn.android_auth_lib.android.constants.UserPreference;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.APIHandler;
@@ -33,6 +32,7 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.BaseFrame;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Fragment;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Frame;
+
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleObserver;
 import timber.log.Timber;
@@ -86,7 +86,7 @@ public class APILayer {
         RequestObject requestInstance = request;
         this.request = null;
         Timber.d("Getting existing request %s", requestInstance);
-        if(requestInstance instanceof GetAssertionRequest) {
+        if (requestInstance instanceof GetAssertionRequest) {
             Timber.d("\tAmount of selected Credentials: %s", ((GetAssertionRequest) requestInstance).getSelectedCredentials().size());
         }
         return requestInstance;
@@ -171,9 +171,7 @@ public class APILayer {
                 .cast(Frame.class)
                 .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getBleHandler().getMtu()))
                 .map(Fragment::asBytes)
-                .doOnError(throwable -> {
-                    Timber.d(throwable, "Something went wrong during update of api");
-                })
+                .doOnError(throwable -> Timber.d(throwable, "Something went wrong during update of api"))
                 .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
     }
 
