@@ -157,6 +157,7 @@ public class APILayer {
     public void buildResponseChainAfterUserInteraction(boolean isApproved) {
         // this chain is called after the user has interacted with the device
         // this function can be called from outside, i. e. a new intent on a service
+        Timber.d("Building new Response Chain with approval: %b", isApproved);
         RequestObject requestInstance = getRequest();
         if (requestInstance == null) {
             authHandler.getNotificationHandler().notifyFailure();
@@ -187,21 +188,30 @@ public class APILayer {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         @AuthenticationMethod int authenticationMethod = sharedPreferences.getInt(UserPreference.AUTHENTICATION_METHOD, AuthenticationMethod.FINGERPRINT);
 
+        BiometricAuth biometricAuth = new BiometricAuth();
+
         AuthenticationAPICallback authenticationCallback = new AuthenticationAPICallback() {
             @Override
             public void handleAuthentication(boolean authenticated) {
                 buildResponseChainAfterUserInteraction(authenticated);
+            }
+
+            @Override
+            public void useFallback() {
+                Timber.d("Standard Authentication failed, revert back to custom authentication!");
+                authHandler.getNotificationHandler().notify("Standard Authentication failed, reverted back to custom authentication!");
+                performCustomAuthentication();
             }
         };
 
         switch (authenticationMethod) {
             case AuthenticationMethod.FINGERPRINT_WITH_FALLBACK:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    BiometricAuth.authenticateWithCredentialFallback(context, new AuthInfo(request), authenticationCallback);
+                    biometricAuth.authenticateWithCredentialFallback(context, new AuthInfo(request), authenticationCallback);
                     break;
                 }
             case AuthenticationMethod.FINGERPRINT: {
-                BiometricAuth.authenticate(context, new AuthInfo(request), authenticationCallback);
+                biometricAuth.authenticate(context, new AuthInfo(request), authenticationCallback);
                 break;
             }
         }

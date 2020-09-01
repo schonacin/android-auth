@@ -34,11 +34,17 @@ public class ResponseLayer {
                 .toFlowable(BackpressureStrategy.BUFFER);
     }
 
-    public Subscriber<byte[]> getResponseSubscriber() {
+    Subscriber<byte[]> getResponseSubscriber() {
         if (responseSubscriber != null && !responseSubscriber.isDisposed()) {
             responseSubscriber.dispose();
         }
         return createNewResponseSubscriber();
+    }
+
+    public void disposeChain() {
+        if (responseSubscriber != null && !responseSubscriber.isDisposed()) {
+            responseSubscriber.dispose();
+        }
     }
 
     private Subscriber<byte[]> createNewResponseSubscriber() {

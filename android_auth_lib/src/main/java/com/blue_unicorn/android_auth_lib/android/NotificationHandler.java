@@ -118,7 +118,7 @@ public class NotificationHandler {
         notify(message);
     }
 
-    private void notify(@NonNull String message) {
+    public void notify(@NonNull String message) {
         Timber.d("Displaying Notification to show message \"%s\"", message);
         Intent resultIntent = new Intent(context, FidoAuthService.class);
         NotificationCompat.Builder builder =

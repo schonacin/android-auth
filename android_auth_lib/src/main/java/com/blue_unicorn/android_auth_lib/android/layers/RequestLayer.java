@@ -10,8 +10,6 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.f
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Frame;
 import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
 
-import java.util.Arrays;
-
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
@@ -63,7 +61,7 @@ public class RequestLayer {
             public void onError(Throwable t) {
                 super.onError(t);
                 dispose();
-                if(incomingRequests.hasThrowable()) {
+                if (incomingRequests.hasThrowable()) {
                     resetChain();
                 } else {
                     buildNewFragmentChain();
@@ -77,6 +75,12 @@ public class RequestLayer {
                 .flatMapMaybe(fragment -> defragmentationProvider.defragment(fragment, authHandler.getBleHandler().getMtu()))
                 .map(Frame::getDATA)
                 .subscribe(frameSubscriber);
+    }
+
+    public void disposeChain() {
+        if (!frameSubscriber.isDisposed()) {
+            frameSubscriber.dispose();
+        }
     }
 
     // TODO: put this in right component

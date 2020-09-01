@@ -10,10 +10,12 @@ public abstract class AuthenticationAPICallback extends BiometricPrompt.Authenti
 
     public abstract void handleAuthentication(boolean authenticated);
 
+    public abstract void useFallback();
+
     @Override
     public void onAuthenticationError(int errorCode, CharSequence errString) {
         super.onAuthenticationError(errorCode, errString);
-        handleAuthentication(false);
+        useFallback();
     }
 
     @Override
