@@ -7,6 +7,9 @@ import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.B
 
 import io.reactivex.rxjava3.core.Flowable;
 
+/**
+ * Handles the different components to create the whole CTAP2 flow. Creates and manages the interaction between Request-, API- and Response layer.
+ */
 public interface AuthHandler {
 
     Class getActivityClass();

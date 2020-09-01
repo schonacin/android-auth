@@ -10,8 +10,9 @@ import androidx.annotation.RequiresApi;
 
 import com.blue_unicorn.android_auth_lib.android.AuthHandler;
 import com.blue_unicorn.android_auth_lib.android.AuthSingleObserver;
-import com.blue_unicorn.android_auth_lib.android.authentication.AuthInfo;
 import com.blue_unicorn.android_auth_lib.android.authentication.AuthenticationAPICallback;
+import com.blue_unicorn.android_auth_lib.android.authentication.BaseAuthInfo;
+import com.blue_unicorn.android_auth_lib.android.authentication.BaseBiometricAuth;
 import com.blue_unicorn.android_auth_lib.android.authentication.BiometricAuth;
 import com.blue_unicorn.android_auth_lib.android.constants.AuthenticationMethod;
 import com.blue_unicorn.android_auth_lib.android.constants.IntentAction;
@@ -163,7 +164,7 @@ public class BaseAPILayer implements APILayer {
             authHandler.getNotificationHandler().notifyFailure();
             return;
         }
-        authHandler.getNotificationHandler().notifyResult(new AuthInfo(requestInstance), isApproved);
+        authHandler.getNotificationHandler().notifyResult(new BaseAuthInfo(requestInstance), isApproved);
 
         requestInstance.setApproved(isApproved);
         apiHandler.updateAPI(requestInstance)
@@ -180,7 +181,7 @@ public class BaseAPILayer implements APILayer {
         // builds a notification with info on username/ Website
         // acceptance of notification should call buildResponseChainAfterUserInteraction()/
         // performAuthentication() based on the input parameter
-        authHandler.getNotificationHandler().requestApproval(new AuthInfo(request), authenticationRequired);
+        authHandler.getNotificationHandler().requestApproval(new BaseAuthInfo(request), authenticationRequired);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
@@ -188,7 +189,7 @@ public class BaseAPILayer implements APILayer {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         @AuthenticationMethod int authenticationMethod = sharedPreferences.getInt(UserPreference.AUTHENTICATION_METHOD, AuthenticationMethod.FINGERPRINT);
 
-        BiometricAuth biometricAuth = new BiometricAuth();
+        BiometricAuth biometricAuth = new BaseBiometricAuth();
 
         AuthenticationAPICallback authenticationCallback = new AuthenticationAPICallback() {
             @Override
@@ -207,11 +208,11 @@ public class BaseAPILayer implements APILayer {
         switch (authenticationMethod) {
             case AuthenticationMethod.FINGERPRINT_WITH_FALLBACK:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    biometricAuth.authenticateWithCredentialFallback(context, new AuthInfo(request), authenticationCallback);
+                    biometricAuth.authenticateWithCredentialFallback(context, new BaseAuthInfo(request), authenticationCallback);
                     break;
                 }
             case AuthenticationMethod.FINGERPRINT: {
-                biometricAuth.authenticate(context, new AuthInfo(request), authenticationCallback);
+                biometricAuth.authenticate(context, new BaseAuthInfo(request), authenticationCallback);
                 break;
             }
         }

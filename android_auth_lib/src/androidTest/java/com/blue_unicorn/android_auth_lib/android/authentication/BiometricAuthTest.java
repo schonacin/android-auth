@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.blue_unicorn.android_auth_lib.android.BaseNotificationHandler;
 import com.blue_unicorn.android_auth_lib.android.NotificationHandler;
 
 import org.junit.Before;
@@ -18,14 +19,14 @@ public class BiometricAuthTest {
     @Before
     public void setUp() {
         this.context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        this.biometricAuth = new BiometricAuth();
+        this.biometricAuth = new BaseBiometricAuth();
     }
 
     @Ignore("WIP")
     @Test
     public void fingerPrint_DoesWork() {
         final boolean[] done = {false};
-        biometricAuth.authenticate(context, new AuthInfo("This is a Biometric Prompt", "RP Website: lol.de", "Userdata: me"), new AuthenticationAPICallback() {
+        biometricAuth.authenticate(context, new BaseAuthInfo("This is a Biometric Prompt", "RP Website: lol.de", "Userdata: me"), new AuthenticationAPICallback() {
             @Override
             public void handleAuthentication(boolean authenticated) {
                 System.out.println(authenticated);
@@ -43,8 +44,8 @@ public class BiometricAuthTest {
     @Ignore("WIP")
     @Test
     public void notificationsArePresent() {
-        NotificationHandler notificationHandler = new NotificationHandler(context,context.getClass());
-        notificationHandler.requestApproval(new AuthInfo("REGISTER!!!!", "haha.io", "me"), false);
+        NotificationHandler notificationHandler = new BaseNotificationHandler(context,context.getClass());
+        notificationHandler.requestApproval(new BaseAuthInfo("REGISTER!!!!", "haha.io", "me"), false);
     }
 
 }

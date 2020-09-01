@@ -4,6 +4,9 @@ import org.reactivestreams.Subscriber;
 
 import io.reactivex.rxjava3.core.Flowable;
 
+/**
+ * Handles returning the processed and fragmented responses
+ */
 public interface ResponseLayer {
 
     Flowable<byte[]> getResponses();
