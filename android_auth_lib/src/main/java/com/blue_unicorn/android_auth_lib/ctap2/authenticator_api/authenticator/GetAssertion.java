@@ -57,7 +57,6 @@ public class GetAssertion {
     }
 
     // 2. - 4. & 6. are ignored as pinAuth and extensions are not supported
-    // TODO: or throw respective errors when present: would need changes in data classes however
 
     public Single<GetAssertionResponse> operateInner() {
         // 7. - 8. handle user approval and whether credentials could be found
@@ -144,7 +143,7 @@ public class GetAssertion {
                 this.selectedCredential =
                         Single.defer(() -> {
                             if (!request.getSelectedCredentials().isEmpty()) {
-                                // TODO: do we handle getNextAssertion? taking the first credential for now
+                                // TODO: HANDLE GET_NEXT_ASSERTION
                                 return Single.just(request.getSelectedCredentials().get(0));
                             } else {
                                 return Single.error(new AuthLibException("no selected credentials"));

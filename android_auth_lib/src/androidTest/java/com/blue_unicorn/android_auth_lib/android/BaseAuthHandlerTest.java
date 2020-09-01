@@ -10,7 +10,6 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.blue_unicorn.android_auth_lib.android.constants.UserAction;
 import com.blue_unicorn.android_auth_lib.android.constants.UserPreference;
-import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.database.PublicKeyCredentialSource;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.BleHandler;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.BaseFragmentationProvider;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.RxFragmentationProvider;
@@ -38,7 +37,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class AuthHandlerTest {
+public class BaseAuthHandlerTest {
 
     private final static byte[] RAW_GET_INFO = new byte[]{(byte) 0x83, (byte) 0x00, (byte) 0x01, (byte) 0x04};
 
@@ -65,7 +64,7 @@ public class AuthHandlerTest {
     @Before
     public void setUp() {
         this.context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        authHandler = new AuthHandler(context, new MutableLiveData<>(), context.getClass());
+        authHandler = new BaseAuthHandler(context, new MutableLiveData<>(), context.getClass());
         fragmentationProvider = new BaseFragmentationProvider();
         MockitoAnnotations.initMocks(this);
     }

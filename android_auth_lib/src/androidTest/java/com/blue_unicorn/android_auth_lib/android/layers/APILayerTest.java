@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.blue_unicorn.android_auth_lib.android.AuthHandler;
+import com.blue_unicorn.android_auth_lib.android.BaseAuthHandler;
 import com.blue_unicorn.android_auth_lib.android.constants.UserAction;
 import com.blue_unicorn.android_auth_lib.android.constants.UserPreference;
 
@@ -26,7 +27,7 @@ public class APILayerTest {
     @Before
     public void setUp() {
         this.context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        this.authHandler = new AuthHandler(context, new MutableLiveData<>(), context.getClass());
+        this.authHandler = new BaseAuthHandler(context, new MutableLiveData<>(), context.getClass());
     }
 
     private void setSharedPreferences(@UserPreference String preference, @UserAction int value) {

@@ -30,7 +30,7 @@ public class FidoAuthService extends Service {
         }
 
         Class activityClass = (Class) intent.getExtras().get(IntentExtra.ACTIVITY_CLASS);
-        authHandler = new AuthHandler(this, errors, activityClass);
+        authHandler = new BaseAuthHandler(this, errors, activityClass);
         authHandler.getNotificationHandler().showServiceActiveNotification(this);
         authHandler.startAdvertisingProcess();
         return mBinder;
