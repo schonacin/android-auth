@@ -25,8 +25,7 @@ public class FidoAuthService extends Service {
         RxJavaPlugins.setErrorHandler(e -> {
         });
         if (intent.getExtras() == null) {
-            // TODO: handle this error
-            return mBinder;
+            return null;
         }
 
         Class activityClass = (Class) intent.getExtras().get(IntentExtra.ACTIVITY_CLASS);

@@ -32,7 +32,6 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -137,7 +136,6 @@ public class BaseAuthHandlerTest {
         verify(bleHandler, times(1)).sendBleData(captor.capture());
         List<byte[]> responses = captor.getAllValues();
 
-        assertEquals(responses.size(), 1);
         assertArrayEquals(responses.get(0), new byte[]{(byte) 0x83, (byte) 0x00, (byte) 0x01, (byte) 0x02});
     }
 
@@ -154,7 +152,6 @@ public class BaseAuthHandlerTest {
         verify(bleHandler, times(1)).sendBleData(captor.capture());
         List<byte[]> responses = captor.getAllValues();
 
-        assertEquals(responses.size(), 1);
         assertArrayEquals(responses.get(0), new byte[]{(byte) 0x01});
     }
 

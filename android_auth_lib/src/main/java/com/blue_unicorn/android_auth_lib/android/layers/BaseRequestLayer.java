@@ -4,15 +4,11 @@ import com.blue_unicorn.android_auth_lib.android.AuthHandler;
 import com.blue_unicorn.android_auth_lib.android.AuthSubscriber;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.BaseDefragmentationProvider;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.RxDefragmentationProvider;
-import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.BaseContinuationFragment;
-import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.BaseInitializationFragment;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Fragment;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data.Frame;
-import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
 
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import io.reactivex.rxjava3.subscribers.DisposableSubscriber;
 import timber.log.Timber;
@@ -71,7 +67,7 @@ public class BaseRequestLayer implements RequestLayer {
 
         incomingRequests
                 .toFlowable(BackpressureStrategy.BUFFER)
-                .flatMapSingle(this::toFragment)
+                .map(Fragment::toFragment)
                 .flatMapMaybe(fragment -> defragmentationProvider.defragment(fragment, authHandler.getBleHandler().getMtu()))
                 .map(Frame::getDATA)
                 .subscribe(frameSubscriber);
@@ -83,20 +79,4 @@ public class BaseRequestLayer implements RequestLayer {
         }
     }
 
-    // TODO: put this in right component
-    private Single<Fragment> toFragment(byte[] request) {
-        Timber.d("Got new fragment 0x%s to classify of length %d", ValueUtil.bytesToHex(request), request.length);
-        return Single.just(request)
-                .map(bytes -> {
-                    if ((bytes[0] & (byte) 0x80) == (byte) 0x80) {
-                        Timber.d("\tFragment of request is init fragment");
-                        return new BaseInitializationFragment(bytes);
-                    } else {
-                        BaseContinuationFragment baseContinuationFragment = new BaseContinuationFragment(bytes);
-                        Timber.d("\tFragment is continuation fragment #%s", ValueUtil.bytesToHex(new byte[]{baseContinuationFragment.getSEQ()}));
-                        return baseContinuationFragment;
-                    }
-                })
-                .cast(Fragment.class);
-    }
 }
