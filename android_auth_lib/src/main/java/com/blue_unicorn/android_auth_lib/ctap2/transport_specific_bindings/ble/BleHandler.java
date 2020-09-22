@@ -28,7 +28,7 @@ public class BleHandler {
         this.fidoGattProfile = new FidoGattProfile(context);
         this.bleServer = fidoGattProfile.getGattServer();
         this.errors = fidoAuthServiceErrors;
-        this.mtu = 20;
+        this.mtu = 20; // this is the default value on android (23 byte minus GATT overhead)
     }
 
     public void connect() {
