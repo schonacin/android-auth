@@ -10,7 +10,11 @@ import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.Re
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.ResponseObject;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
 
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import timber.log.Timber;
 
 public class BaseAPIHandler implements APIHandler {
 
@@ -23,10 +27,14 @@ public class BaseAPIHandler implements APIHandler {
     public Single<FidoObject> callAPI(RequestObject request) {
         return Single.defer(() -> {
             if (request instanceof MakeCredentialRequest) {
+                Timber.d("Call API for makeCrendential");
                 return api.makeCredential((MakeCredentialRequest) request);
             } else if (request instanceof GetAssertionRequest) {
+                Timber.d("Call API for getAssertion");
                 return api.getAssertion((GetAssertionRequest) request);
             } else if (request instanceof GetInfoRequest) {
+                Timber.d("Call API for getInfo");
+                // start sending keep alives with processing status
                 return api.getInfo((GetInfoRequest) request);
             } else {
                 return Single.error(new AuthLibException("invalid request object for calling api"));

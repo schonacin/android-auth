@@ -22,7 +22,7 @@ public final class Config {
     /**
      * Maximum message size supported by the authenticator
      */
-    public static int MAX_MSG_SIZE = 1024;
+    public static int MAX_MSG_SIZE = 512;
 
     /**
      * Option: platform device

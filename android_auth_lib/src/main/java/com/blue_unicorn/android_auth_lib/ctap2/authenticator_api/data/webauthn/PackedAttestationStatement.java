@@ -2,6 +2,9 @@ package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn;
 
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.Config;
 import com.google.gson.annotations.SerializedName;
+import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
+
+import java.util.Arrays;
 
 /**
  * See <a href="https://www.w3.org/TR/webauthn/#packed-attestation">reference</a>
@@ -43,4 +46,12 @@ public class PackedAttestationStatement implements AttestationStatement {
         this.x5c = x5c;
     }
 
+    @Override
+    public String toString() {
+        return "PackedAttestationStatement{" +
+                "alg=" + alg +
+                ", sig=" + ValueUtil.bytesToHex(sig) +
+                ", x5c=" + Arrays.toString(x5c) +
+                '}';
+    }
 }

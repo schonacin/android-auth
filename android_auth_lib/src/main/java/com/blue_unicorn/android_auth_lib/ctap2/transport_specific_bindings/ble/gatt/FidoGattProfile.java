@@ -70,8 +70,9 @@ public final class FidoGattProfile {
 
     private void createFidoGattServer(@NonNull Context context) {
         gattServer = RxBleServerProvider.createServer(context);
-        gattServer.addService(createFidoService()).blockingAwait();
-        gattServer.addService(createDeviceInformationService()).blockingAwait();
+        gattServer.addService(createDeviceInformationService())
+                .andThen(gattServer.addService(createFidoService()))
+                .blockingAwait();
     }
 
     private RxBleService createFidoService() {
@@ -102,6 +103,9 @@ public final class FidoGattProfile {
                 .allowMitmProtectedEncryptedRead()
                 .allowEncryptedRead()
                 .allowRead()
+                .allowWrite()
+                .supportWrites()
+                .supportWritesWithoutResponse()
                 .supportNotifications()
                 .build();
 
@@ -110,8 +114,9 @@ public final class FidoGattProfile {
 
     // TODO: set and update FidoControlPointLength depending on att_mtu
     private RxBleCharacteristic createFidoControlPointLengthCharacteristic() {
+        char mMTU = 20;
         fidoControlPointLengthCharacteristic = new CharacteristicBuilder(FIDO_CONTROL_POINT_LENGTH_CHARACTERISTIC_UUID)
-                .withInitialValue(new BaseValue(ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(20).array()))
+                .withInitialValue(new BaseValue(ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).putChar(mMTU).array()))
                 .allowMitmProtectedEncryptedRead()
                 .allowEncryptedRead()
                 .allowRead()

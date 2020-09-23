@@ -13,6 +13,7 @@ public abstract class StatusCodeException extends Exception {
 
     private int errorCode;
 
+    // TODO: think of better name
     public StatusCodeException(@StatusCode int errorCode) {
         this.errorCode = errorCode;
     }

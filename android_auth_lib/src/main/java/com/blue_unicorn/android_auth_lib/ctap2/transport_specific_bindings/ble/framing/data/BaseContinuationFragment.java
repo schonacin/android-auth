@@ -1,6 +1,7 @@
 package com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.framing.data;
 
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.exceptions.InvalidSequenceNumberException;
+import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -24,6 +25,11 @@ public class BaseContinuationFragment extends BaseFragment implements Continuati
 
         if (getSEQ() < 0)
             throw new InvalidSequenceNumberException("Invalid sequence number error: sequence number " + getSEQ() + " must be greater than zero");
+    }
+
+    @Override
+    public byte[] asBytes() {
+        return ArrayUtil.concatBytes(new byte[]{getSEQ()}, getDATA());
     }
 
     @Override
