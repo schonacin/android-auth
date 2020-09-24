@@ -12,7 +12,7 @@ import java.util.Map;
  * Represents the parameters for the authenticatorGetAssertion method.
  * See <a href="https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#authenticatorGetAssertion">specification</a>
  */
-public interface GetAssertionRequest extends RequestObject, Validatable {
+public interface GetAssertionRequest extends RequestObject, Approvable, Validatable {
 
     String getRpId();
 

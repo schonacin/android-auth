@@ -2,7 +2,6 @@ package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class BasePublicKeyCredentialDescriptor implements PublicKeyCredentialDescriptor {
@@ -42,17 +41,4 @@ public class BasePublicKeyCredentialDescriptor implements PublicKeyCredentialDes
         return transports;
     }
 
-    @Override
-    public String toString() {
-        String transportStrings = "";
-        for (String transport : transports)
-        {
-            transportStrings += transport + ", ";
-        }
-        return "BasePublicKeyCredentialDescriptor{" +
-                "type='" + type + '\'' +
-                ", id=" + Arrays.toString(id) +
-                ", transports=" + transportStrings +
-                '}';
-    }
 }

@@ -10,7 +10,6 @@ import com.upokecenter.cbor.CBOREncodeOptions;
 import com.upokecenter.cbor.CBORObject;
 
 import io.reactivex.rxjava3.core.Single;
-import timber.log.Timber;
 
 final class CommandBuilder {
 
@@ -44,7 +43,6 @@ final class CommandBuilder {
 
             CBORObject cborDecodedParameters = CBORObject.DecodeFromBytes(rawParameters, ENCODE_OPTIONS);
             String decodedParameters = cborDecodedParameters.ToJSONString();
-            Timber.d("Decoded Parameters from CBOR: %s", decodedParameters);
             return Single.just(decodedParameters);
         }).onErrorResumeNext(throwable -> Single.error(new InvalidParameterException(throwable)));
     }
