@@ -1,7 +1,6 @@
 package com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
@@ -23,16 +22,19 @@ public class BleHandler {
     private FidoGattProfile fidoGattProfile;
     private RxBleServer bleServer;
     private MutableLiveData<Throwable> errors;
+    private int mtu;
 
     public BleHandler(@NonNull Context context, MutableLiveData<Throwable> fidoAuthServiceErrors) {
         this.fidoGattProfile = new FidoGattProfile(context);
         this.bleServer = fidoGattProfile.getGattServer();
         this.errors = fidoAuthServiceErrors;
+        this.mtu = 20; // this is the default value on android (23 byte minus GATT overhead)
     }
 
     public void connect() {
         Timber.d("Triggering BLE advertising...");
-        bleServer.provideServicesAndAdvertise(FidoGattProfile.FIDO_SERVICE_UUID)
+        bleServer.observerClientMtu().subscribe(clientMtu -> mtu = clientMtu);
+        bleServer.provideServicesAndAdvertise(FidoGattProfile.FIDO_SERVICE_UUID, FidoGattProfile.DEVICE_INFORMATION_SERVICE_UUID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> {
@@ -71,9 +73,8 @@ public class BleHandler {
         }).blockingAwait();
     }
 
-    // TODO: make this dynamic, as client can change the MTU
     public int getMtu() {
-        return 20;
+        return mtu;
     }
 
     private void postError(@NonNull Throwable throwable) {

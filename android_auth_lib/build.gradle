@@ -54,7 +54,7 @@ dependencies {
 
     implementation 'com.github.neXenio:RxKeyStore:dev-SNAPSHOT'
     implementation 'io.reactivex.rxjava3:rxjava:3.0.3'
-    implementation 'com.github.Nivador:RxAndroidBleServer:0.1.1'
+    implementation 'com.github.Nivador:RxAndroidBleServer:0.1.6'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
 
     implementation 'com.jakewharton.timber:timber:4.7.1'
