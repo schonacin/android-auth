@@ -2,6 +2,7 @@ package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api;
 
 import android.content.Context;
 
+import com.blue_unicorn.android_auth_lib.android.constants.LogIdentifier;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.FidoObject;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.GetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.GetInfoRequest;
@@ -28,11 +29,14 @@ public class BaseAPIHandler implements APIHandler {
         return Single.defer(() -> {
             if (request instanceof MakeCredentialRequest) {
                 Timber.d("Call API for makeCrendential");
+                Timber.d("%s: %s", LogIdentifier.DIAG, "MAKE_CREDENTIAL");
                 return api.makeCredential((MakeCredentialRequest) request);
             } else if (request instanceof GetAssertionRequest) {
                 Timber.d("Call API for getAssertion");
+                Timber.d("%s: %s", LogIdentifier.DIAG, "GET_ASSERTION");
                 return api.getAssertion((GetAssertionRequest) request);
             } else if (request instanceof GetInfoRequest) {
+                Timber.d("%s: %s", LogIdentifier.DIAG, "GET_INFO");
                 Timber.d("Call API for getInfo");
                 // start sending keep alives with processing status
                 return api.getInfo((GetInfoRequest) request);

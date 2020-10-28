@@ -16,6 +16,7 @@ import com.blue_unicorn.android_auth_lib.android.authentication.BaseBiometricAut
 import com.blue_unicorn.android_auth_lib.android.authentication.BiometricAuth;
 import com.blue_unicorn.android_auth_lib.android.constants.AuthenticationMethod;
 import com.blue_unicorn.android_auth_lib.android.constants.IntentAction;
+import com.blue_unicorn.android_auth_lib.android.constants.LogIdentifier;
 import com.blue_unicorn.android_auth_lib.android.constants.UserAction;
 import com.blue_unicorn.android_auth_lib.android.constants.UserPreference;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.APIHandler;
@@ -67,15 +68,20 @@ public class BaseAPILayer implements APILayer {
                 Timber.d("Got Result from API Call: %s", result.getClass().getCanonicalName());
                 if (result instanceof ResponseObject) {
                     Timber.d("\tis response, directly return without user interaction");
+                    Timber.d("%s, %s", LogIdentifier.DIAG, LogIdentifier.STOP_OPERATION);
                     buildResponseChainWithoutUserInteraction((ResponseObject) result);
                 } else {
                     Timber.d("\tis still request, handle respective user action!");
+                    Timber.d("%s, %s", LogIdentifier.DIAG, LogIdentifier.START_USER_INTERACTION);
                     handleUserAction((RequestObject) result);
                 }
             }
         };
 
+        Timber.d("%s: %s", LogIdentifier.DIAG, LogIdentifier.START_DECODE);
         cborHandler.decode(input)
+                .doOnSuccess(res -> Timber.d("%s: %s", LogIdentifier.DIAG, LogIdentifier.STOP_DECODE))
+                .doOnSuccess(res -> Timber.d("%s: %s", LogIdentifier.DIAG, LogIdentifier.START_OPERATION))
                 .flatMap(apiHandler::callAPI)
                 .subscribe(apiSubscriber);
     }
@@ -159,6 +165,7 @@ public class BaseAPILayer implements APILayer {
         // this chain is called after the user has interacted with the device
         // this function can be called from outside, i. e. a new intent on a service
         Timber.d("Building new Response Chain with approval: %b", isApproved);
+        Timber.d("%s, %s", LogIdentifier.DIAG, LogIdentifier.STOP_USER_INTERACTION);
         RequestObject requestInstance = getRequest();
         if (requestInstance == null) {
             authHandler.getNotificationHandler().notifyFailure();
@@ -168,9 +175,13 @@ public class BaseAPILayer implements APILayer {
 
         requestInstance.setApproved(isApproved);
         apiHandler.updateAPI(requestInstance)
+                .doOnSuccess(res -> Timber.d("%s, %s", LogIdentifier.DIAG, LogIdentifier.STOP_OPERATION))
+                .doOnSuccess(res -> Timber.d("%s, %s", LogIdentifier.DIAG, LogIdentifier.START_ENCODE))
                 .flatMap(cborHandler::encode)
+                .doOnSuccess(res -> Timber.d("%s, %s", LogIdentifier.DIAG, LogIdentifier.STOP_ENCODE))
                 .map(BaseFrame::new)
                 .cast(Frame.class)
+                .doOnSuccess(res -> Timber.d("%s, %s", LogIdentifier.DIAG, LogIdentifier.START_FRAG))
                 .flatMapPublisher(frame -> fragmentationProvider.fragment(Single.just(frame), authHandler.getBleHandler().getMtu()))
                 .map(Fragment::asBytes)
                 .doOnError(throwable -> Timber.d(throwable, "Something went wrong during update of api"))

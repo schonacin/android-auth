@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
+import com.blue_unicorn.android_auth_lib.android.constants.LogIdentifier;
 import com.blue_unicorn.android_auth_lib.ctap2.transport_specific_bindings.ble.gatt.FidoGattProfile;
 import com.nexenio.rxandroidbleserver.RxBleServer;
 import com.nexenio.rxandroidbleserver.client.RxBleClient;
@@ -33,6 +34,7 @@ public class BleHandler {
 
     public void connect() {
         Timber.d("Triggering BLE advertising...");
+        Timber.d("%s: %s", LogIdentifier.DIAG, LogIdentifier.START_BLUETOOTH_ADV);
         bleServer.observerClientMtu().subscribe(clientMtu -> mtu = clientMtu);
         bleServer.provideServicesAndAdvertise(FidoGattProfile.FIDO_SERVICE_UUID, FidoGattProfile.DEVICE_INFORMATION_SERVICE_UUID)
                 .subscribeOn(Schedulers.io())
@@ -43,6 +45,7 @@ public class BleHandler {
 
     public void disconnect() {
         Timber.d("Disconnecting clients from server..");
+        Timber.d("%s: %s", LogIdentifier.DIAG, LogIdentifier.STOP_BLUETOOTH_ADV);
         for (RxBleClient client : bleServer.getClients()) {
             Timber.d("\tdisconnect client %s", client.getBluetoothDevice().getAddress());
             bleServer.disconnect(client);
@@ -64,13 +67,9 @@ public class BleHandler {
 
     public void sendBleData(byte[] data) {
         Timber.d("Write response of length %d to status characteristic", data.length);
-        fidoGattProfile.getFidoStatusCharacteristic().setValue(new BaseValue(data)).doOnError(throwable -> {
-            Timber.d(throwable, "Something went wrong");
-        }).blockingAwait();
+        fidoGattProfile.getFidoStatusCharacteristic().setValue(new BaseValue(data)).doOnError(throwable -> Timber.d(throwable, "Something went wrong")).blockingAwait();
         Timber.d("\tGet Status Characteristic to send notification");
-        fidoGattProfile.getFidoStatusCharacteristic().sendNotifications().doOnError(throwable -> {
-            Timber.d(throwable, "Something went wrong");
-        }).blockingAwait();
+        fidoGattProfile.getFidoStatusCharacteristic().sendNotifications().doOnError(throwable -> Timber.d(throwable, "Something went wrong")).blockingAwait();
     }
 
     public int getMtu() {

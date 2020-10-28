@@ -2,6 +2,7 @@ package com.blue_unicorn.android_auth_lib.android.layers;
 
 import com.blue_unicorn.android_auth_lib.android.AuthHandler;
 import com.blue_unicorn.android_auth_lib.android.AuthSubscriber;
+import com.blue_unicorn.android_auth_lib.android.constants.LogIdentifier;
 import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
 
 import org.reactivestreams.Subscriber;
@@ -51,6 +52,7 @@ public class BaseResponseLayer implements ResponseLayer {
                 // fragments are sent back to bluetooth either via call here
                 Timber.d("Sent response of length %d", response.length);
                 Timber.d("\t content: 0x%s", ValueUtil.bytesToHex(response));
+                Timber.d("%s: %s", LogIdentifier.DIAG, LogIdentifier.SENDING_FRAME);
                 authHandler.getBleHandler().sendBleData(response);
                 // OR via another Flowable with a Subject.
                 subject.onNext(response);
@@ -61,6 +63,7 @@ public class BaseResponseLayer implements ResponseLayer {
             public void onComplete() {
                 // this is called whenever a response chain ends.
                 // Could be used for Keep Alive Purposes??
+                Timber.d("%s: %s", LogIdentifier.DIAG, LogIdentifier.STOP_FRAG);
             }
         };
         return responseSubscriber;
