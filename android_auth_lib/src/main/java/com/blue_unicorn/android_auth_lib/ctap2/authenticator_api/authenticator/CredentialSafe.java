@@ -10,13 +10,10 @@ import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
 import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
 import com.nexenio.rxkeystore.RxKeyStore;
 import com.nexenio.rxkeystore.provider.asymmetric.ec.RxECCryptoProvider;
-import com.upokecenter.cbor.CBORObject;
 
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.interfaces.ECPublicKey;
-import java.security.spec.ECPoint;
 import java.util.Arrays;
 
 import io.reactivex.rxjava3.core.Completable;

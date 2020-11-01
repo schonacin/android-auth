@@ -52,7 +52,7 @@ dependencies {
     implementation 'com.upokecenter:cbor:4.1.0'
     implementation 'com.google.code.gson:gson:2.8.6'
 
-    implementation 'com.github.neXenio:RxKeyStore:dev-SNAPSHOT'
+    implementation 'com.github.neXenio:RxKeyStore:master-SNAPSHOT'
     implementation 'io.reactivex.rxjava3:rxjava:3.0.3'
     implementation 'com.github.Nivador:RxAndroidBleServer:0.1.6'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
