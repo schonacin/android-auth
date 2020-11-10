@@ -9,7 +9,9 @@ import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.d
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
 import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
 import com.nexenio.rxkeystore.RxKeyStore;
-import com.nexenio.rxkeystore.provider.asymmetric.ec.RxECCryptoProvider;
+import com.nexenio.rxkeystore.provider.cipher.asymmetric.ec.EcCipherProvider;
+import com.nexenio.rxkeystore.provider.signature.BaseSignatureProvider;
+import com.nexenio.rxkeystore.provider.signature.RxSignatureProvider;
 
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -29,14 +31,16 @@ public class CredentialSafe {
 
     private static final String KEYSTORE_TYPE = "AndroidKeyStore";
     private RxKeyStore rxKeyStore;
-    private RxECCryptoProvider rxCryptoProvider;
+    private EcCipherProvider ecCipherProvider;
+    private RxSignatureProvider rxSignatureProvider;
     private boolean authenticationRequired;
     private CredentialDatabase db;
     private Context context;
 
     public CredentialSafe(Context context, boolean authenticationRequired) {
         this.rxKeyStore = new RxKeyStore(KEYSTORE_TYPE);
-        this.rxCryptoProvider = new RxECCryptoProvider(this.rxKeyStore);
+        this.ecCipherProvider = new EcCipherProvider(this.rxKeyStore);
+        this.rxSignatureProvider = new BaseSignatureProvider(this.rxKeyStore, "SHA256withECDSA");
         this.authenticationRequired = authenticationRequired;
         this.context = context;
     }
@@ -49,8 +53,12 @@ public class CredentialSafe {
         return this.rxKeyStore;
     }
 
-    RxECCryptoProvider getRxCryptoProvider() {
-        return this.rxCryptoProvider;
+    EcCipherProvider getRxCryptoProvider() {
+        return this.ecCipherProvider;
+    }
+
+    public RxSignatureProvider getRxSignatureProvider() {
+        return rxSignatureProvider;
     }
 
     private Single<CredentialDatabase> getInitializedDatabase() {
@@ -63,8 +71,8 @@ public class CredentialSafe {
     }
 
     private Completable generateNewES256KeyPair(String alias) {
-        return rxCryptoProvider.generateKeyPair(alias, context)
-                .flatMapCompletable(keyPair -> rxCryptoProvider.setKeyPair(alias, keyPair))
+        return ecCipherProvider.generateKeyPair(alias, context)
+                .flatMapCompletable(keyPair -> ecCipherProvider.setKeyPair(alias, keyPair))
                 .onErrorResumeNext(throwable -> Completable.error(new AuthLibException("couldn't generate key pair!", throwable)));
     }
 
@@ -116,17 +124,17 @@ public class CredentialSafe {
     }
 
     public Single<PublicKey> getPublicKeyByAlias(@NonNull String alias) {
-        return rxCryptoProvider.getPublicKey(alias)
+        return ecCipherProvider.getPublicKey(alias)
                 .onErrorResumeNext(throwable -> Single.error(new AuthLibException("couldn't get public key by alias", throwable)));
     }
 
     public Single<PrivateKey> getPrivateKeyByAlias(@NonNull String alias) {
-        return rxCryptoProvider.getPrivateKey(alias)
+        return ecCipherProvider.getPrivateKey(alias)
                 .onErrorResumeNext(throwable -> Single.error(new AuthLibException("couldn't get private key by alias", throwable)));
     }
 
     public Single<KeyPair> getKeyPairByAlias(@NonNull String alias) {
-        return rxCryptoProvider.getKeyPair(alias)
+        return ecCipherProvider.getKeyPair(alias)
                 .onErrorResumeNext(throwable -> Single.error(new AuthLibException("couldn't get key pair by alias", throwable)));
     }
 

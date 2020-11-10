@@ -15,7 +15,7 @@ import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.Operation
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.UnsupportedAlgorithmException;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
-import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
+import com.nexenio.rxkeystore.provider.signature.RxSignatureProvider;
 
 import java.security.PrivateKey;
 import java.util.Map;
@@ -32,7 +32,7 @@ import timber.log.Timber;
 public class MakeCredential {
 
     private CredentialSafe credentialSafe;
-    private RxAsymmetricCryptoProvider rxCryptoProvider;
+    private RxSignatureProvider rxSignatureProvider;
     private MakeCredentialRequest request;
     private AuthenticatorHelper helper;
     private Single<PublicKeyCredentialSource> generatedCredential;
@@ -40,7 +40,7 @@ public class MakeCredential {
 
     public MakeCredential(CredentialSafe credentialSafe, MakeCredentialRequest request) {
         this.credentialSafe = credentialSafe;
-        this.rxCryptoProvider = this.credentialSafe.getRxCryptoProvider();
+        this.rxSignatureProvider = this.credentialSafe.getRxSignatureProvider();
         this.request = request;
         this.helper = new AuthenticatorHelper(this.credentialSafe);
     }
@@ -177,7 +177,7 @@ public class MakeCredential {
                     .map(PublicKeyCredentialSource::getKeyPairAlias)
                     .flatMap(credentialSafe::getPrivateKeyByAlias);
 
-            return Single.zip(dataToSign, privateKey, rxCryptoProvider::sign)
+            return Single.zip(dataToSign, privateKey, rxSignatureProvider::sign)
                     .flatMap(x -> x);
         });
     }
@@ -187,7 +187,7 @@ public class MakeCredential {
                 .map(PackedAttestationStatement::new);
     }
 
-    private Single<MakeCredentialResponse>  constructResponse() {
+    private Single<MakeCredentialResponse> constructResponse() {
         Single<byte[]> authenticatorData = getAuthenticatorData();
         Single<AttestationStatement> attestationStatementSingle = constructAttestationStatement();
 
