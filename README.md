@@ -14,7 +14,7 @@ For general information on compatibility of different operating systems, browser
 We successfully tested the Android authenticator with an up-to-date Firefox on Windows 10. For other setups we cannot guarantee that it works (mostly due to bluetooth related issues) and even the tested setup might not work in the future due to changes by Mozilla or Microsoft in their products.
 
 ## Usage
-We implement an Android service called ```FidoAuthService``` that encapsulates the behavior described by the CTAP2 specification. If the app using this service checks for user approval (e.g. via button press or using a fingerprint reader), this can be done by reacting to an intend coming from the service. See the ["fidonuous_demo_app" branch](https://github.com/schonacin/android-auth/tree/fidonuous_demo_app) for an example.
+We implement an Android service called ```FidoAuthService``` that encapsulates the behavior described by the CTAP2 specification. If the app using this service checks for user approval (e.g. via button press or using a fingerprint reader), this can be done by reacting to an intent coming from the service. See the ["fidonuous_demo_app" branch](https://github.com/schonacin/android-auth/tree/fidonuous_demo_app) for an example.
 For an overview on the library architecture and the general data flow, see [this wiki page](https://github.com/schonacin/android-auth/wiki/CTAP2-Flow-visualization).
 
 ## Citation
