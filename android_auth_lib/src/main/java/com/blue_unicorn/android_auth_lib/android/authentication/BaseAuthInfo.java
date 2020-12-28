@@ -51,7 +51,7 @@ public class BaseAuthInfo implements AuthInfo {
         return user;
     }
 
-    public int getMethod() {
+    public @AuthenticatorAPIMethod int getMethod() {
         return method;
     }
 }
