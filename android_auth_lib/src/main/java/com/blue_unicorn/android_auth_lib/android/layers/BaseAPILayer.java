@@ -73,7 +73,7 @@ public class BaseAPILayer implements APILayer {
                 } else {
                     Timber.d("\tis still request, handle respective user action!");
                     Timber.d("%s, %s", LogIdentifier.DIAG, LogIdentifier.START_USER_INTERACTION);
-                    handleUserAction((RequestObject) result);
+                    handleIntermediate((RequestObject) result);
                 }
             }
         };
@@ -110,7 +110,7 @@ public class BaseAPILayer implements APILayer {
         return true;
     }
 
-    private void handleUserAction(RequestObject request) {
+    private void handleIntermediate(RequestObject request) {
         Timber.d("Handle user interaction");
         if (!setNewRequest(request)) {
             return;
@@ -161,7 +161,7 @@ public class BaseAPILayer implements APILayer {
                 .subscribe(authHandler.getResponseLayer().getResponseSubscriber());
     }
 
-    public void buildResponseChainAfterUserInteraction(boolean isApproved) {
+    public void updateAfterUserInteraction(boolean isApproved) {
         // this chain is called after the user has interacted with the device
         // this function can be called from outside, i. e. a new intent on a service
         Timber.d("Building new Response Chain with approval: %b", isApproved);
@@ -190,7 +190,7 @@ public class BaseAPILayer implements APILayer {
 
     private void buildNotification(RequestObject request, boolean authenticationRequired) {
         // builds a notification with info on username/ Website
-        // acceptance of notification should call buildResponseChainAfterUserInteraction()/
+        // acceptance of notification should call updateAfterUserInteraction()/
         // performAuthentication() based on the input parameter
         authHandler.getNotificationHandler().requestApproval(new BaseAuthInfo(request), authenticationRequired);
     }
@@ -205,7 +205,7 @@ public class BaseAPILayer implements APILayer {
         AuthenticationAPICallback authenticationCallback = new AuthenticationAPICallback() {
             @Override
             public void handleAuthentication(boolean authenticated) {
-                buildResponseChainAfterUserInteraction(authenticated);
+                updateAfterUserInteraction(authenticated);
             }
 
             @Override
@@ -243,6 +243,6 @@ public class BaseAPILayer implements APILayer {
     private void proceedWithoutUserInteraction() {
         // this case should probably be non existent and might be removed later
         // Might be nice for testing purposes however
-        buildResponseChainAfterUserInteraction(true);
+        updateAfterUserInteraction(true);
     }
 }
