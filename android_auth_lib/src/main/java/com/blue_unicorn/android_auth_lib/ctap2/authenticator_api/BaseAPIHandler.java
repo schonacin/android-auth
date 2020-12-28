@@ -1,7 +1,10 @@
 package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
+import com.blue_unicorn.android_auth_lib.android.constants.UserPreference;
 import com.blue_unicorn.android_auth_lib.android.constants.LogIdentifier;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.FidoObject;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.GetAssertionRequest;
@@ -20,9 +23,11 @@ import timber.log.Timber;
 public class BaseAPIHandler implements APIHandler {
 
     private AuthenticatorAPI api;
+    private Context context;
 
     public BaseAPIHandler(Context context) {
         this.api = new BaseAuthenticatorAPI(context, true);
+        this.context = context;
     }
 
     public Single<FidoObject> callAPI(RequestObject request) {
@@ -39,7 +44,13 @@ public class BaseAPIHandler implements APIHandler {
                 Timber.d("%s: %s", LogIdentifier.DIAG, "GET_INFO");
                 Timber.d("Call API for getInfo");
                 // start sending keep alives with processing status
-                return api.getInfo((GetInfoRequest) request);
+                // check for extension support if wanted
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+                if (sharedPreferences.getBoolean(UserPreference.CONTINUOUS_AUTHENTICATION_SUPPORT, true)) {
+                    return api.getInfoSetupExtension((GetInfoRequest) request);
+                } else {
+                    return api.getInfo((GetInfoRequest) request);
+                }
             } else {
                 return Single.error(new AuthLibException("invalid request object for calling api"));
             }
@@ -52,6 +63,8 @@ public class BaseAPIHandler implements APIHandler {
                 return api.makeInternalCredential((MakeCredentialRequest) request);
             } else if (request instanceof GetAssertionRequest) {
                 return api.getInternalAssertion((GetAssertionRequest) request);
+            } else if (request instanceof GetInfoRequest) {
+                return api.getInfo((GetInfoRequest) request);
             } else {
                 return Single.error(new AuthLibException("invalid request object for updating api"));
             }

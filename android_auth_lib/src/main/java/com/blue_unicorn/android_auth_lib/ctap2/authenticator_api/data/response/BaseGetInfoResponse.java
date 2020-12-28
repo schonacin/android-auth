@@ -13,6 +13,9 @@ public class BaseGetInfoResponse implements GetInfoResponse {
     @SerializedIndex(1)
     private String[] versions;
 
+    @SerializedIndex(2)
+    private String[] extensions;
+
     @SerializedIndex(3)
     private byte[] aaguid;
 
@@ -27,7 +30,12 @@ public class BaseGetInfoResponse implements GetInfoResponse {
     }
 
     public BaseGetInfoResponse(String[] versions, byte[] aaguid, Map<String, Boolean> options, Integer maxMsgSize) {
+        this(versions, null, aaguid, options, maxMsgSize);
+    }
+
+    public BaseGetInfoResponse(String[] versions, String[] extensions, byte[] aaguid, Map<String, Boolean> options, Integer maxMsgSize) {
         this.versions = versions;
+        this.extensions = extensions;
         this.aaguid = aaguid;
         this.options = options;
         this.maxMsgSize = maxMsgSize;
@@ -35,6 +43,10 @@ public class BaseGetInfoResponse implements GetInfoResponse {
 
     public void setVersions(String[] versions) {
         this.versions = versions;
+    }
+
+    public void setExtensions(String[] extensions) {
+        this.extensions = extensions;
     }
 
     public void setAaguid(byte[] aaguid) {

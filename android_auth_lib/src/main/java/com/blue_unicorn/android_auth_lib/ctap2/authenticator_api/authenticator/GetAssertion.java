@@ -1,5 +1,6 @@
 package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator;
 
+import com.blue_unicorn.android_auth_lib.android.constants.ExtensionValue;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.database.PublicKeyCredentialSource;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.GetAssertionRequest;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseGetAssertionResponse;
@@ -13,12 +14,14 @@ import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidOp
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.MissingParameterException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.NoCredentialsException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.OperationDeniedException;
+import com.blue_unicorn.android_auth_lib.ctap2.message_encoding.CborSerializer;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
 import com.nexenio.rxkeystore.provider.signature.RxSignatureProvider;
 
 import java.security.PrivateKey;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import io.reactivex.rxjava3.core.Completable;
@@ -53,6 +56,7 @@ public class GetAssertion {
         return validate()
                 .andThen(this.checkForCredentials())
                 .andThen(this.checkOptions())
+                .andThen(this.handleExtensions())
                 .andThen(Single.just(request));
     }
 
@@ -125,6 +129,24 @@ public class GetAssertion {
         });
     }
 
+    private Completable handleExtensions() {
+        return Completable.defer(() -> {
+            if (request.getExtensions() == null) {
+                return Completable.complete();
+            } else {
+                return Single.just(request.getExtensions())
+                        .map(Map::keySet)
+                        .flatMapPublisher(Flowable::fromIterable)
+                        .flatMapCompletable(key -> {
+                            if (key.equals(ExtensionValue.CONTINUOUS_AUTHENTICATION)) {
+                                request.setContinuousFreshness(request.getExtensions().get(ExtensionValue.CONTINUOUS_AUTHENTICATION));
+                            }
+                            return Completable.complete();
+                        });
+            }
+        });
+    }
+
     private Completable handleUserApproval() {
         return Completable.defer(() -> {
             if (!request.isApproved()) {
@@ -166,12 +188,30 @@ public class GetAssertion {
                 .map(BasePublicKeyCredentialUserEntity::new);
     }
 
+    private Single<byte[]> constructExtensionField() {
+        return Single.defer(() -> {
+            if (request.getContinuousFreshness() == null) {
+                return Single.just(new byte[]{});
+            } else {
+                Map<String, Integer> extensions = new HashMap<>();
+                extensions.put(ExtensionValue.CONTINUOUS_AUTHENTICATION, request.getContinuousFreshness());
+                return Single.just(extensions)
+                        .flatMap(CborSerializer::serializeOther);
+            }
+        });
+    }
+
+    private Single<byte[]> constructAttestedCredentialData() {
+        // empty in getAssertion
+        return Single.fromCallable(() -> new byte[]{});
+    }
+
     private Single<byte[]> getAuthenticatorData() {
         return Single.defer(() -> {
             if (this.authenticatorData == null) {
                 this.authenticatorData =
-                        AuthenticatorHelper.hashSha256(request.getRpId())
-                                .flatMap(rpIdHash -> helper.constructAuthenticatorData(rpIdHash, null))
+                        Single.zip(AuthenticatorHelper.hashSha256(request.getRpId()), constructAttestedCredentialData(), constructExtensionField(), helper::constructAuthenticatorData)
+                                .flatMap(x -> x)
                                 .cache();
             }
             return this.authenticatorData;

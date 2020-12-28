@@ -10,6 +10,8 @@ public interface GetInfoResponse extends ResponseObject {
 
     void setVersions(String[] versions);
 
+    void setExtensions(String[] extensions);
+
     void setAaguid(byte[] aaguid);
 
     void setOptions(Map<String, Boolean> options);

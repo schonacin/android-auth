@@ -10,7 +10,8 @@ public class BaseAuthInfo implements AuthInfo {
     private String title;
     private String rp;
     private String user;
-    private @AuthenticatorAPIMethod int method;
+    private @AuthenticatorAPIMethod
+    int method;
 
     public BaseAuthInfo(RequestObject requestObject) {
         if (requestObject instanceof MakeCredentialRequest) {
@@ -21,7 +22,11 @@ public class BaseAuthInfo implements AuthInfo {
             this.method = AuthenticatorAPIMethod.MAKE_CREDENTIAL;
         } else if (requestObject instanceof GetAssertionRequest) {
             GetAssertionRequest getAssertionRequest = (GetAssertionRequest) requestObject;
-            this.title = "Authentication Needs Approval!";
+            if (getAssertionRequest.getContinuousFreshness() != null) {
+                this.title = "Continuous Authentication Needs Approval!";
+            } else {
+                this.title = "Authentication Needs Approval!";
+            }
             this.rp = getAssertionRequest.getRpId();
             this.user = null;
             this.method = AuthenticatorAPIMethod.GET_ASSERTION;
@@ -51,7 +56,8 @@ public class BaseAuthInfo implements AuthInfo {
         return user;
     }
 
-    public int getMethod() {
+    public @AuthenticatorAPIMethod
+    int getMethod() {
         return method;
     }
 }

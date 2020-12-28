@@ -76,6 +76,10 @@ public class BleHandler {
         return mtu;
     }
 
+    public void setMtu(int mtu) {
+        this.mtu = mtu;
+    }
+
     private void postError(@NonNull Throwable throwable) {
         Timber.w(throwable, "Something went wrong!");
         errors.postValue(throwable);

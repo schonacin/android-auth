@@ -25,10 +25,15 @@ public class BaseGetAssertionRequest implements GetAssertionRequest {
     @SerializedName("3")
     private List<BasePublicKeyCredentialDescriptor> allowList;
 
+    @SerializedName("4")
+    private Map<String, Integer> extensions;
+
     @SerializedName("5")
     private Map<String, Boolean> options;
 
     private boolean approved;
+
+    private Integer continuousFreshness;
 
     private List<PublicKeyCredentialSource> selectedCredentials;
 
@@ -60,6 +65,10 @@ public class BaseGetAssertionRequest implements GetAssertionRequest {
         return allowList;
     }
 
+    public Map<String, Integer> getExtensions() {
+        return extensions;
+    }
+
     public Map<String, Boolean> getOptions() {
         return options;
     }
@@ -68,4 +77,12 @@ public class BaseGetAssertionRequest implements GetAssertionRequest {
         return (rpId != null && clientDataHash != null);
     }
 
+    @Override
+    public Integer getContinuousFreshness() {
+        return continuousFreshness;
+    }
+
+    public void setContinuousFreshness(Integer continuousFreshness) {
+        this.continuousFreshness = continuousFreshness;
+    }
 }

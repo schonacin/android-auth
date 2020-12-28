@@ -51,6 +51,8 @@ public class BaseAPIHandlerTest {
 
     private static final byte[] RAW_GET_ASSERTION_REQUEST_WITH_INVALID_OPTION = Base64.decode("AqQBa2V4YW1wbGUuY29tAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEDgqJiaWRYQPIgBt5PkFr2ikOULwJPKl7OYD2cbUs9+L4I7QH8RCZG0DSFisdb7T/VgL+YCNlPy+6CubLvZnevCtzDWFLqa55kdHlwZWpwdWJsaWMta2V5omJpZFgyAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNkdHlwZWpwdWJsaWMta2V5BaJidXb1ZHBsYXT0", Base64.DEFAULT);
 
+    private static final byte[] RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER = Base64.decode("AqUBa3dlYmF1dGhuLmlvAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEDgqJiaWRYQPIgBt5PkFr2ikOULwJPKl7OYD2cbUs9+L4I7QH8RCZG0DSFisdb7T/VgL+YCNlPy+6CubLvZnevCtzDWFLqa55kdHlwZWpwdWJsaWMta2V5omJpZFgyAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNkdHlwZWpwdWJsaWMta2V5BKF4GWNvbnRpbnVvdXNfYXV0aGVudGljYXRpb24ZJxAFoWJ1dvU=", Base64.DEFAULT);
+
     private CborHandler cborHandler;
     private APIHandler apiHandler;
     private CredentialSafe credentialSafe;
@@ -166,6 +168,22 @@ public class BaseAPIHandlerTest {
                 .cast(GetAssertionResponse.class);
     }
 
+    private Single<GetAssertionResponse> completeGetAssertionWithCredentials(byte[] request) {
+        return completeMakeCredential(RAW_MAKE_CREDENTIAL_REQUEST)
+                .flatMap(res -> initiateGetAssertion(request))
+                .flatMap(getAssertionRequest -> credentialSafe.getRxKeyStore().getAliases()
+                        .flatMapSingle(this.credentialSafe::getCredentialSourceByAlias)
+                        .toList()
+                        .flatMap(credentials -> {
+                            // small hack to emulate a request with correct credential
+                            getAssertionRequest.setSelectedCredentials(credentials);
+                            getAssertionRequest.setApproved(true);
+                            return Single.just(getAssertionRequest);
+                        }))
+                .flatMap(apiHandler::updateAPI)
+                .cast(GetAssertionResponse.class);
+    }
+
     @Test
     public void getAssertion_throwsNoCredentialsExceptionIfNoCredentialsAreAvailable() {
         completeGetAssertion(RAW_GET_ASSERTION_REQUEST)
@@ -196,20 +214,16 @@ public class BaseAPIHandlerTest {
 
     @Test
     public void getAssertion_goesThroughAPI() {
-        completeMakeCredential(RAW_MAKE_CREDENTIAL_REQUEST)
-                .flatMap(res -> initiateGetAssertion(RAW_GET_ASSERTION_REQUEST))
-                .flatMap(getAssertionRequest -> credentialSafe.getRxKeyStore().getAliases()
-                        .flatMapSingle(this.credentialSafe::getCredentialSourceByAlias)
-                        .toList()
-                        .flatMap(credentials -> {
-                            // small hack to emulate a request with correct credential
-                            getAssertionRequest.setSelectedCredentials(credentials);
-                            getAssertionRequest.setApproved(true);
-                            return Single.just(getAssertionRequest);
-                        }))
-                .flatMap(apiHandler::updateAPI)
+        completeGetAssertionWithCredentials(RAW_GET_ASSERTION_REQUEST)
                 .test()
                 .assertNoErrors()
+                .assertValueCount(1);
+    }
+
+    @Test
+    public void getAssertionWithExtension_goesThroughAPI() {
+        completeGetAssertionWithCredentials(RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER)
+                .test()
                 .assertValueCount(1);
     }
 

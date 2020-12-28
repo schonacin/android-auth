@@ -45,6 +45,11 @@ public class CredentialSafe {
         this.context = context;
     }
 
+    public void resetKeystore() {
+        this.getRxKeyStore().deleteAllEntries()
+                .andThen(this.deleteAllCredentials()).blockingAwait();
+    }
+
     boolean supportsUserVerification() {
         return this.authenticationRequired;
     }

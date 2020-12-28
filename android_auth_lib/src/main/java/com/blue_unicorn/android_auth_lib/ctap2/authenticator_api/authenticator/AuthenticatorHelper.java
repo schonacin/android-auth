@@ -98,7 +98,7 @@ final class AuthenticatorHelper {
                 });
     }
 
-    Single<byte[]> constructAuthenticatorData(byte[] rpIdHash, byte[] attestedCredentialData) {
+    Single<byte[]> constructAuthenticatorData(byte[] rpIdHash, byte[] attestedCredentialData, byte[] extensionField) {
         return Single.defer(() -> {
             if (rpIdHash.length != 32) {
                 return Single.error(new AuthLibException("rpIdHash must be a 32-byte SHA-256 hash"));
@@ -109,19 +109,26 @@ final class AuthenticatorHelper {
             if (this.credentialSafe.supportsUserVerification()) {
                 flags |= (0x01 << 2); // user verified
             }
-            if (attestedCredentialData != null) {
+            if (attestedCredentialData != null && attestedCredentialData.length > 0) {
                 flags |= (0x01 << 6); // attested credential data included
+            }
+            if(extensionField != null && extensionField.length > 0) {
+                flags |= (0x01 << 7); // extensions included
             }
 
             // 32-byte hash + 1-byte flags + 4 bytes signCount = 37 bytes
             ByteBuffer authData = ByteBuffer.allocate(37 +
-                    (attestedCredentialData == null ? 0 : attestedCredentialData.length));
+                    (attestedCredentialData == null ? 0 : attestedCredentialData.length) +
+                    (extensionField == null ? 0 : extensionField.length));
 
             authData.put(rpIdHash);
             authData.put(flags);
             authData.putInt(0);
             if (attestedCredentialData != null) {
                 authData.put(attestedCredentialData);
+            }
+            if (extensionField != null) {
+                authData.put(extensionField);
             }
             return Single.just(authData.array());
         });

@@ -14,5 +14,4 @@ public interface ResponseLayer {
     Subscriber<byte[]> getResponseSubscriber();
 
     void disposeChain();
-
 }

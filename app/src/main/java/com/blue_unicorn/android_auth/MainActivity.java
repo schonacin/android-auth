@@ -8,7 +8,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.util.Base64;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -31,16 +36,27 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
 
     private boolean mBound;
+    private static final byte[] RAW_MAKE_CREDENTIAL_REQUEST = Base64.decode("AaUBWCDMVG/Vi0CDgAtgnuEKnn1oM9yeVFNAkbx+pfadNopNfAKiYmlka3dlYmF1dGhuLmlvZG5hbWVrd2ViYXV0aG4uaW8Do2JpZEq3mQEAAAAAAAAAZG5hbWVkVXNlcmtkaXNwbGF5TmFtZWR1c2VyBIqiY2FsZyZkdHlwZWpwdWJsaWMta2V5omNhbGc4ImR0eXBlanB1YmxpYy1rZXmiY2FsZzgjZHR5cGVqcHVibGljLWtleaJjYWxnOQEAZHR5cGVqcHVibGljLWtleaJjYWxnOQEBZHR5cGVqcHVibGljLWtleaJjYWxnOQECZHR5cGVqcHVibGljLWtleaJjYWxnOCRkdHlwZWpwdWJsaWMta2V5omNhbGc4JWR0eXBlanB1YmxpYy1rZXmiY2FsZzgmZHR5cGVqcHVibGljLWtleaJjYWxnJ2R0eXBlanB1YmxpYy1rZXkFgA==", Base64.DEFAULT);
+    private static final byte[] RAW_GET_ASSERTION_REQUEST_WITH_EXTENSION_PARAMETER = Base64.decode("AqQBa3dlYmF1dGhuLmlvAlggaHE0loIi7BcgLkJQX47SsWriLxa7BbiMJdueYCZF8UEEoXgZY29udGludW91c19hdXRoZW50aWNhdGlvbhknEAWhYnV29Q==", Base64.DEFAULT);
+
+    public boolean getAssertionContinuous = false;
+    private Button bindGetInfoMakeCredentialButton;
+    public ToggleButton bindGetAssertionContinuousButton;
+    private ToggleButton bindFidoAuthServiceToggleButton;
+
     private FidoAuthService fidoAuthService;
+
+    private AuthenticatorZ authenticatorZ;
 
     private RxPermissions rxPermissions;
     private ConstraintLayout constraintLayout;
-    private ToggleButton bindFidoAuthServiceToggleButton;
     private Snackbar errorSnackbar;
+    private ContAuthMockClient mockClient;
     private ServiceConnection mConnection = new ServiceConnection() {
 
         public void onServiceConnected(ComponentName className, IBinder service) {
             fidoAuthService = ((FidoAuthServiceBinder) service).getService();
+            mockClient = new ContAuthMockClient(new Handler(Looper.getMainLooper()), fidoAuthService, MainActivity.this);
             mBound = true;
 
             fidoAuthService.getErrors().observe(MainActivity.this, throwable -> {
@@ -56,6 +72,15 @@ public class MainActivity extends AppCompatActivity {
     };
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -63,18 +88,14 @@ public class MainActivity extends AppCompatActivity {
         rxPermissions = new RxPermissions(this);
         constraintLayout = findViewById(R.id.coordinatorLayout);
         bindFidoAuthServiceToggleButton = findViewById(R.id.advertiseServicesToggleButton);
+        bindGetInfoMakeCredentialButton = findViewById(R.id.getInfoMakeCredentialButton);
+        bindGetAssertionContinuousButton = findViewById(R.id.ContinuousGetAssertionButton);
         errorSnackbar = Snackbar.make(constraintLayout, R.string.error_unknown, Snackbar.LENGTH_SHORT);
+        authenticatorZ = new AuthenticatorZ(this);
 
         bindFidoAuthServiceToggleButton.setOnClickListener(v -> toggleServiceConnection());
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mBound) {
-            unbindService(mConnection);
-            mBound = false;
-        }
+        bindGetInfoMakeCredentialButton.setOnClickListener(v -> mockClient.sendGetInfoAndMakeCredential());
+        bindGetAssertionContinuousButton.setOnClickListener(v -> toggleGetAssertionContinuous());
     }
 
     @Override
@@ -97,8 +118,19 @@ public class MainActivity extends AppCompatActivity {
             case IntentAction.CTAP_APPROVE_NOTIFICATION_FOR_AUTHENTICATION:
             case IntentAction.CTAP_PERFORM_AUTHENTICATION:
                 // TODO: Put call to custom authentication here and call handleCustomAuthentication with result
-                boolean result = true;
-                fidoAuthService.handleUserInteraction(result);
+                Timber.d("AUTHENTICATION REQUESTED VIA INTENT");
+                Timber.d(String.valueOf(intent.getExtras()));
+                Integer freshness = intent.getExtras() == null ? null : (Integer)intent.getExtras().get(IntentExtra.AUTHENTICATION_FRESHNESS);
+                boolean authenticated;
+                if (freshness != null) {
+                    authenticated = authenticatorZ.isInAuthenticationInterval(freshness);
+                } else {
+                    authenticated = authenticatorZ.authenticate();
+                }
+                fidoAuthService.handleUserInteraction(authenticated);
+                break;
+            case IntentAction.CHECK_FOR_CONTINUOUS_AUTHENTICATION:
+                fidoAuthService.handleUserInteraction(authenticatorZ.hasContinuousAuthenticationSupport());
                 break;
             default:
                 break;
@@ -110,10 +142,25 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, FidoAuthService.class);
             intent.putExtra(IntentExtra.ACTIVITY_CLASS, MainActivity.class);
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            findViewById(R.id.frameLayout).setVisibility(View.VISIBLE);
+            authenticatorZ.initiateAuthentication();
             mBound = true;
         } else {
             unbindService(mConnection);
+            findViewById(R.id.frameLayout).setVisibility(View.INVISIBLE);
             mBound = false;
+        }
+    }
+
+    private void toggleGetAssertionContinuous() {
+        if (!getAssertionContinuous) {
+            Timber.d("Starting to send getAssertion continuously");
+            mockClient.startGetAssertionContinuous(9000);
+            getAssertionContinuous = true;
+        } else {
+            Timber.d("Stopped Continuous getAssertions");
+            mockClient.stopGetAssertionContinuous();
+            getAssertionContinuous = false;
         }
     }
 
