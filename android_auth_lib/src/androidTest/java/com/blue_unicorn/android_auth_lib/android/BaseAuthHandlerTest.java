@@ -94,8 +94,17 @@ public class BaseAuthHandlerTest {
                 .apply();
     }
 
+    private void setSharedPreferences(@UserPreference String preference, boolean value) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        sharedPreferences
+                .edit()
+                .putBoolean(preference, value)
+                .apply();
+    }
+
     @Test
     public void getInfo_runsThrough() {
+        setSharedPreferences(UserPreference.CONTINUOUS_AUTHENTICATION_SUPPORT, false);
         when(bleHandler.getMtu()).thenReturn(20);
         when(bleHandler.getIncomingBleData()).thenReturn(Observable.just(RAW_GET_INFO));
 

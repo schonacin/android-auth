@@ -1,10 +1,13 @@
 package com.blue_unicorn.android_auth_lib;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Base64;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.blue_unicorn.android_auth_lib.android.constants.UserPreference;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.APIHandler;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.BaseAPIHandler;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.CredentialSafe;
@@ -56,10 +59,11 @@ public class BaseAPIHandlerTest {
     private CborHandler cborHandler;
     private APIHandler apiHandler;
     private CredentialSafe credentialSafe;
+    private Context context;
 
     @Before
     public void setUp() {
-        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         this.cborHandler = new BaseCborHandler();
         this.apiHandler = new BaseAPIHandler(context);
         this.credentialSafe = new CredentialSafe(context, true);
@@ -79,6 +83,14 @@ public class BaseAPIHandlerTest {
     private Completable resetKeystoreAndDatabase() {
         return credentialSafe.getRxKeyStore().deleteAllEntries()
                 .andThen(credentialSafe.deleteAllCredentials());
+    }
+
+    private void setSharedPreferences(@UserPreference String preference, boolean value) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        sharedPreferences
+                .edit()
+                .putBoolean(preference, value)
+                .apply();
     }
 
     private Single<MakeCredentialRequest> initiateMakeCredential(byte[] request) {
@@ -257,6 +269,7 @@ public class BaseAPIHandlerTest {
 
     @Test
     public void getInfo_GoesThroughAPI() {
+        setSharedPreferences(UserPreference.CONTINUOUS_AUTHENTICATION_SUPPORT, false);
         completeGetInfo()
                 .test()
                 .assertNoErrors()
