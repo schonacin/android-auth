@@ -47,7 +47,7 @@ public class FidoAuthService extends Service {
     }
 
     public void handleUserInteraction(boolean approved) {
-        authHandler.getApiLayer().buildResponseChainAfterUserInteraction(approved);
+        authHandler.getApiLayer().updateAfterUserInteraction(approved);
     }
 
     public void closeNotification() {

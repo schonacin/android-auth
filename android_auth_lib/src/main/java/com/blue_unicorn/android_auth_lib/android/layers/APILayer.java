@@ -7,6 +7,6 @@ public interface APILayer {
 
     void buildNewRequestChain(byte[] input);
 
-    void buildResponseChainAfterUserInteraction(boolean isApproved);
+    void updateAfterUserInteraction(boolean isApproved);
 
 }

@@ -1,5 +1,7 @@
 package com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator;
 
+import androidx.annotation.Nullable;
+
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.authenticator.database.PublicKeyCredentialSource;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
 import com.upokecenter.cbor.CBORObject;
@@ -98,7 +100,7 @@ final class AuthenticatorHelper {
                 });
     }
 
-    Single<byte[]> constructAuthenticatorData(byte[] rpIdHash, byte[] attestedCredentialData) {
+    Single<byte[]> constructAuthenticatorData(byte[] rpIdHash, @Nullable byte[] attestedCredentialData) {
         return Single.defer(() -> {
             if (rpIdHash.length != 32) {
                 return Single.error(new AuthLibException("rpIdHash must be a 32-byte SHA-256 hash"));
@@ -109,7 +111,7 @@ final class AuthenticatorHelper {
             if (this.credentialSafe.supportsUserVerification()) {
                 flags |= (0x01 << 2); // user verified
             }
-            if (attestedCredentialData != null) {
+            if (attestedCredentialData != null && attestedCredentialData.length > 0) {
                 flags |= (0x01 << 6); // attested credential data included
             }
 
