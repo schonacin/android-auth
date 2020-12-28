@@ -11,7 +11,7 @@ We also did not implement the complete Authenticator API described in the CTAP2 
 
 ## Compatibility
 For general information on compatibility of different operating systems, browsers and CTAP2 transports (USB/NFC/BLE), see [this repo](https://github.com/apowers313/fido2-webauthn-status). 
-We successfully tested the Android authenticator with an up-to-date Firefox on Windows 10.
+We successfully tested the Android authenticator with an up-to-date Firefox on Windows 10. For other setups we cannot guarantee that it works (mostly due to bluetooth related issues) and even the tested setup might not work in the future due to changes by Mozilla or Microsoft in their products.
 
 ## Usage
 We implement an Android service called ```FidoAuthService``` that encapsulates the behavior described by the CTAP2 specification. If the app using this service checks for user approval (e.g. via button press or using a fingerprint reader), this can be done by reacting to an intend coming from the service. See the "fidonuous" branch for an example.
