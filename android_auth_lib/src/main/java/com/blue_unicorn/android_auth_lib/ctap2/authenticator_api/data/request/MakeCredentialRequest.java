@@ -15,7 +15,7 @@ import java.util.Map;
  * Represents the parameters for the authenticatorMakeCredential method.
  * See <a href="https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#authenticatorMakeCredential">specification</a>
  */
-public interface MakeCredentialRequest extends RequestObject, Excludable, Approvable, Validatable {
+public interface MakeCredentialRequest extends RequestObject, Excludable, Validatable {
 
     byte[] getClientDataHash();
 

@@ -6,14 +6,13 @@ import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.G
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.GetInfoResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.MakeCredentialResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.ResponseObject;
+import com.blue_unicorn.android_auth_lib.ctap2.constants.StatusCode;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
 
 import io.reactivex.rxjava3.core.Single;
 
 final class ResponseBuilder {
-
-    private static final byte[] CTAP1_ERR_SUCCESS = new byte[]{0x00};
 
     private ResponseBuilder() {
     }
@@ -39,6 +38,6 @@ final class ResponseBuilder {
 
     @NonNull
     private static Single<byte[]> prependSuccessStatus(byte[] encodedData) {
-        return Single.fromCallable(() -> ArrayUtil.concatBytes(CTAP1_ERR_SUCCESS, encodedData));
+        return Single.fromCallable(() -> ArrayUtil.concatBytes(new byte[]{StatusCode.CTAP2_OK}, encodedData));
     }
 }

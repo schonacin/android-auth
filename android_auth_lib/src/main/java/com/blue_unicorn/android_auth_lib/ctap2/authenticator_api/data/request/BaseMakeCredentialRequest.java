@@ -77,6 +77,6 @@ public class BaseMakeCredentialRequest implements MakeCredentialRequest {
     }
 
     public boolean isValid() {
-        return (clientDataHash != null && rp.isValid() && user.isValid());
+        return (clientDataHash != null && rp != null && rp.isValid() && user != null && user.isValid() && pubKeyCredParams != null);
     }
 }

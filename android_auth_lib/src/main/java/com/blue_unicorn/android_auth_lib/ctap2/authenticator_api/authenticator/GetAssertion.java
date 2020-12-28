@@ -5,21 +5,26 @@ import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.request.Ge
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.BaseGetAssertionResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.response.GetAssertionResponse;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.BasePublicKeyCredentialDescriptor;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.BasePublicKeyCredentialUserEntity;
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialDescriptor;
+import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialUserEntity;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.AuthLibException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidOptionException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.MissingParameterException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.NoCredentialsException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.OperationDeniedException;
-import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.OtherException;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
-import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
+import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
+import com.nexenio.rxkeystore.provider.signature.RxSignatureProvider;
 
 import java.security.PrivateKey;
+import java.util.Arrays;
 import java.util.Map;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
+import timber.log.Timber;
 
 /**
  * Represents the authenticatorGetAssertion method.
@@ -28,7 +33,7 @@ import io.reactivex.rxjava3.core.Single;
 public class GetAssertion {
 
     private CredentialSafe credentialSafe;
-    private RxAsymmetricCryptoProvider rxCryptoProvider;
+    private RxSignatureProvider rxSignatureProvider;
     private AuthenticatorHelper helper;
     private GetAssertionRequest request;
     private Single<PublicKeyCredentialSource> selectedCredential;
@@ -36,7 +41,7 @@ public class GetAssertion {
 
     public GetAssertion(CredentialSafe credentialSafe, GetAssertionRequest request) {
         this.credentialSafe = credentialSafe;
-        this.rxCryptoProvider = this.credentialSafe.getRxCryptoProvider();
+        this.rxSignatureProvider = this.credentialSafe.getRxSignatureProvider();
         this.request = request;
         this.helper = new AuthenticatorHelper(this.credentialSafe);
     }
@@ -65,19 +70,24 @@ public class GetAssertion {
             if (request.isValid()) {
                 return Completable.complete();
             } else {
-                // TODO: change to respective error
-                return Completable.error(OtherException::new);
+                return Completable.error(MissingParameterException::new);
             }
         });
     }
 
     private boolean isInAllowedCredentialIds(byte[] id) {
+        Timber.d("Checking credential id %s for existence in allow list", ValueUtil.bytesToHex(id));
         if (request.getAllowList() == null) {
             // if the allow list is non existent, all credentials are valid
+            Timber.d("\tAllow list is null, any key is valid!");
             return true;
         }
+        Timber.d("\tAllow list size: %s", request.getAllowList().size());
+        Timber.d("\tComparing each entry with credential id in allow list");
         for (PublicKeyCredentialDescriptor descriptor : request.getAllowList()) {
-            if (descriptor.getId() == id) {
+            Timber.d("\t\tComparing %s with %s", ValueUtil.bytesToHex(descriptor.getId()), ValueUtil.bytesToHex(id));
+            if (Arrays.equals(descriptor.getId(), id)) {
+                Timber.d("\t\tId found!");
                 return true;
             }
         }
@@ -85,6 +95,8 @@ public class GetAssertion {
     }
 
     private Completable checkForCredentials() {
+        Timber.d("Select credentials to use for get assertion based on rp id and credentials source id");
+        Timber.d("\tRpId: %s", request.getRpId());
         return credentialSafe.getKeysForEntity(request.getRpId())
                 .filter(credentialSource -> isInAllowedCredentialIds(credentialSource.id))
                 .toList()
@@ -131,7 +143,7 @@ public class GetAssertion {
                 this.selectedCredential =
                         Single.defer(() -> {
                             if (!request.getSelectedCredentials().isEmpty()) {
-                                // TODO: do we handle getNextAssertion? taking the first credential for now
+                                // TODO: HANDLE GET_NEXT_ASSERTION
                                 return Single.just(request.getSelectedCredentials().get(0));
                             } else {
                                 return Single.error(new AuthLibException("no selected credentials"));
@@ -146,6 +158,12 @@ public class GetAssertion {
         return getSelectedCredential()
                 .map(PublicKeyCredentialSource::getId)
                 .map(BasePublicKeyCredentialDescriptor::new);
+    }
+
+    private Single<PublicKeyCredentialUserEntity> getUserEntity() {
+        return getSelectedCredential()
+                .map(PublicKeyCredentialSource::getUserHandle)
+                .map(BasePublicKeyCredentialUserEntity::new);
     }
 
     private Single<byte[]> getAuthenticatorData() {
@@ -169,14 +187,13 @@ public class GetAssertion {
                     .map(PublicKeyCredentialSource::getKeyPairAlias)
                     .flatMap(credentialSafe::getPrivateKeyByAlias);
 
-            return Single.zip(dataToSign, privateKey, rxCryptoProvider::sign)
+            return Single.zip(dataToSign, privateKey, rxSignatureProvider::sign)
                     .flatMap(x -> x);
         });
     }
 
     private Single<GetAssertionResponse> constructResponse() {
-        // TODO: add UserEntity??
-        return Single.zip(constructCredentialDescriptor(), getAuthenticatorData(), generateSignature(), BaseGetAssertionResponse::new);
+        return Single.zip(constructCredentialDescriptor(), getAuthenticatorData(), generateSignature(), getUserEntity(), BaseGetAssertionResponse::new);
     }
 
 }

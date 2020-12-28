@@ -17,4 +17,5 @@ public abstract class BaseFragment implements Fragment {
     public byte[] getDATA() {
         return DATA;
     }
+
 }

@@ -10,11 +10,12 @@ import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.P
 import com.blue_unicorn.android_auth_lib.ctap2.authenticator_api.data.webauthn.PublicKeyCredentialParameter;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.CredentialExcludedException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.InvalidOptionException;
+import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.MissingParameterException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.OperationDeniedException;
-import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.OtherException;
 import com.blue_unicorn.android_auth_lib.ctap2.exceptions.status_codes.UnsupportedAlgorithmException;
 import com.blue_unicorn.android_auth_lib.util.ArrayUtil;
-import com.nexenio.rxkeystore.provider.asymmetric.RxAsymmetricCryptoProvider;
+import com.nexenio.rxandroidbleserver.service.value.ValueUtil;
+import com.nexenio.rxkeystore.provider.signature.RxSignatureProvider;
 
 import java.security.PrivateKey;
 import java.util.Map;
@@ -22,6 +23,7 @@ import java.util.Map;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
+import timber.log.Timber;
 
 /**
  * Represents the authenticatorMakeCredential method.
@@ -30,7 +32,7 @@ import io.reactivex.rxjava3.core.Single;
 public class MakeCredential {
 
     private CredentialSafe credentialSafe;
-    private RxAsymmetricCryptoProvider rxCryptoProvider;
+    private RxSignatureProvider rxSignatureProvider;
     private MakeCredentialRequest request;
     private AuthenticatorHelper helper;
     private Single<PublicKeyCredentialSource> generatedCredential;
@@ -38,7 +40,7 @@ public class MakeCredential {
 
     public MakeCredential(CredentialSafe credentialSafe, MakeCredentialRequest request) {
         this.credentialSafe = credentialSafe;
-        this.rxCryptoProvider = this.credentialSafe.getRxCryptoProvider();
+        this.rxSignatureProvider = this.credentialSafe.getRxSignatureProvider();
         this.request = request;
         this.helper = new AuthenticatorHelper(this.credentialSafe);
     }
@@ -69,7 +71,7 @@ public class MakeCredential {
             if (request.isValid()) {
                 return Completable.complete();
             } else {
-                return Completable.error(OtherException::new);
+                return Completable.error(MissingParameterException::new);
             }
         });
     }
@@ -175,7 +177,7 @@ public class MakeCredential {
                     .map(PublicKeyCredentialSource::getKeyPairAlias)
                     .flatMap(credentialSafe::getPrivateKeyByAlias);
 
-            return Single.zip(dataToSign, privateKey, rxCryptoProvider::sign)
+            return Single.zip(dataToSign, privateKey, rxSignatureProvider::sign)
                     .flatMap(x -> x);
         });
     }
@@ -186,6 +188,12 @@ public class MakeCredential {
     }
 
     private Single<MakeCredentialResponse> constructResponse() {
+        Single<byte[]> authenticatorData = getAuthenticatorData();
+        Single<AttestationStatement> attestationStatementSingle = constructAttestationStatement();
+
+        Timber.d("Constructing MakeCredential Response by zipping authenticator data and attestation statement");
+        Timber.d("\tAuthenticator data: %s", ValueUtil.bytesToHex(authenticatorData.blockingGet()));
+        Timber.d("\tAttestation Statement: %s", attestationStatementSingle.blockingGet().toString());
         return Single.zip(getAuthenticatorData(), constructAttestationStatement(), BaseMakeCredentialResponse::new);
     }
 }

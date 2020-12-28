@@ -201,11 +201,9 @@ public class BaseCborHandlerTest {
         PublicKeyCredentialDescriptor credential = new BasePublicKeyCredentialDescriptor("public-key", Base64.decode("EjRWeJCrze8=", Base64.DEFAULT));
         byte[] authData = Base64.decode("EjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnir", Base64.DEFAULT); //141 bytes
         byte[] sig = Base64.decode("GhoaGhoaGhoaGhoaGhorKysrKys=", Base64.DEFAULT);
+        PublicKeyCredentialUserEntity user = new BasePublicKeyCredentialUserEntity(Base64.decode("EjRWeJCrze8SNFZ4kKvN7w==", Base64.DEFAULT));
 
-        GetAssertionResponse response = new BaseGetAssertionResponse(credential, authData, sig);
-
-        PublicKeyCredentialUserEntity publicKeyCredentialUserEntity = new BasePublicKeyCredentialUserEntity(Base64.decode("EjRWeJCrze8SNFZ4kKvN7w==", Base64.DEFAULT));
-        response.setPublicKeyCredentialUserEntity(publicKeyCredentialUserEntity);
+        GetAssertionResponse response = new BaseGetAssertionResponse(credential, authData, sig, user);
 
         final byte[] ENCODED_GET_ASSERTION_RESPONSE = Base64.decode("AKQBomJpZEgSNFZ4kKvN72R0eXBlanB1YmxpYy1rZXkCWI0SNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKvN71cSNFZ4q83vVxI0Vnirze9XEjRWeKsDVBoaGhoaGhoaGhoaGhoaKysrKysrBKFiaWRQEjRWeJCrze8SNFZ4kKvN7w==", Base64.DEFAULT);
 
